@@ -1,0 +1,3 @@
+{
+  "extends": "@medical-system/config/tsconfig.base.json"
+}

@@ -1,0 +1,32 @@
+{
+  "name": "medical-system",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:web": "turbo -F web dev",
+    "dev:server": "turbo -F server dev",
+    "db:push": "turbo -F @medical-system/db db:push",
+    "db:studio": "turbo -F @medical-system/db db:studio",
+    "db:generate": "turbo -F @medical-system/db db:generate",
+    "db:migrate": "turbo -F @medical-system/db db:migrate"
+  },
+  "dependencies": {
+    "@medical-system/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@medical-system/config": "workspace:*",
+    "@types/node": "catalog:",
+    "turbo": "^2.8.12",
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@11.1.2"
+}
