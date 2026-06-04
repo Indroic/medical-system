@@ -1,0 +1,65 @@
+[project]
+name = "api"
+version = "0.1.0"
+description = "Sistema de Analisis de Tomografias - API Backend"
+requires-python = ">=3.14"
+
+dependencies = [
+    # Framework principal
+    "hexcore>=2.0.1",
+    "fastapi[standard]>=0.115.0",
+
+    # Base de datos
+    "sqlalchemy[asyncio]>=2.0.0",
+    "aiosqlite>=0.20.0",       # Driver async para SQLite (dev)
+    "asyncpg>=0.30.0",         # Driver async para PostgreSQL (prod)
+    "alembic>=1.18.0",
+
+    # Almacenamiento asíncrono de archivos
+    "aiofiles>=24.1.0",
+
+    # Autenticación JWT
+    "PyJWT>=2.10.0",
+
+    # Generación de PDF
+    "reportlab>=4.0.0",
+
+    # Utilidades
+    "python-multipart>=0.0.20",  # Soporte multipart/form-data en FastAPI
+]
+
+[project.optional-dependencies]
+ia = [
+    # Inferencia YOLO — instalación separada por tamaño/dependencias GPU
+    "ultralytics>=8.3.0",
+    "opencv-python>=4.10.0",
+]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.27.0",           # Cliente async para TestClient de FastAPI
+    "pytest-cov>=6.0.0",
+    "ruff>=0.9.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.uv]
+python-preference = "only-managed"
