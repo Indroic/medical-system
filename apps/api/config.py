@@ -2,6 +2,14 @@ from pathlib import Path
 
 from pydantic import ConfigDict
 
+# Patch para evitar cargar async_typer (y por ende typer.clear) que rompe la app
+import sys
+from types import ModuleType
+if "async_typer" not in sys.modules:
+    mock_async_typer = ModuleType("async_typer")
+    mock_async_typer.AsyncTyper = type("AsyncTyper", (), {})
+    sys.modules["async_typer"] = mock_async_typer
+
 from hexcore.config import ServerConfig
 from hexcore.domain.events import IEventDispatcher
 from hexcore.infrastructure.cache import ICache
