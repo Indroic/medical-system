@@ -3,7 +3,7 @@ from uuid import UUID
 
 from hexcore.domain.services import BaseDomainService
 
-from .entities import AnalisisTomografia
+from .entities import AnalisisResonancia
 from .exceptions import ImagenNoAccesibleException
 from .ports import IModeloInferenciaAdapter
 from .repositories import IAnalisisRepository
@@ -21,11 +21,11 @@ class AnalizadorDomainService(BaseDomainService):
 
     async def ejecutar_inferencia(
         self, estudio_id: UUID, imagen_path: str
-    ) -> AnalisisTomografia:
+    ) -> AnalisisResonancia:
         if not Path(imagen_path).exists():
             raise ImagenNoAccesibleException(imagen_path)
 
-        analisis = AnalisisTomografia(
+        analisis = AnalisisResonancia(
             estudio_id=estudio_id,
             imagen_path=imagen_path,
         )

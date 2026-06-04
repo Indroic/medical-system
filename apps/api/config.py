@@ -25,7 +25,7 @@ class ProjectConfig(ServerConfig):
     access_token_expire_minutes: int = 30
 
     # YOLO / IA
-    yolo_model_path: str = "models/yolo_tomografia.pt"
+    yolo_model_path: str = "models/yolo_resonancia.pt"
 
     # CORS
     allow_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]

@@ -8,7 +8,7 @@ from hexcore.infrastructure.repositories.implementations import (
 from hexcore.types import FieldResolversType, FieldSerializersType
 from sqlalchemy import select
 
-from ..domain.entities import AnalisisTomografia
+from ..domain.entities import AnalisisResonancia
 from ..domain.exceptions import AnalisisNotFoundException
 from ..domain.repositories import IAnalisisRepository
 from ..domain.value_objects import CoordenadasBBox, Hallazgo
@@ -34,15 +34,15 @@ async def _resolver_hallazgos(model: "AnalisisModel") -> list[Hallazgo]:
 
 
 class AnalisisRepositoryImpl(
-    SQLAlchemyCommonImplementationsRepo[AnalisisTomografia, AnalisisModel],
+    SQLAlchemyCommonImplementationsRepo[AnalisisResonancia, AnalisisModel],
     IAnalisisRepository,
 ):
     def __init__(self, uow: IUnitOfWork) -> None:
         super().__init__(uow)
 
     @property
-    def entity_cls(self) -> type[AnalisisTomografia]:
-        return AnalisisTomografia
+    def entity_cls(self) -> type[AnalisisResonancia]:
+        return AnalisisResonancia
 
     @property
     def model_cls(self) -> type[AnalisisModel]:
@@ -75,7 +75,7 @@ class AnalisisRepositoryImpl(
             ))
         }
 
-    async def get_by_estudio(self, estudio_id) -> AnalisisTomografia | None:
+    async def get_by_estudio(self, estudio_id) -> AnalisisResonancia | None:
         session = self.uow.session  # type: ignore[attr-defined]
         result = await session.execute(
             select(AnalisisModel).where(AnalisisModel.estudio_id == str(estudio_id))

@@ -6,7 +6,7 @@ from .events import AnalisisCompletadoEvent
 from .value_objects import Hallazgo
 
 
-class AnalisisTomografia(BaseEntity):
+class AnalisisResonancia(BaseEntity):
     """Raiz de agregado del proceso de inferencia.
     id, created_at, updated_at, is_active provistos por BaseEntity."""
 

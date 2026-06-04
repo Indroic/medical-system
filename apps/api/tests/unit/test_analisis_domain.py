@@ -1,12 +1,12 @@
 import pytest
 from uuid import uuid4
 
-from src.features.analizador.domain.entities import AnalisisTomografia
+from src.features.analizador.domain.entities import AnalisisResonancia
 from src.features.analizador.domain.value_objects import CoordenadasBBox, Hallazgo
 
 
 def test_evaluar_severidad_sin_hallazgos():
-    analisis = AnalisisTomografia(estudio_id=uuid4(), imagen_path="/dummy/path")
+    analisis = AnalisisResonancia(estudio_id=uuid4(), imagen_path="/dummy/path")
     analisis.registrar_resultados([])
     
     assert analisis.nivel_riesgo == "BAJO"
@@ -14,7 +14,7 @@ def test_evaluar_severidad_sin_hallazgos():
 
 
 def test_evaluar_severidad_con_hallazgo_critico_alta_confianza():
-    analisis = AnalisisTomografia(estudio_id=uuid4(), imagen_path="/dummy/path")
+    analisis = AnalisisResonancia(estudio_id=uuid4(), imagen_path="/dummy/path")
     hallazgo = Hallazgo(
         etiqueta="tumor",
         confianza=0.90,
@@ -32,7 +32,7 @@ def test_evaluar_severidad_con_hallazgo_critico_alta_confianza():
 
 
 def test_evaluar_severidad_con_multiples_hallazgos_moderados():
-    analisis = AnalisisTomografia(estudio_id=uuid4(), imagen_path="/dummy/path")
+    analisis = AnalisisResonancia(estudio_id=uuid4(), imagen_path="/dummy/path")
     hallazgos = [
         Hallazgo(etiqueta="calcificacion", confianza=0.60, bbox=CoordenadasBBox(0,0,1,1)),
         Hallazgo(etiqueta="cicatriz", confianza=0.60, bbox=CoordenadasBBox(0,0,1,1)),

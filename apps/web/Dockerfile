@@ -25,15 +25,8 @@ FROM nginx:alpine AS runner
 # Copiar la aplicación compilada
 COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
 
-# Inyectar configuración para soporte SPA (Single Page Application)
-RUN echo 'server { \
-    listen 80; \
-    location / { \
-        root /usr/share/nginx/html; \
-        index index.html index.htm; \
-        try_files $uri $uri/ /index.html; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
+# Copiar la configuración personalizada del proxy inverso
+COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 

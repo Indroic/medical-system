@@ -2,12 +2,12 @@ import { useRef, useState } from "react";
 
 import type { HallazgoDTO } from "@/lib/python-api";
 
-interface CtViewerProps {
+interface MriViewerProps {
   imagePath: string;
   hallazgos?: HallazgoDTO[];
 }
 
-export default function CtViewer({ imagePath, hallazgos = [] }: CtViewerProps) {
+export default function MriViewer({ imagePath, hallazgos = [] }: MriViewerProps) {
   const imgRef = useRef<HTMLImageElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0, nw: 0, nh: 0 });
 
@@ -30,7 +30,7 @@ export default function CtViewer({ imagePath, hallazgos = [] }: CtViewerProps) {
       <img
         ref={imgRef}
         src={imagePath}
-        alt="Tomografía CT"
+        alt="Resonancia MRI"
         onLoad={handleLoad}
         className="block max-h-[480px] w-auto"
       />

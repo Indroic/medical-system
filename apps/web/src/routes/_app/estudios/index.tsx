@@ -52,7 +52,7 @@ function EstudiosList() {
           <div className="rounded-[14px] border border-hairline p-12 text-center">
             <p className="text-[14px] font-medium text-graphite mb-2">Sin estudios</p>
             <p className="text-[13px] text-concrete mb-6">
-              Sube el primer estudio de tomografía para comenzar el análisis.
+              Sube el primer estudio de resonancia magnética (MRI) para comenzar el análisis.
             </p>
             <button
               type="button"

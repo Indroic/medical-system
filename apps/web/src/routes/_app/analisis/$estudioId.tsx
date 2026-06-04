@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import CtViewer from "@/components/ct-viewer";
+import MriViewer from "@/components/mri-viewer";
 import PageHeader from "@/components/page-header";
 import RiesgoBadge from "@/components/riesgo-badge";
 import { useAuthStore } from "@/lib/auth-store";
@@ -85,14 +85,14 @@ function AnalisisDetail() {
       <div className="mt-6 grid grid-cols-[auto_1fr] gap-6 items-start">
         {/* CT viewer */}
         {estudio?.imagen_path && (
-          <CtViewer imagePath={estudio.imagen_path} hallazgos={analisis.hallazgos} />
+          <MriViewer imagePath={estudio.imagen_path} hallazgos={analisis.hallazgos} />
         )}
 
         {/* Findings table */}
         <div>
           {analisis.hallazgos.length === 0 ? (
             <div className="rounded-[14px] border border-hairline p-8 text-center text-[13px] text-concrete">
-              No se encontraron hallazgos en esta tomografía.
+              No se encontraron hallazgos en esta resonancia magnética.
             </div>
           ) : (
             <div className="rounded-[14px] border border-hairline overflow-hidden">

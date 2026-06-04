@@ -1,6 +1,7 @@
 from hexcore.application.use_cases.base import UseCase
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
+from ...domain.entities import AnalisisResonancia
 from ...domain.services import AnalizadorDomainService
 from ..dtos import AnalisisResponse, EjecutarInferenciaCommand, HallazgoDTO
 

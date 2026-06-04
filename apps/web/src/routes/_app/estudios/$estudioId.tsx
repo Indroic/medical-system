@@ -90,7 +90,7 @@ function EstudioDetail() {
             {estudio.imagen_path ? (
               <img
                 src={estudio.imagen_path}
-                alt="Tomografía"
+                alt="Resonancia Magnética"
                 className="max-h-[480px] w-auto object-contain"
               />
             ) : (

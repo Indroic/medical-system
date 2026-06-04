@@ -43,8 +43,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Sistema de Analisis de Tomografias",
-    description="API REST para gestion y analisis de estudios de tomografia computarizada.",
+    title="Sistema de Analisis de Resonancias",
+    description="API REST para gestion y analisis de estudios de resonancia magnética.",
     version="1.0.0",
     lifespan=lifespan,
 )

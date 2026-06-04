@@ -29,7 +29,7 @@ class ReportLabPDFAdapter(IGeneradorPDFAdapter):
         pdf_path = self._output_dir / f"reporte_{reporte.id}.pdf"
         c = canvas.Canvas(str(pdf_path), pagesize=letter)
         c.setFont("Helvetica-Bold", 16)
-        c.drawString(72, 750, "Reporte de Analisis de Tomografia")
+        c.drawString(72, 750, "Reporte de Analisis de Resonancia Magnetica")
         c.setFont("Helvetica", 12)
         c.drawString(72, 720, f"Estudio ID: {reporte.estudio_id}")
         c.drawString(72, 700, f"Nivel de Riesgo: {reporte.nivel_riesgo}")

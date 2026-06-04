@@ -1,7 +1,7 @@
 import pytest
 from uuid import uuid4
 
-from src.features.analizador.domain.entities import AnalisisTomografia
+from src.features.analizador.domain.entities import AnalisisResonancia
 from src.features.analizador.domain.value_objects import CoordenadasBBox, Hallazgo
 from src.features.analizador.infrastructure.repositories import AnalisisRepositoryImpl
 from src.features.estudios.domain.entities import Estudio
@@ -37,7 +37,7 @@ async def test_estudio_repository_serialization(uow):
 @pytest.mark.asyncio
 async def test_analisis_repository_serialization(uow):
     """Prueba que la lista de Hallazgo (VOs) se serializa a JSON de forma híbrida."""
-    analisis = AnalisisTomografia(
+    analisis = AnalisisResonancia(
         estudio_id=uuid4(),
         imagen_path="/tmp/test.png"
     )

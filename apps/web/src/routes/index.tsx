@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 const CAPABILITIES = [
   {
     label: "Ingesta de estudios",
-    description: "Carga imágenes DICOM o PNG de tomografías asociadas a pacientes registrados.",
+    description: "Carga imágenes DICOM o PNG de resonancias magnéticas asociadas a pacientes registrados.",
   },
   {
     label: "Análisis IA",
@@ -35,7 +35,7 @@ function HomeComponent() {
             <br />System
           </h1>
           <p className="text-[16px] text-concrete leading-relaxed mb-10 max-w-md">
-            Plataforma de análisis de tomografías computarizadas con inteligencia artificial.
+            Plataforma de análisis de resonancias magnéticas con inteligencia artificial.
             Gestión de pacientes, estudios y reportes clínicos.
           </p>
           <Link
