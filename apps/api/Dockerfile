@@ -12,8 +12,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-# Asegurar que uv instale dependencias en el entorno del sistema y no en un .venv local
-ENV UV_PROJECT_ENVIRONMENT="/usr/local"
+# Permitir que uv cree su propio entorno virtual (.venv) y agregarlo al PATH
+ENV PATH="/app/apps/api/.venv/bin:$PATH"
 
 # Copiar archivos de configuración primero para aprovechar la caché de capas de Docker
 COPY apps/api/pyproject.toml apps/api/uv.lock ./apps/api/
