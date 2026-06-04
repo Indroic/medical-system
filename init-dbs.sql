@@ -1,0 +1,2 @@
+CREATE DATABASE api_db;
+CREATE DATABASE server_db;

@@ -6,7 +6,7 @@ from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
 from src.features.usuarios.application.dtos import UserResponse
 from src.features.usuarios.infrastructure.api.dependencies import get_current_user
-from src.shared.infrastructure.database import async_session_factory
+import src.shared.infrastructure.database as shared_db
 
 from ...domain.exceptions import ReporteNotFoundException
 from ...infrastructure.repositories import ReporteRepositoryImpl
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/reportes", tags=["reportes"])
 
 
 async def get_uow() -> SqlAlchemyUnitOfWork:
-    async with async_session_factory() as session:
+    async with shared_db.async_session_factory() as session:
         yield SqlAlchemyUnitOfWork(session=session)
 
 

@@ -2,7 +2,7 @@ from hexcore.application.use_cases.base import UseCase
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
 from ...domain.services import EstudioService
-from ...domain.value_objects import Paciente
+
 from ..dtos import EstudioResponse, RecepcionarEstudioCommand
 
 
@@ -23,16 +23,9 @@ class RecepcionarEstudioUseCase(UseCase[RecepcionarEstudioCommand, EstudioRespon
         self._mime_type = mime_type
 
     async def execute(self, command: RecepcionarEstudioCommand) -> EstudioResponse:
-        paciente = Paciente(
-            nombre=command.paciente_nombre,
-            apellido=command.paciente_apellido,
-            fecha_nacimiento=command.paciente_fecha_nacimiento,
-            documento_identidad=command.paciente_documento,
-        )
-
         async with self.uow:
             estudio = await self.service.recepcionar_estudio(
-                paciente=paciente,
+                paciente_id=command.paciente_id,
                 nombre_archivo=self._archivo_nombre,
                 contenido=self._archivo_contenido,
                 mime_type=self._mime_type,
@@ -42,7 +35,7 @@ class RecepcionarEstudioUseCase(UseCase[RecepcionarEstudioCommand, EstudioRespon
 
         return EstudioResponse(
             id=estudio.id,
-            paciente_nombre_completo=estudio.paciente.nombre_completo,
+            paciente_id=estudio.paciente_id,
             imagen_path=estudio.imagen_path,
             mime_type=estudio.mime_type,
             estado=estudio.estado,

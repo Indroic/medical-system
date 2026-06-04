@@ -1,1 +1,69 @@
-@import "@medical-system/ui/globals.css";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+@import "@heroui/styles";
+
+/* Override HeroUI v3 semantic tokens → DESIGN.md achromatic palette */
+:root,
+[data-theme="light"] {
+  /* Accent → graphite (replaces default blue oklch accent) */
+  --accent: oklch(0.098 0 0); /* #0a0a0a */
+  --accent-foreground: oklch(1 0 0); /* #ffffff */
+  --accent-hover: oklch(0.171 0 0); /* #171717 */
+  --accent-soft: oklch(0.949 0 0); /* #f2f2f2 */
+  --accent-soft-foreground: oklch(0.098 0 0);
+
+  /* Surfaces → pure white */
+  --background: oklch(1 0 0); /* #ffffff */
+  --surface: oklch(1 0 0); /* #ffffff */
+  --surface-foreground: oklch(0.098 0 0);
+  --surface-secondary: oklch(0.949 0 0); /* #f2f2f2 */
+  --surface-tertiary: oklch(0.898 0 0); /* #e5e5e5 */
+
+  /* Overlay (modals, dropdowns) → white */
+  --overlay: oklch(1 0 0);
+  --overlay-foreground: oklch(0.098 0 0);
+
+  /* Default component fill → mist */
+  --default: oklch(0.949 0 0); /* #f2f2f2 */
+  --default-foreground: oklch(0.098 0 0);
+  --default-hover: oklch(0.898 0 0); /* #e5e5e5 */
+
+  /* Foreground */
+  --foreground: oklch(0.098 0 0); /* #0a0a0a */
+  --muted: oklch(0.459 0 0); /* #737373 */
+
+  /* Borders → hairline #e5e5e5 */
+  --border: oklch(0.898 0 0); /* #e5e5e5 */
+  --separator: oklch(0.898 0 0);
+
+  /* Form fields → 1px visible border */
+  --field-background: oklch(1 0 0);
+  --field-foreground: oklch(0.098 0 0);
+  --field-placeholder: oklch(0.459 0 0); /* #737373 */
+  --field-border: oklch(0.898 0 0); /* #e5e5e5 */
+  --field-border-width: 1px;
+
+  /* Focus ring → graphite (no chromatic blue) */
+  --focus: oklch(0.098 0 0);
+
+  /* Base radius → 10px (DESIGN.md buttons/inputs) */
+  --radius: 0.625rem; /* 10px */
+
+  /* Remove surface shadow — border-first, no elevation */
+  --surface-shadow: none;
+
+  /* Segment (tabs) */
+  --segment: oklch(0.949 0 0);
+  --segment-foreground: oklch(0.098 0 0);
+
+  /* Link color */
+  --link: oklch(0.098 0 0);
+
+  /* Status colors → desaturated versions of status */
+  --success: oklch(0.459 0 0);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.459 0 0);
+  --warning-foreground: oklch(1 0 0);
+  --danger: oklch(0.459 0 0);
+  --danger-foreground: oklch(1 0 0);
+}

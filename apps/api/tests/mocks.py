@@ -38,4 +38,6 @@ class MockPDFAdapter(IGeneradorPDFAdapter):
 class MockStorageAdapter(IArchivoStorageAdapter):
     @override
     async def guardar(self, nombre_archivo: str, contenido: bytes) -> str:
-        return f"/mock/uploads/{nombre_archivo}"
+        path = f"/tmp/{nombre_archivo}"
+        Path(path).write_bytes(contenido)
+        return path

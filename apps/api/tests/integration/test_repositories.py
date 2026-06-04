@@ -5,21 +5,15 @@ from src.features.analizador.domain.entities import AnalisisTomografia
 from src.features.analizador.domain.value_objects import CoordenadasBBox, Hallazgo
 from src.features.analizador.infrastructure.repositories import AnalisisRepositoryImpl
 from src.features.estudios.domain.entities import Estudio
-from src.features.estudios.domain.value_objects import Paciente
 from src.features.estudios.infrastructure.repositories import EstudioRepositoryImpl
 
 
 @pytest.mark.asyncio
 async def test_estudio_repository_serialization(uow):
-    """Prueba que el VO Paciente se serializa a JSON y se recupera correctamente."""
-    paciente = Paciente(
-        nombre="Juan",
-        apellido="Perez",
-        fecha_nacimiento="1980-01-01",
-        documento_identidad="12345678",
-    )
+    """Prueba que el estudio se persiste correctamente usando paciente_id."""
+    paciente_id = uuid4()
     estudio = Estudio(
-        paciente=paciente,
+        paciente_id=paciente_id,
         imagen_path="/tmp/test.png",
         mime_type="image/png",
         medico_id="med-123",
@@ -36,8 +30,7 @@ async def test_estudio_repository_serialization(uow):
         estudio_bd = await repo.get_by_id(estudio.id)
         
         assert estudio_bd is not None
-        assert estudio_bd.paciente.nombre == "Juan"
-        assert estudio_bd.paciente.documento_identidad == "12345678"
+        assert estudio_bd.paciente_id == paciente_id
         assert estudio_bd.imagen_path == "/tmp/test.png"
 
 

@@ -33,7 +33,7 @@ def sqlite_temp_db() -> Generator[str, None, None]:
 
 
 # -- 2. Fixture de Base de Datos y Sesión -------------------------------------
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def db_engine(sqlite_temp_db: str):
     engine = create_async_engine(sqlite_temp_db, echo=False)
     
@@ -94,6 +94,17 @@ def override_config(sqlite_temp_db: str) -> Generator[None, None, None]:
     test_engine = create_async_engine(sqlite_temp_db, echo=False)
     shared_db.engine = test_engine
     shared_db.async_session_factory = async_sessionmaker(test_engine, expire_on_commit=False)
+    
+    # Asegurar que las tablas existan antes de que empiece el test
+    from hexcore.infrastructure.repositories.orms.sqlalchemy import BaseModel
+    import asyncio
+    
+    async def _init_db():
+        print(f"Creating tables on {sqlite_temp_db}. Tables known: {list(BaseModel.metadata.tables.keys())}")
+        async with test_engine.begin() as conn:
+            await conn.run_sync(BaseModel.metadata.create_all)
+            
+    asyncio.run(_init_db())
     
     yield
     

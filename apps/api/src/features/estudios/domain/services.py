@@ -5,7 +5,7 @@ from hexcore.domain.services import BaseDomainService
 from .entities import Estudio
 from .exceptions import TipoArchivoNoPermitidoException
 from .repositories import IEstudioRepository
-from .value_objects import Paciente
+from uuid import UUID
 
 
 class IArchivoStorageAdapter(Protocol):
@@ -30,7 +30,7 @@ class EstudioService(BaseDomainService):
 
     async def recepcionar_estudio(
         self,
-        paciente: Paciente,
+        paciente_id: UUID,
         nombre_archivo: str,
         contenido: bytes,
         mime_type: str,
@@ -42,7 +42,7 @@ class EstudioService(BaseDomainService):
         imagen_path = await self._storage.guardar(nombre_archivo, contenido)
 
         estudio = Estudio(
-            paciente=paciente,
+            paciente_id=paciente_id,
             imagen_path=imagen_path,
             mime_type=mime_type,
             medico_id=medico_id,

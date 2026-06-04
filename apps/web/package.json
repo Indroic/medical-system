@@ -11,6 +11,10 @@
     "check-types": "vite build && tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource-variable/geist": "^5.2.9",
+    "@fontsource-variable/geist-mono": "^5.2.8",
+    "@heroui/react": "^3.1.0",
+    "@heroui/styles": "^3.1.0",
     "@hookform/resolvers": "^5.2.2",
     "@medical-system/env": "workspace:*",
     "@medical-system/ui": "workspace:*",
@@ -24,6 +28,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "sonner": "^2.0.7",
+    "tailwind-variants": "^3.2.2",
     "zod": "catalog:"
   },
   "devDependencies": {

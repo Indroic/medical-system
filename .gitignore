@@ -49,3 +49,5 @@ coverage
 .cache
 tmp
 temp
+apps/api/db.sqlite3
+apps/api/yolov8n.pt

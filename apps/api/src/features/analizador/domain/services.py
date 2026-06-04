@@ -35,9 +35,12 @@ class AnalizadorDomainService(BaseDomainService):
             # Llamada al puerto de IA (implementado en infraestructura)
             hallazgos = await self._ia_adapter.inferir(imagen_path)
             analisis.registrar_resultados(hallazgos)  # emite AnalisisCompletadoEvent
+            print(f"Events after registrar_resultados: {analisis._domain_events}")
         except Exception:
             analisis.marcar_fallido()
             raise
 
+        print(f"Events before save: {analisis._domain_events}")
         await self._repo.save(analisis)
+        print(f"Events after save: {analisis._domain_events}")
         return analisis

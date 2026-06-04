@@ -1,24 +1,16 @@
-import json
-
+from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
 from hexcore.domain.uow import IUnitOfWork
 from hexcore.infrastructure.repositories.implementations import (
     SQLAlchemyCommonImplementationsRepo,
 )
 from hexcore.types import FieldResolversType, FieldSerializersType
 from sqlalchemy import select
+from uuid import UUID
 
 from ..domain.entities import Estudio
 from ..domain.exceptions import EstudioNotFoundException
 from ..domain.repositories import IEstudioRepository
-from ..domain.value_objects import Paciente
 from .models import EstudioModel
-
-
-async def _resolver_paciente(model: "EstudioModel") -> Paciente:
-    """FieldResolver: deserializa el JSON de paciente al Value Object."""
-    data = json.loads(model.paciente_json)
-    return Paciente(**data)
-
 
 class EstudioRepositoryImpl(
     SQLAlchemyCommonImplementationsRepo[Estudio, EstudioModel],
@@ -41,19 +33,14 @@ class EstudioRepositoryImpl(
 
     @property
     def fields_resolvers(self) -> FieldResolversType | None:
-        return {"paciente": _resolver_paciente}
+        async def resolve_paciente_id(m):
+            return UUID(m.paciente_id) if isinstance(m.paciente_id, str) else m.paciente_id
+        return {"paciente_id": ("paciente_id", resolve_paciente_id)}
 
     @property
     def fields_serializers(self) -> FieldSerializersType | None:
         return {
-            "paciente_json": lambda e: json.dumps(
-                {
-                    "nombre": e.paciente.nombre,
-                    "apellido": e.paciente.apellido,
-                    "fecha_nacimiento": e.paciente.fecha_nacimiento,
-                    "documento_identidad": e.paciente.documento_identidad,
-                }
-            )
+            "paciente_id": ("paciente_id", lambda e: str(e.paciente_id))
         }
 
     async def list_by_medico(self, medico_id: str) -> list[Estudio]:
@@ -62,4 +49,4 @@ class EstudioRepositoryImpl(
             select(EstudioModel).where(EstudioModel.medico_id == medico_id)
         )
         models = result.scalars().all()
-        return [await self._to_entity(m) for m in models]
+        return [await to_entity_from_model_or_document(m, self.entity_cls, self.fields_resolvers) for m in models]

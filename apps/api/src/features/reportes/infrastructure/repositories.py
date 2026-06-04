@@ -34,11 +34,21 @@ class ReporteRepositoryImpl(
 
     @property
     def fields_resolvers(self) -> FieldResolversType | None:
-        return None
+        async def resolve_estudio_id(m):
+            return UUID(m.estudio_id) if isinstance(m.estudio_id, str) else m.estudio_id
+        async def resolve_analisis_id(m):
+            return UUID(m.analisis_id) if isinstance(m.analisis_id, str) else m.analisis_id
+        return {
+            "estudio_id": ("estudio_id", resolve_estudio_id),
+            "analisis_id": ("analisis_id", resolve_analisis_id)
+        }
 
     @property
     def fields_serializers(self) -> FieldSerializersType | None:
-        return None
+        return {
+            "estudio_id": ("estudio_id", lambda e: str(e.estudio_id)),
+            "analisis_id": ("analisis_id", lambda e: str(e.analisis_id))
+        }
 
     async def get_by_estudio(self, estudio_id: UUID) -> Reporte | None:
         session = self.uow.session  # type: ignore[attr-defined]
@@ -48,4 +58,5 @@ class ReporteRepositoryImpl(
         model = result.scalar_one_or_none()
         if model is None:
             return None
-        return await self._to_entity(model)
+        from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
+        return await to_entity_from_model_or_document(model, self.entity_cls, self.fields_resolvers)

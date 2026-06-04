@@ -12,12 +12,12 @@ import asyncio
 import logging
 
 from src.features.analizador.domain.events import AnalisisCompletadoEvent
-from src.shared.infrastructure.database import async_session_factory
+import src.shared.infrastructure.database as shared_db
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
-from ...domain.entities import Reporte
-from ..pdf_adapter import ReportLabPDFAdapter
-from ..repositories import ReporteRepositoryImpl
+from ..domain.entities import Reporte
+from ..infrastructure.pdf_adapter import ReportLabPDFAdapter
+from ..infrastructure.repositories import ReporteRepositoryImpl
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +34,11 @@ async def on_analisis_completado(event: AnalisisCompletadoEvent) -> None:
         event.nivel_riesgo,
     )
 
-    async with async_session_factory() as session:
-        uow = SqlAlchemyUnitOfWork(session=session)
-        async with uow:
-            repo = ReporteRepositoryImpl(uow)
+    try:
+        async with shared_db.async_session_factory() as session:
+            uow = SqlAlchemyUnitOfWork(session=session)
+            async with uow:
+                repo = ReporteRepositoryImpl(uow)
             pdf_adapter = ReportLabPDFAdapter()
 
             reporte = Reporte(
@@ -56,3 +57,7 @@ async def on_analisis_completado(event: AnalisisCompletadoEvent) -> None:
 
             await repo.save(reporte)
             await uow.commit()
+    except Exception as e:
+        print(f"FATAL ERROR IN HANDLER: {e}")
+        import traceback
+        traceback.print_exc()

@@ -1,13 +1,15 @@
 import pytest
 
 from src.features.usuarios.domain.exceptions import InvalidCredentialsException
-from src.features.usuarios.domain.services import AuthService
+from src.features.usuarios.domain.services import AuthService, _hash_password, _verify_password
 
 
 # Mock repository sincrono/asincrono para testing unitario del servicio
 class MockUserRepository:
-    async def get_by_email(self, email: str):
-        return None
+    async def get_by_id(self, entity_id): pass
+    async def get_by_email(self, email): pass
+    async def save(self, entity): pass
+    async def delete(self, entity): pass
 
 
 @pytest.mark.asyncio
@@ -15,13 +17,12 @@ async def test_auth_service_hashing():
     service = AuthService(user_repo=MockUserRepository())  # type: ignore
     
     password = "MySecurePassword123"
-    hashed = service.hash_password(password)
+    hashed = _hash_password(password)
     
     assert hashed != password
     
     # Verificar exitosamente
-    service.verify_password(password, hashed)
+    assert _verify_password(password, hashed) == True
     
     # Verificar falla
-    with pytest.raises(InvalidCredentialsException):
-        service.verify_password("WrongPassword", hashed)
+    assert _verify_password("WrongPassword", hashed) == False

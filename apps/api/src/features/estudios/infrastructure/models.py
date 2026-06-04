@@ -1,14 +1,14 @@
 from hexcore.infrastructure.repositories.orms.sqlalchemy import BaseModel
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String
 
 
 class EstudioModel(BaseModel):
-    """ORM exclusivo del slice `estudios`. El Value Object Paciente
-    se serializa como JSON en una columna de texto."""
+    """ORM exclusivo del slice `estudios`."""
 
     __tablename__ = "estudios"
 
-    paciente_json: Mapped[str] = mapped_column(nullable=False)
+    paciente_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
     imagen_path: Mapped[str] = mapped_column(nullable=False)
     mime_type: Mapped[str] = mapped_column(nullable=False)
     medico_id: Mapped[str] = mapped_column(nullable=False, index=True)

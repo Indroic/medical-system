@@ -1,0 +1,181 @@
+import { env } from "@medical-system/env/web";
+
+const BASE = env.VITE_PYTHON_API_URL;
+
+export class ApiError extends Error {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  token?: string,
+): Promise<T> {
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string>),
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  const res = await fetch(`${BASE}${path}`, { ...options, headers });
+  if (!res.ok) {
+    let message = res.statusText;
+    try {
+      const data = await res.json();
+      message = data.detail ?? data.message ?? message;
+    } catch {}
+    throw new ApiError(res.status, message);
+  }
+  if (res.status === 204) return undefined as T;
+  return res.json() as Promise<T>;
+}
+
+// ─── Tipos ─────────────────────────────────────────────────────────────────
+
+export interface UserResponse {
+  id: string;
+  email: string;
+  nombre: string;
+  rol: string;
+  is_active: boolean;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+  user: UserResponse;
+}
+
+export interface PacienteResponse {
+  id: string;
+  nombre: string;
+  apellido: string;
+  fecha_nacimiento: string;
+  documento_identidad: string;
+}
+
+export interface EstudioResponse {
+  id: string;
+  paciente_id: string;
+  imagen_path: string;
+  mime_type: string;
+  estado: "PENDIENTE" | "EN_ANALISIS" | "COMPLETADO";
+  medico_id: string;
+}
+
+export interface EstudioListResponse {
+  items: EstudioResponse[];
+  total: number;
+}
+
+export interface HallazgoDTO {
+  etiqueta: string;
+  confianza: number;
+  x_min: number;
+  y_min: number;
+  x_max: number;
+  y_max: number;
+  es_critico: boolean;
+}
+
+export interface AnalisisResponse {
+  analisis_id: string;
+  estudio_id: string;
+  estado: string;
+  nivel_riesgo: "BAJO" | "MODERADO" | "CRITICO" | "NO_EVALUADO";
+  hallazgos: HallazgoDTO[];
+  total_hallazgos: number;
+}
+
+export interface ReporteResponse {
+  reporte_id: string;
+  estado: "GENERANDO" | "LISTO" | "FALLIDO";
+  nivel_riesgo: string;
+  total_hallazgos: number;
+  pdf_disponible: boolean;
+}
+
+// ─── Auth ───────────────────────────────────────────────────────────────────
+
+export const usuariosApi = {
+  login: (email: string, password: string) =>
+    request<TokenResponse>("/api/v1/usuarios/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    }),
+
+  registrar: (nombre: string, email: string, password: string, rol = "medico") =>
+    request<UserResponse>("/api/v1/usuarios/registrar", {
+      method: "POST",
+      body: JSON.stringify({ nombre, email, password, rol }),
+    }),
+
+  me: (token: string) =>
+    request<UserResponse>("/api/v1/usuarios/me", {}, token),
+};
+
+// ─── Pacientes ──────────────────────────────────────────────────────────────
+
+export const pacientesApi = {
+  crear: (
+    token: string,
+    data: { nombre: string; apellido: string; fecha_nacimiento: string; documento_identidad: string },
+  ) =>
+    request<PacienteResponse>("/api/v1/pacientes/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }, token),
+
+  obtener: (token: string, id: string) =>
+    request<PacienteResponse>(`/api/v1/pacientes/${id}`, {}, token),
+};
+
+// ─── Estudios ───────────────────────────────────────────────────────────────
+
+export const estudiosApi = {
+  crear: (token: string, pacienteId: string, file: File) => {
+    const form = new FormData();
+    form.append("paciente_id", pacienteId);
+    form.append("file", file);
+    return request<EstudioResponse>("/api/v1/estudios/", {
+      method: "POST",
+      body: form,
+    }, token);
+  },
+
+  listar: (token: string) =>
+    request<EstudioListResponse>("/api/v1/estudios/", {}, token),
+
+  obtener: (token: string, id: string) =>
+    request<EstudioResponse>(`/api/v1/estudios/${id}`, {}, token),
+};
+
+// ─── Análisis ───────────────────────────────────────────────────────────────
+
+export const analisisApi = {
+  ejecutar: (token: string, estudio_id: string, imagen_path: string) =>
+    request<AnalisisResponse>("/api/v1/analisis/", {
+      method: "POST",
+      body: JSON.stringify({ estudio_id, imagen_path }),
+    }, token),
+
+  obtener: (token: string, estudio_id: string) =>
+    request<AnalisisResponse>(`/api/v1/analisis/${estudio_id}`, {}, token),
+};
+
+// ─── Reportes ───────────────────────────────────────────────────────────────
+
+export const reportesApi = {
+  obtener: (token: string, estudio_id: string) =>
+    request<ReporteResponse>(`/api/v1/reportes/${estudio_id}`, {}, token),
+
+  urlDescarga: (estudio_id: string) =>
+    `${BASE}/api/v1/reportes/${estudio_id}/descargar`,
+};

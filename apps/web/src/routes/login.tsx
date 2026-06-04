@@ -1,19 +1,202 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 
-import SignInForm from "@/components/sign-in-form";
-import SignUpForm from "@/components/sign-up-form";
+import { useAuthStore } from "@/lib/auth-store";
+import { ApiError, usuariosApi } from "@/lib/python-api";
 
 export const Route = createFileRoute("/login")({
-  component: RouteComponent,
+  beforeLoad: () => {
+    const token = localStorage.getItem("ms_token");
+    if (token) throw redirect({ to: "/dashboard" });
+  },
+  component: LoginPage,
 });
 
-function RouteComponent() {
-  const [showSignIn, setShowSignIn] = useState(false);
+function LoginPage() {
+  const [mode, setMode] = useState<"login" | "register">("login");
 
-  return showSignIn ? (
-    <SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
-  ) : (
-    <SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
+  return (
+    <div className="min-h-svh bg-chalk flex items-center justify-center p-6">
+      <div className="w-full max-w-[360px]">
+        {/* Logo row */}
+        <div className="mb-8">
+          <p className="text-[12px] font-medium text-concrete uppercase tracking-wide mb-2">
+            Medical Imaging System
+          </p>
+          <h1 className="text-[24px] font-semibold text-graphite tracking-tight">
+            {mode === "login" ? "Acceder al sistema" : "Crear cuenta"}
+          </h1>
+        </div>
+
+        {mode === "login" ? (
+          <LoginForm onSwitch={() => setMode("register")} />
+        ) : (
+          <RegisterForm onSwitch={() => setMode("login")} />
+        )}
+      </div>
+    </div>
   );
 }
+
+function LoginForm({ onSwitch }: { onSwitch: () => void }) {
+  const navigate = useNavigate();
+  const { login } = useAuthStore();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    setLoading(true);
+    try {
+      const res = await usuariosApi.login(email, password);
+      login(res.access_token, res.user);
+      navigate({ to: "/dashboard" });
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Error al iniciar sesión");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Field label="Correo electrónico">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="doctor@clinica.com"
+          required
+          className={INPUT_CLASS}
+        />
+      </Field>
+      <Field label="Contraseña">
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="••••••••"
+          required
+          className={INPUT_CLASS}
+        />
+      </Field>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-2 w-full rounded-[10px] bg-graphite py-2.5 text-[14px] font-medium text-chalk hover:bg-carbon disabled:opacity-50 transition-colors"
+      >
+        {loading ? "Accediendo…" : "Acceder"}
+      </button>
+
+      <p className="text-center text-[13px] text-concrete">
+        ¿Sin cuenta?{" "}
+        <button type="button" onClick={onSwitch} className="text-graphite font-medium hover:underline">
+          Registrarse
+        </button>
+      </p>
+    </form>
+  );
+}
+
+function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
+  const navigate = useNavigate();
+  const { login } = useAuthStore();
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rol, setRol] = useState("medico");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nombre || !email || !password) return;
+    setLoading(true);
+    try {
+      await usuariosApi.registrar(nombre, email, password, rol);
+      const res = await usuariosApi.login(email, password);
+      login(res.access_token, res.user);
+      navigate({ to: "/dashboard" });
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Error al registrarse");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Field label="Nombre completo">
+        <input
+          type="text"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          placeholder="Dr. Juan García"
+          required
+          className={INPUT_CLASS}
+        />
+      </Field>
+      <Field label="Correo electrónico">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="doctor@clinica.com"
+          required
+          className={INPUT_CLASS}
+        />
+      </Field>
+      <Field label="Contraseña">
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Mínimo 8 caracteres"
+          required
+          minLength={8}
+          className={INPUT_CLASS}
+        />
+      </Field>
+      <Field label="Rol">
+        <select
+          value={rol}
+          onChange={(e) => setRol(e.target.value)}
+          className={INPUT_CLASS}
+        >
+          <option value="medico">Médico</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </Field>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-2 w-full rounded-[10px] bg-graphite py-2.5 text-[14px] font-medium text-chalk hover:bg-carbon disabled:opacity-50 transition-colors"
+      >
+        {loading ? "Creando cuenta…" : "Crear cuenta"}
+      </button>
+
+      <p className="text-center text-[13px] text-concrete">
+        ¿Ya tienes cuenta?{" "}
+        <button type="button" onClick={onSwitch} className="text-graphite font-medium hover:underline">
+          Iniciar sesión
+        </button>
+      </p>
+    </form>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[13px] font-medium text-graphite">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const INPUT_CLASS =
+  "w-full rounded-[10px] border border-hairline bg-chalk px-3 py-2.5 font-mono text-[14px] text-graphite placeholder:text-concrete focus:outline-none focus:border-graphite transition-colors";

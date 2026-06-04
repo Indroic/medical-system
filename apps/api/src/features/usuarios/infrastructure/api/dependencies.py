@@ -13,13 +13,13 @@ from ...domain.services import AuthService
 from ..repositories import UserRepositoryImpl
 
 # ── Sesión de base de datos ─────────────────────────────────────────────────
-from src.shared.infrastructure.database import async_session_factory
+import src.shared.infrastructure.database as shared_db
 
 security = HTTPBearer()
 
 
 async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:
-    async with async_session_factory() as session:
+    async with shared_db.async_session_factory() as session:
         yield SqlAlchemyUnitOfWork(session=session)
 
 

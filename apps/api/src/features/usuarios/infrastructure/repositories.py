@@ -1,3 +1,4 @@
+from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
 from uuid import UUID
 
 from hexcore.domain.uow import IUnitOfWork
@@ -52,4 +53,4 @@ class UserRepositoryImpl(
         model = result.scalar_one_or_none()
         if model is None:
             return None
-        return await self._to_entity(model)
+        return await to_entity_from_model_or_document(model, self.entity_cls, self.fields_resolvers)

@@ -1,14 +1,14 @@
 from hexcore.domain.base import BaseEntity
 
 from .events import EstudioRecibidoEvent
-from .value_objects import Paciente
+from uuid import UUID
 
 
 class Estudio(BaseEntity):
     """Agrega la tomografía/imagen con su metadato de paciente.
     id, created_at, updated_at, is_active provistos por BaseEntity."""
 
-    paciente: Paciente
+    paciente_id: UUID
     imagen_path: str          # Ruta local o URI S3 del archivo almacenado
     mime_type: str
     medico_id: str            # UUID del médico que sube el estudio (FK lógica)
@@ -19,7 +19,7 @@ class Estudio(BaseEntity):
         self.register_event(
             EstudioRecibidoEvent(
                 entity_id=self.id,
-                paciente_nombre=self.paciente.nombre_completo,
+                paciente_id=self.paciente_id,
                 imagen_path=self.imagen_path,
             )
         )

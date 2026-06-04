@@ -11,21 +11,29 @@ async def test_subir_estudio_multipart(async_client: AsyncClient):
     token = resp_login.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
     
+    # Crear un paciente primero
+    paciente_data = {
+        "nombre": "Ana",
+        "apellido": "Gomez",
+        "fecha_nacimiento": "1990-05-10",
+        "documento_identidad": "98765432"
+    }
+    resp_pac = await async_client.post("/api/v1/pacientes/", headers=headers, json=paciente_data)
+    assert resp_pac.status_code == 201
+    paciente_id = resp_pac.json()["id"]
+
     # Subir estudio (simular archivo Dicom/PNG)
     file_content = b"fake-png-content"
     files = {"archivo": ("tomografia_sano.png", file_content, "image/png")}
     data = {
-        "paciente_nombre": "Ana",
-        "paciente_apellido": "Gomez",
-        "paciente_fecha_nacimiento": "1990-05-10",
-        "paciente_documento": "98765432"
+        "paciente_id": paciente_id
     }
     
     resp_upload = await async_client.post("/api/v1/estudios/", headers=headers, data=data, files=files)
     assert resp_upload.status_code == 201
     
     upload_data = resp_upload.json()
-    assert upload_data["paciente_nombre_completo"] == "Ana Gomez"
+    assert upload_data["paciente_id"] == paciente_id
     assert upload_data["estado"] == "PENDIENTE"
     
     # Verificar listar estudios

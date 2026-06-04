@@ -2,8 +2,7 @@ import { Toaster } from "@medical-system/ui/components/sonner";
 import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
-import Header from "@/components/header";
-import { ThemeProvider } from "@/components/theme-provider";
+import { AuthContext, useAuthState } from "@/lib/auth-store";
 
 import "../index.css";
 
@@ -13,40 +12,22 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
   head: () => ({
     meta: [
-      {
-        title: "medical-system",
-      },
-      {
-        name: "description",
-        content: "medical-system is a web application",
-      },
+      { title: "Medical Imaging System" },
+      { name: "description", content: "CT scan analysis platform for medical professionals" },
     ],
-    links: [
-      {
-        rel: "icon",
-        href: "/favicon.ico",
-      },
-    ],
+    links: [{ rel: "icon", href: "/favicon.ico" }],
   }),
 });
 
 function RootComponent() {
+  const auth = useAuthState();
+
   return (
-    <>
+    <AuthContext.Provider value={auth}>
       <HeadContent />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        disableTransitionOnChange
-        storageKey="vite-ui-theme"
-      >
-        <div className="grid grid-rows-[auto_1fr] h-svh">
-          <Header />
-          <Outlet />
-        </div>
-        <Toaster richColors />
-      </ThemeProvider>
+      <Outlet />
+      <Toaster />
       <TanStackRouterDevtools position="bottom-left" />
-    </>
+    </AuthContext.Provider>
   );
 }

@@ -1,0 +1,68 @@
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      # Esta DB principal sirve para la inicialización.
+      POSTGRES_DB: medical_system
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Script de inicialización para crear las bases separadas (api_db y server_db)
+      - ./init-dbs.sql:/docker-entrypoint-initdb.d/init-dbs.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: always
+    environment:
+      - ENVIRONMENT=production
+      # La URL usará la base de datos api_db
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
+      # Otras variables para la API se pueden inyectar desde Dokploy o aquí
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    restart: always
+    environment:
+      - NODE_ENV=production
+      # La URL usará la base de datos server_db (para Better Auth, Hono, etc)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/server_db
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3000}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-super-secret-key-replace-me}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: always
+    ports:
+      - "8080:80"
+    # El Frontend (Vite) no necesita variables de entorno de BD al ejecutarse, 
+    # ya que se buildearon de forma estática, pero puede necesitar variables de API.
+    # En Vite las variables de entorno de build deben estar disponibles 
+    # al momento del 'pnpm run build' (usualmente con VITE_ prefix)
+    # Por ahora asume configuración estática o variables manejadas externamente en el CD.
+
+volumes:
+  postgres_data:

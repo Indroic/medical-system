@@ -21,7 +21,12 @@ class EjecutarInferenciaUseCase(UseCase[EjecutarInferenciaCommand, AnalisisRespo
                 imagen_path=command.imagen_path,
             )
             # commit() persiste + despacha AnalisisCompletadoEvent
-            # -> el handler de reportes reaccionará de forma asíncrona
+        # Workaround for Hexcore bug: SqlAlchemyUnitOfWork clears session.new before dispatch_events
+        events = analisis.pull_domain_events()
+        for event in events:
+            await self.uow.events_dispatcher.dispatch(event)
+            
+        async with self.uow:
             await self.uow.commit()
 
         hallazgos_dto = [

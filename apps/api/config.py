@@ -5,8 +5,8 @@ from pydantic import ConfigDict
 from hexcore.config import ServerConfig
 from hexcore.domain.events import IEventDispatcher
 from hexcore.infrastructure.cache import ICache
+from src.shared.infrastructure.events import AsyncEventDispatcher
 from hexcore.infrastructure.cache.cache_backends.memory import MemoryCache
-from hexcore.infrastructure.events.events_backends.memory import InMemoryEventDispatcher
 
 
 class ProjectConfig(ServerConfig):
@@ -28,14 +28,14 @@ class ProjectConfig(ServerConfig):
     yolo_model_path: str = "models/yolo_tomografia.pt"
 
     # CORS
-    allow_origins: list[str] = ["http://localhost:3000"]
+    allow_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
     allow_credentials: bool = True
     allow_methods: list[str] = ["*"]
     allow_headers: list[str] = ["*"]
 
     # Backends
     cache_backend: ICache = MemoryCache()
-    event_dispatcher: IEventDispatcher = InMemoryEventDispatcher()
+    event_dispatcher: IEventDispatcher = AsyncEventDispatcher()
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 

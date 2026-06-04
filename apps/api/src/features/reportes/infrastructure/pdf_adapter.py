@@ -2,7 +2,7 @@ import asyncio
 from pathlib import Path
 from typing import override
 
-from ...domain.ports import IGeneradorPDFAdapter
+from ..domain.ports import IGeneradorPDFAdapter
 
 REPORTS_DIR = Path("reports")
 

@@ -25,7 +25,7 @@ def test_evaluar_severidad_con_hallazgo_critico_alta_confianza():
     assert analisis.nivel_riesgo == "CRITICO"
     
     # Verificar evento
-    eventos = analisis.domain_events
+    eventos = analisis.pull_domain_events()
     assert len(eventos) == 1
     assert eventos[0].nivel_riesgo == "CRITICO"
     assert eventos[0].total_hallazgos == 1

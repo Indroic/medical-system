@@ -1,3 +1,4 @@
+from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
 import json
 
 from hexcore.domain.uow import IUnitOfWork
@@ -53,12 +54,13 @@ class AnalisisRepositoryImpl(
 
     @property
     def fields_resolvers(self) -> FieldResolversType | None:
-        return {"hallazgos": _resolver_hallazgos}
+        return {"hallazgos": ("hallazgos_json", _resolver_hallazgos)}
 
     @property
     def fields_serializers(self) -> FieldSerializersType | None:
         return {
-            "hallazgos_json": lambda e: json.dumps(
+            "estudio_id": ("estudio_id", lambda e: str(e.estudio_id)),
+            "hallazgos": ("hallazgos_json", lambda e: json.dumps(
                 [
                     {
                         "etiqueta": h.etiqueta,
@@ -70,7 +72,7 @@ class AnalisisRepositoryImpl(
                     }
                     for h in (e.hallazgos or [])
                 ]
-            )
+            ))
         }
 
     async def get_by_estudio(self, estudio_id) -> AnalisisTomografia | None:
@@ -81,4 +83,4 @@ class AnalisisRepositoryImpl(
         model = result.scalar_one_or_none()
         if model is None:
             return None
-        return await self._to_entity(model)
+        return await to_entity_from_model_or_document(model, self.entity_cls, self.fields_resolvers)

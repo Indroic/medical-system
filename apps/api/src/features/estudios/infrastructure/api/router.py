@@ -22,18 +22,12 @@ router = APIRouter(prefix="/estudios", tags=["estudios"])
     summary="Recepcionar nuevo estudio de tomografía",
 )
 async def recepcionar_estudio(
-    paciente_nombre: str = Form(...),
-    paciente_apellido: str = Form(...),
-    paciente_fecha_nacimiento: str = Form(...),
-    paciente_documento: str = Form(...),
+    paciente_id: UUID = Form(...),
     use_case: RecepcionarEstudioUseCase = Depends(get_recepcionar_uc),
     current_user: UserResponse = Depends(get_current_user),
 ) -> EstudioResponse:
     command = RecepcionarEstudioCommand(
-        paciente_nombre=paciente_nombre,
-        paciente_apellido=paciente_apellido,
-        paciente_fecha_nacimiento=paciente_fecha_nacimiento,
-        paciente_documento=paciente_documento,
+        paciente_id=paciente_id,
         medico_id=str(current_user.id),
     )
     try:
@@ -58,7 +52,7 @@ async def listar_estudios(
     items = [
         EstudioResponse(
             id=e.id,
-            paciente_nombre_completo=e.paciente.nombre_completo,
+            paciente_id=e.paciente_id,
             imagen_path=e.imagen_path,
             mime_type=e.mime_type,
             estado=e.estado,
@@ -88,7 +82,7 @@ async def obtener_estudio(
 
     return EstudioResponse(
         id=estudio.id,
-        paciente_nombre_completo=estudio.paciente.nombre_completo,
+        paciente_id=estudio.paciente_id,
         imagen_path=estudio.imagen_path,
         mime_type=estudio.mime_type,
         estado=estudio.estado,
