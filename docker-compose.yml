@@ -25,9 +25,8 @@ services:
     restart: always
     environment:
       - ENVIRONMENT=production
-      # La URL usará la base de datos api_db
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
-      # Otras variables para la API se pueden inyectar desde Dokploy o aquí
+      - SERVER_URL=http://server:3000
     # Puertos ocultos: Solo accesibles internamente vía Nginx
     depends_on:
       db:

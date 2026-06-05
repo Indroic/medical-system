@@ -1,12 +1,18 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import type { UserResponse } from "./python-api";
+export interface AppUser {
+  id: string;
+  email: string;
+  nombre: string;
+  rol: string;
+  is_active: boolean;
+}
 
 interface AuthState {
   token: string | null;
-  user: UserResponse | null;
+  user: AppUser | null;
   isLoading: boolean;
-  login: (token: string, user: UserResponse) => void;
+  login: (token: string, user: AppUser) => void;
   logout: () => void;
 }
 
@@ -27,7 +33,7 @@ export function useAuthStore() {
 
 export function useAuthState(): AuthState {
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<UserResponse | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -42,7 +48,7 @@ export function useAuthState(): AuthState {
     setIsLoading(false);
   }, []);
 
-  const login = (newToken: string, newUser: UserResponse) => {
+  const login = (newToken: string, newUser: AppUser) => {
     localStorage.setItem(STORAGE_KEY, newToken);
     localStorage.setItem(USER_KEY, JSON.stringify(newUser));
     setToken(newToken);

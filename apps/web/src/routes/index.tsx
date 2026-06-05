@@ -1,5 +1,5 @@
 import { createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
-import { usuariosApi } from "@/lib/python-api";
+import { env } from "@medical-system/env/web";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -7,11 +7,12 @@ export const Route = createFileRoute("/")({
     if (token) throw redirect({ to: "/dashboard" });
 
     try {
-      const { setup_required } = await usuariosApi.checkSetup();
+      const res = await fetch(`${env.VITE_SERVER_URL}/check-setup`);
+      const { setup_required } = await res.json();
       if (setup_required) throw redirect({ to: "/setup" });
     } catch (err) {
       if (isRedirect(err)) throw err;
-      // Si la API no responde, ir al login de todas formas
+      // Si el servidor no responde, ir al login de todas formas
     }
 
     throw redirect({ to: "/login" });

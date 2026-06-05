@@ -3,6 +3,8 @@ import * as schema from "@medical-system/db/schema/auth";
 import { env } from "@medical-system/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { bearer } from "better-auth/plugins/bearer";
+import { jwt } from "better-auth/plugins/jwt";
 
 export function createAuth() {
   const db = createDb();
@@ -17,6 +19,16 @@ export function createAuth() {
     emailAndPassword: {
       enabled: true,
     },
+    user: {
+      additionalFields: {
+        role: {
+          type: "string",
+          required: false,
+          defaultValue: "medico",
+          input: true,
+        },
+      },
+    },
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
     advanced: {
@@ -26,7 +38,10 @@ export function createAuth() {
         httpOnly: true,
       },
     },
-    plugins: [],
+    plugins: [
+      bearer(),
+      jwt(),
+    ],
   });
 }
 

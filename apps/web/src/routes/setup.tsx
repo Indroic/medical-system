@@ -2,8 +2,9 @@ import { createFileRoute, isRedirect, redirect, useNavigate } from "@tanstack/re
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { authClient } from "@/lib/auth-client";
 import { useAuthStore } from "@/lib/auth-store";
-import { ApiError, usuariosApi } from "@/lib/python-api";
+import { env } from "@medical-system/env/web";
 
 export const Route = createFileRoute("/setup")({
   beforeLoad: async () => {
@@ -11,7 +12,8 @@ export const Route = createFileRoute("/setup")({
     if (token) throw redirect({ to: "/dashboard" });
 
     try {
-      const { setup_required } = await usuariosApi.checkSetup();
+      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/check-setup`);
+      const { setup_required } = await res.json();
       if (!setup_required) throw redirect({ to: "/login" });
     } catch (err) {
       if (isRedirect(err)) throw err;
@@ -33,12 +35,34 @@ function SetupPage() {
     if (!nombre || !email || !password) return;
     setLoading(true);
     try {
-      await usuariosApi.registrarAdmin(nombre, email, password);
-      const res = await usuariosApi.login(email, password);
-      login(res.access_token, res.user);
+      const { error: signUpError } = await authClient.signUp.email({
+        name: nombre,
+        email,
+        password,
+        role: "admin",
+      } as any);
+      if (signUpError) throw new Error(signUpError.message ?? "Error al crear el administrador");
+
+      const { data, error: signInError } = await authClient.signIn.email({ email, password });
+      if (signInError || !data) throw new Error(signInError?.message ?? "Error al iniciar sesión");
+
+      // Intercambiar el token opaco de sesión por un JWT firmado con JWKS
+      const tokenRes = await fetch(`${env.VITE_SERVER_URL}/api/auth/token`, {
+        headers: { Authorization: `Bearer ${data.session.token}` },
+      });
+      if (!tokenRes.ok) throw new Error("No se pudo obtener el token JWT");
+      const { token: jwtToken } = await tokenRes.json();
+
+      login(jwtToken, {
+        id: data.user.id,
+        email: data.user.email,
+        nombre: data.user.name,
+        rol: "admin",
+        is_active: true,
+      });
       navigate({ to: "/dashboard" });
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Error al crear el administrador");
+      toast.error(err instanceof Error ? err.message : "Error al crear el administrador");
     } finally {
       setLoading(false);
     }

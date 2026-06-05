@@ -2,8 +2,9 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { authClient } from "@/lib/auth-client";
 import { useAuthStore } from "@/lib/auth-store";
-import { ApiError, usuariosApi } from "@/lib/python-api";
+import { env } from "@medical-system/env/web";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: () => {
@@ -25,11 +26,26 @@ function LoginPage() {
     if (!email || !password) return;
     setLoading(true);
     try {
-      const res = await usuariosApi.login(email, password);
-      login(res.access_token, res.user);
+      const { data, error } = await authClient.signIn.email({ email, password });
+      if (error || !data) throw new Error(error?.message ?? "Error al iniciar sesión");
+
+      // Intercambiar el token opaco de sesión por un JWT firmado con JWKS
+      const tokenRes = await fetch(`${env.VITE_SERVER_URL}/api/auth/token`, {
+        headers: { Authorization: `Bearer ${data.session.token}` },
+      });
+      if (!tokenRes.ok) throw new Error("No se pudo obtener el token JWT");
+      const { token: jwtToken } = await tokenRes.json();
+
+      login(jwtToken, {
+        id: data.user.id,
+        email: data.user.email,
+        nombre: data.user.name,
+        rol: (data.user as any).role ?? "medico",
+        is_active: true,
+      });
       navigate({ to: "/dashboard" });
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Error al iniciar sesión");
+      toast.error(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
@@ -37,7 +53,7 @@ function LoginPage() {
 
   return (
     <div className="min-h-svh bg-chalk flex items-center justify-center p-6">
-      <div className="w-full max-w-[360px]">
+      <div className="w-full max-w-90">
         <div className="mb-8">
           <p className="text-[12px] font-medium text-concrete uppercase tracking-wide mb-2">
             Medical Imaging System

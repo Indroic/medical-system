@@ -1,4 +1,6 @@
 import { auth } from "@medical-system/auth";
+import { db } from "@medical-system/db";
+import { user } from "@medical-system/db/schema/auth";
 import { env } from "@medical-system/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -18,6 +20,11 @@ app.use(
 );
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+
+app.get("/check-setup", async (c) => {
+  const rows = await db.select({ id: user.id }).from(user).limit(1);
+  return c.json({ setup_required: rows.length === 0 });
+});
 
 app.get("/", (c) => {
   return c.text("OK");

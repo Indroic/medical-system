@@ -20,8 +20,8 @@ dependencies = [
     # Almacenamiento asíncrono de archivos
     "aiofiles>=24.1.0",
 
-    # Autenticación JWT
-    "PyJWT>=2.10.0",
+    # Autenticación JWT — [crypto] añade soporte para EdDSA/RS256/ES256 via JWKS
+    "PyJWT[crypto]>=2.10.0",
 
     # Generación de PDF
     "reportlab>=4.0.0",

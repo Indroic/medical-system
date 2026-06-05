@@ -55,9 +55,3 @@ class UserRepositoryImpl(
             return None
         return await to_entity_from_model_or_document(model, self.entity_cls, self.fields_resolvers)
 
-    async def has_admin(self) -> bool:
-        session = self.uow.session  # type: ignore[attr-defined]
-        result = await session.execute(
-            select(UserModel.id).where(UserModel.rol == "admin").limit(1)
-        )
-        return result.scalar_one_or_none() is not None

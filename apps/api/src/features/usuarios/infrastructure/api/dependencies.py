@@ -1,8 +1,11 @@
+import asyncio
 from collections.abc import AsyncGenerator
 
+import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
+from jwt import PyJWKClient
 
 from config import config
 
@@ -12,18 +15,29 @@ from ...application.use_cases.registrar_usuario import RegistrarUsuarioUseCase
 from ...domain.services import AuthService
 from ..repositories import UserRepositoryImpl
 
-# ── Sesión de base de datos ─────────────────────────────────────────────────
 import src.shared.infrastructure.database as shared_db
 
 security = HTTPBearer()
+
+# Singleton JWKS client — obtiene las public keys de Better-Auth una sola vez y las cachea
+_jwks_client: PyJWKClient | None = None
+
+
+def _get_jwks_client() -> PyJWKClient:
+    global _jwks_client
+    if _jwks_client is None:
+        _jwks_client = PyJWKClient(
+            f"{config.server_url}/api/auth/jwks",
+            cache_jwk_set=True,
+            lifespan=3600,  # rota las keys una vez por hora
+        )
+    return _jwks_client
 
 
 async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:
     async with shared_db.async_session_factory() as session:
         yield SqlAlchemyUnitOfWork(session=session)
 
-
-# ── Factories de Use Cases ──────────────────────────────────────────────────
 
 async def get_registrar_uc(
     uow: SqlAlchemyUnitOfWork = Depends(get_uow),
@@ -47,40 +61,39 @@ async def get_autenticar_uc(
     )
 
 
-# ── Guard de autenticación ──────────────────────────────────────────────────
-
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ) -> UserResponse:
-    """Decodifica el JWT y devuelve el UserResponse del usuario autenticado."""
+    """Verifica el JWT de Better-Auth localmente usando las public keys JWKS."""
     token = credentials.credentials
     try:
-        import jwt
-
-        payload = jwt.decode(token, config.secret_key, algorithms=[config.algorithm])
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise ValueError
-    except Exception:
+        client = _get_jwks_client()
+        # PyJWKClient usa urllib internamente (síncrono) — lo corremos en thread pool
+        signing_key = await asyncio.to_thread(client.get_signing_key_from_jwt, token)
+        payload = jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=["EdDSA", "ES256", "RS256"],
+        )
+    except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado.",
+            detail="Token expirado.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except (jwt.InvalidTokenError, Exception):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    async with uow:
-        from uuid import UUID
-
-        from ..repositories import UserRepositoryImpl
-
-        repo = UserRepositoryImpl(uow)
-        user = await repo.get_by_id(UUID(user_id))
-
+    # El JWT payload de Better-Auth spreads el objeto user directamente:
+    # { id, name, email, emailVerified, role, sub, iat, ... }
     return UserResponse(
-        id=user.id,
-        email=user.email,
-        nombre=user.nombre,
-        rol=user.rol,
-        is_active=user.is_active,
+        id=payload.get("sub", payload.get("id", "")),
+        email=payload.get("email", ""),
+        nombre=payload.get("name", ""),
+        rol=payload.get("role", "medico"),
+        is_active=True,
     )

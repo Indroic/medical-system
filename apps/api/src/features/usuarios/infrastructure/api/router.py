@@ -1,25 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
 from ...application.dtos import RegistrarUsuarioCommand, LoginCommand, TokenResponse, UserResponse
 from ...application.use_cases.registrar_usuario import RegistrarUsuarioUseCase
 from ...application.use_cases.autenticar_usuario import AutenticarUsuarioUseCase
 from ...domain.exceptions import InvalidCredentialsException, UserAlreadyExistsException
-from ..repositories import UserRepositoryImpl
-from .dependencies import get_autenticar_uc, get_current_user, get_registrar_uc, get_uow
+from .dependencies import get_autenticar_uc, get_current_user, get_registrar_uc
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
-
-
-@router.get(
-    "/check-setup",
-    summary="Verificar si se requiere configuración inicial (primer admin)",
-)
-async def check_setup(uow: SqlAlchemyUnitOfWork = Depends(get_uow)) -> dict:
-    async with uow:
-        repo = UserRepositoryImpl(uow)
-        admin_exists = await repo.has_admin()
-    return {"setup_required": not admin_exists}
 
 
 @router.post(
