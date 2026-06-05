@@ -41,7 +41,10 @@ services:
       - NODE_ENV=production
       # La URL usará la base de datos server_db (para Better Auth, Hono, etc)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/server_db
-      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3000}
+      # URL que Better-Auth usa para generar links y validar requests.
+      # En Dokploy debe ser la URL pública del servidor: https://tu-dominio.com/server
+      # En dev local: http://localhost:3000
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://server:3000}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-super-secret-key-replace-me}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:8080}
     # Puertos ocultos: Solo accesibles internamente vía Nginx

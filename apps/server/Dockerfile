@@ -38,5 +38,6 @@ WORKDIR /app/apps/server
 
 EXPOSE 3000
 
-# Ejecutar el servidor compilado
-CMD ["npm", "run", "start"]
+# Aplicar schema (additive only: nuevas columnas y tablas) antes de arrancar.
+# drizzle-kit push usa DATABASE_URL del entorno — sin prompts en modo no-interactivo.
+CMD ["sh", "-c", "node /app/node_modules/.bin/drizzle-kit push --config=/app/packages/db/drizzle.config.ts && npm run start"]
