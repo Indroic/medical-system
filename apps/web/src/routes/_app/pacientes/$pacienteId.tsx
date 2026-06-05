@@ -1,3 +1,4 @@
+import { toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -27,7 +28,7 @@ function PacienteDetail() {
         setPaciente(p);
         setEstudios(e.items.filter((est) => est.paciente_id === pacienteId));
       })
-      .catch((err) => console.error("Error cargando paciente"))
+      .catch((err) => toast.danger("Error cargando paciente"))
       .finally(() => setLoading(false));
   }, [token, pacienteId]);
 

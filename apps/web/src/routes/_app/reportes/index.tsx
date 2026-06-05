@@ -1,3 +1,4 @@
+import { toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -41,7 +42,7 @@ function ReportesList() {
         );
         setItems(withReportes);
       })
-      .catch((err) => console.error("Error cargando reportes"))
+      .catch((err) => toast.danger("Error cargando reportes"))
       .finally(() => setLoading(false));
   }, [token]);
 

@@ -1,3 +1,4 @@
+import { toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -22,7 +23,7 @@ function EstudiosList() {
     estudiosApi
       .listar(token)
       .then((res) => setEstudios(res.items))
-      .catch((err) => console.error("Error cargando estudios"))
+      .catch((err) => toast.danger("Error cargando estudios"))
       .finally(() => setLoading(false));
   }, [token]);
 

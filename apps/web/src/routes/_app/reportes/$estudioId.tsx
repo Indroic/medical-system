@@ -1,3 +1,4 @@
+import { toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
@@ -17,7 +18,6 @@ function ReportePage() {
   const navigate = useNavigate();
   const [reporte, setReporte] = useState<ReporteResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchReporte = async () => {
@@ -48,7 +48,7 @@ function ReportePage() {
 
   const handleDownload = async () => {
     if (!token) return;
-    setDownloadError(null);
+    
     try {
       const url = reportesApi.urlDescarga(estudioId);
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -61,7 +61,7 @@ function ReportePage() {
       a.click();
       URL.revokeObjectURL(href);
     } catch {
-      setDownloadError("Error al descargar el reporte");
+      toast.danger("Error al descargar el reporte");
     }
   };
 
@@ -107,12 +107,6 @@ function ReportePage() {
                 <Row label="PDF disponible" value={reporte.pdf_disponible ? "Sí" : "No"} />
               </dl>
             </div>
-
-            {downloadError && (
-              <p className="text-[13px] text-smoke border border-charcoal rounded-lg px-3 py-2 bg-ash">
-                {downloadError}
-              </p>
-            )}
 
             <button
               type="button"

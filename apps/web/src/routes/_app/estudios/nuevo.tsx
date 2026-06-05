@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Button, FieldError, Input, Label, TextField } from "@heroui/react";
+import { useForm } from "@tanstack/react-form";
+import { Button, FieldError, Input, Label, TextField, toast } from "@heroui/react";
 
 import PageHeader from "@/components/page-header";
 import PatientCard from "@/components/patient-card";
@@ -23,15 +24,9 @@ function NuevoEstudio() {
   const [step, setStep] = useState<"patient" | "upload">(prefilledId ? "upload" : "patient");
   const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [findDocumento, setFindDocumento] = useState("");
-  const [findLoading, setFindLoading] = useState(false);
   const [createMode, setCreateMode] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [newPaciente, setNewPaciente] = useState({
-    nombre: "", apellido: "", fecha_nacimiento: "", documento_identidad: "",
-  });
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -40,44 +35,43 @@ function NuevoEstudio() {
     }
   }, [prefilledId, token]);
 
+  const createPatientForm = useForm({
+    defaultValues: {
+      nombre: "",
+      apellido: "",
+      fecha_nacimiento: "",
+      documento_identidad: "",
+    },
+    onSubmit: async ({ value }) => {
+      if (!token) return;
+      try {
+        const p = await pacientesApi.crear(token, value);
+        setPaciente(p);
+        setStep("upload");
+        toast.success("Paciente creado");
+      } catch (err) {
+        toast.danger(err instanceof ApiError ? err.message : "Error al crear paciente");
+      }
+    },
+  });
+
   const handleFindPatient = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token || !findDocumento) return;
-    setFindLoading(true);
-    try {
-      setCreateMode(true);
-      setNewPaciente((prev) => ({ ...prev, documento_identidad: findDocumento }));
-    } finally {
-      setFindLoading(false);
-    }
-  };
-
-  const handleCreatePatient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!token) return;
-    setFindLoading(true);
-    try {
-      const p = await pacientesApi.crear(token, newPaciente);
-      setPaciente(p);
-      setStep("upload");
-    } catch (err) {
-      setCreateError(err instanceof ApiError ? err.message : "Error al crear paciente");
-    } finally {
-      setFindLoading(false);
-    }
+    setCreateMode(true);
+    createPatientForm.setFieldValue("documento_identidad", findDocumento);
   };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token || !paciente || !file) return;
-    setLoading(true);
+    setUploading(true);
     try {
       const estudio = await estudiosApi.crear(token, paciente.id, file);
       navigate({ to: "/estudios/$estudioId", params: { estudioId: estudio.id } });
     } catch (err) {
-      setUploadError(err instanceof ApiError ? err.message : "Error al subir estudio");
+      toast.danger(err instanceof ApiError ? err.message : "Error al subir estudio");
     } finally {
-      setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -105,11 +99,9 @@ function NuevoEstudio() {
             <div key={label} className="flex items-center gap-2">
               <span
                 className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-medium ${
-                  done
-                    ? "bg-green text-obsidian"
-                    : active
-                    ? "border border-green text-green"
-                    : "border border-charcoal text-smoke"
+                  done ? "bg-green text-obsidian"
+                  : active ? "border border-green text-green"
+                  : "border border-charcoal text-smoke"
                 }`}
               >
                 {idx + 1}
@@ -143,7 +135,6 @@ function NuevoEstudio() {
                     />
                     <button
                       type="submit"
-                      disabled={findLoading}
                       className="rounded-full border border-charcoal px-4 text-[13px] text-snow hover:bg-ash hover:border-slate transition-colors whitespace-nowrap"
                     >
                       Buscar
@@ -162,42 +153,61 @@ function NuevoEstudio() {
                 </p>
               </form>
             ) : (
-              <form onSubmit={handleCreatePatient} className="flex flex-col gap-4">
+              <form
+                onSubmit={(e) => { e.preventDefault(); createPatientForm.handleSubmit(); }}
+                className="flex flex-col gap-4"
+              >
                 <div className="grid grid-cols-2 gap-4">
-                  <TextField name="nombre" value={newPaciente.nombre} onChange={(v) => setNewPaciente((p) => ({ ...p, nombre: v }))} isRequired className="w-full">
-                    <Label className="text-[13px] text-silver mb-1.5">Nombre</Label>
-                    <Input placeholder="María" />
-                    <FieldError />
-                  </TextField>
-                  <TextField name="apellido" value={newPaciente.apellido} onChange={(v) => setNewPaciente((p) => ({ ...p, apellido: v }))} isRequired className="w-full">
-                    <Label className="text-[13px] text-silver mb-1.5">Apellido</Label>
-                    <Input placeholder="García" />
-                    <FieldError />
-                  </TextField>
+                  <createPatientForm.Field name="nombre">
+                    {(field) => (
+                      <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
+                        <Label className="text-[13px] text-silver mb-1.5">Nombre</Label>
+                        <Input placeholder="María" />
+                        <FieldError />
+                      </TextField>
+                    )}
+                  </createPatientForm.Field>
+                  <createPatientForm.Field name="apellido">
+                    {(field) => (
+                      <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
+                        <Label className="text-[13px] text-silver mb-1.5">Apellido</Label>
+                        <Input placeholder="García" />
+                        <FieldError />
+                      </TextField>
+                    )}
+                  </createPatientForm.Field>
                 </div>
-                <TextField name="fecha_nacimiento" type="date" value={newPaciente.fecha_nacimiento} onChange={(v) => setNewPaciente((p) => ({ ...p, fecha_nacimiento: v }))} isRequired className="w-full">
-                  <Label className="text-[13px] text-silver mb-1.5">Fecha de nacimiento</Label>
-                  <Input />
-                  <FieldError />
-                </TextField>
-                <TextField name="documento_identidad" value={newPaciente.documento_identidad} onChange={(v) => setNewPaciente((p) => ({ ...p, documento_identidad: v }))} isRequired className="w-full">
-                  <Label className="text-[13px] text-silver mb-1.5">Documento de identidad</Label>
-                  <Input placeholder="12345678" />
-                  <FieldError />
-                </TextField>
-                {createError && (
-                  <p className="text-[13px] text-smoke border border-charcoal rounded-lg px-3 py-2 bg-obsidian">
-                    {createError}
-                  </p>
-                )}
+                <createPatientForm.Field name="fecha_nacimiento">
+                  {(field) => (
+                    <TextField name={field.name} type="date" value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
+                      <Label className="text-[13px] text-silver mb-1.5">Fecha de nacimiento</Label>
+                      <Input />
+                      <FieldError />
+                    </TextField>
+                  )}
+                </createPatientForm.Field>
+                <createPatientForm.Field name="documento_identidad">
+                  {(field) => (
+                    <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
+                      <Label className="text-[13px] text-silver mb-1.5">Documento de identidad</Label>
+                      <Input placeholder="12345678" />
+                      <FieldError />
+                    </TextField>
+                  )}
+                </createPatientForm.Field>
+
                 <div className="flex gap-3 pt-1">
-                  <Button
-                    type="submit"
-                    isDisabled={findLoading}
-                    className="rounded-full bg-green px-5 py-2 text-[13px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
-                  >
-                    {findLoading ? "Guardando…" : "Crear y continuar"}
-                  </Button>
+                  <createPatientForm.Subscribe selector={(s) => s.isSubmitting}>
+                    {(isSubmitting) => (
+                      <Button
+                        type="submit"
+                        isDisabled={isSubmitting}
+                        className="rounded-full bg-green px-5 py-2 text-[13px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
+                      >
+                        {isSubmitting ? "Guardando…" : "Crear y continuar"}
+                      </Button>
+                    )}
+                  </createPatientForm.Subscribe>
                   <button
                     type="button"
                     onClick={() => setCreateMode(false)}
@@ -229,9 +239,7 @@ function NuevoEstudio() {
                 <div
                   onClick={() => fileRef.current?.click()}
                   className={`flex flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 cursor-pointer transition-colors ${
-                    file
-                      ? "border-green/50 bg-green/5"
-                      : "border-charcoal hover:border-slate hover:bg-obsidian"
+                    file ? "border-green/50 bg-green/5" : "border-charcoal hover:border-slate hover:bg-obsidian"
                   }`}
                 >
                   {file ? (
@@ -247,18 +255,13 @@ function NuevoEstudio() {
                   )}
                 </div>
 
-                {uploadError && (
-                  <p className="text-[13px] text-smoke border border-charcoal rounded-lg px-3 py-2 bg-obsidian">
-                    {uploadError}
-                  </p>
-                )}
                 <div className="flex gap-3">
                   <Button
                     type="submit"
-                    isDisabled={!file || loading}
+                    isDisabled={!file || uploading}
                     className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
                   >
-                    {loading ? "Subiendo…" : "Crear estudio"}
+                    {uploading ? "Subiendo…" : "Crear estudio"}
                   </Button>
                   <button
                     type="button"

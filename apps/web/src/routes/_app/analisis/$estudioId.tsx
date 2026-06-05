@@ -1,3 +1,4 @@
+import { toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -24,7 +25,7 @@ function AnalisisDetail() {
     if (!token) return;
     Promise.all([analisisApi.obtener(token, estudioId), estudiosApi.obtener(token, estudioId)])
       .then(([a, e]) => { setAnalisis(a); setEstudio(e); })
-      .catch((err) => console.error("Error cargando análisis"))
+      .catch((err) => toast.danger("Error cargando análisis"))
       .finally(() => setLoading(false));
   }, [token, estudioId]);
 

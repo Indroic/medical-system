@@ -1,3 +1,4 @@
+import { toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -21,7 +22,6 @@ function EstudioDetail() {
   const [reporte, setReporte] = useState<ReporteResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
-  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -44,11 +44,11 @@ function EstudioDetail() {
     if (!token || !estudio) return;
     setAnalyzing(true);
     try {
-      setAnalyzeError(null);
+      
       await analisisApi.ejecutar(token, estudio.id, estudio.imagen_path);
       navigate({ to: "/analisis/$estudioId", params: { estudioId } });
     } catch (err) {
-      setAnalyzeError(err instanceof ApiError ? err.message : "Error al iniciar análisis");
+      toast.danger(err instanceof ApiError ? err.message : "Error al iniciar análisis");
     } finally {
       setAnalyzing(false);
     }
@@ -92,12 +92,6 @@ function EstudioDetail() {
               <p className="text-[13px] text-smoke">Sin imagen disponible</p>
             )}
           </div>
-
-          {analyzeError && (
-            <p className="mt-3 text-[13px] text-smoke border border-charcoal rounded-lg px-3 py-2 bg-ash">
-              {analyzeError}
-            </p>
-          )}
 
           <div className="mt-4 flex gap-3">
             {isPendiente && (

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Button, FieldError, Input, Label, TextField } from "@heroui/react";
+import { useForm } from "@tanstack/react-form";
+import { Button, FieldError, Input, Label, TextField, toast } from "@heroui/react";
 
 import PageHeader from "@/components/page-header";
 import { useAuthStore } from "@/lib/auth-store";
@@ -13,32 +13,24 @@ export const Route = createFileRoute("/_app/pacientes/nuevo")({
 function NuevoPaciente() {
   const { token } = useAuthStore();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    nombre: "",
-    apellido: "",
-    fecha_nacimiento: "",
-    documento_identidad: "",
+
+  const form = useForm({
+    defaultValues: {
+      nombre: "",
+      apellido: "",
+      fecha_nacimiento: "",
+      documento_identidad: "",
+    },
+    onSubmit: async ({ value }) => {
+      if (!token) return;
+      try {
+        const paciente = await pacientesApi.crear(token, value);
+        navigate({ to: "/pacientes/$pacienteId", params: { pacienteId: paciente.id } });
+      } catch (err) {
+        toast.danger(err instanceof ApiError ? err.message : "Error al crear paciente");
+      }
+    },
   });
-
-  const set = (key: keyof typeof form) => (value: string) =>
-    setForm((prev) => ({ ...prev, [key]: value }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!token) return;
-    setLoading(true);
-    try {
-      setError(null);
-      const paciente = await pacientesApi.crear(token, form);
-      navigate({ to: "/pacientes/$pacienteId", params: { pacienteId: paciente.id } });
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Error al crear paciente");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="p-8">
@@ -58,46 +50,93 @@ function NuevoPaciente() {
 
       <div className="mt-8 max-w-lg">
         <div className="rounded-2xl border border-charcoal bg-ash p-6">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form
+            onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
+            className="flex flex-col gap-5"
+          >
             <div className="grid grid-cols-2 gap-4">
-              <TextField name="nombre" value={form.nombre} onChange={set("nombre")} isRequired className="w-full">
-                <Label className="text-[13px] text-silver mb-1.5">Nombre</Label>
-                <Input placeholder="María" />
-                <FieldError />
-              </TextField>
-              <TextField name="apellido" value={form.apellido} onChange={set("apellido")} isRequired className="w-full">
-                <Label className="text-[13px] text-silver mb-1.5">Apellido</Label>
-                <Input placeholder="García" />
-                <FieldError />
-              </TextField>
+              <form.Field name="nombre" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
+                {(field) => (
+                  <TextField
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={field.handleChange}
+                    isRequired
+                    isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
+                    className="w-full"
+                  >
+                    <Label className="text-[13px] text-silver mb-1.5">Nombre</Label>
+                    <Input placeholder="María" />
+                    <FieldError>{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
+                  </TextField>
+                )}
+              </form.Field>
+
+              <form.Field name="apellido" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
+                {(field) => (
+                  <TextField
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={field.handleChange}
+                    isRequired
+                    isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
+                    className="w-full"
+                  >
+                    <Label className="text-[13px] text-silver mb-1.5">Apellido</Label>
+                    <Input placeholder="García" />
+                    <FieldError>{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
+                  </TextField>
+                )}
+              </form.Field>
             </div>
 
-            <TextField name="fecha_nacimiento" type="date" value={form.fecha_nacimiento} onChange={set("fecha_nacimiento")} isRequired className="w-full">
-              <Label className="text-[13px] text-silver mb-1.5">Fecha de nacimiento</Label>
-              <Input />
-              <FieldError />
-            </TextField>
+            <form.Field name="fecha_nacimiento" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
+              {(field) => (
+                <TextField
+                  name={field.name}
+                  type="date"
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  isRequired
+                  isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
+                  className="w-full"
+                >
+                  <Label className="text-[13px] text-silver mb-1.5">Fecha de nacimiento</Label>
+                  <Input />
+                  <FieldError>{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
+                </TextField>
+              )}
+            </form.Field>
 
-            <TextField name="documento_identidad" value={form.documento_identidad} onChange={set("documento_identidad")} isRequired className="w-full">
-              <Label className="text-[13px] text-silver mb-1.5">Documento de identidad</Label>
-              <Input placeholder="12345678" />
-              <FieldError />
-            </TextField>
-
-            {error && (
-              <p className="text-[13px] text-smoke border border-charcoal rounded-lg px-3 py-2 bg-obsidian">
-                {error}
-              </p>
-            )}
+            <form.Field name="documento_identidad" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
+              {(field) => (
+                <TextField
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  isRequired
+                  isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
+                  className="w-full"
+                >
+                  <Label className="text-[13px] text-silver mb-1.5">Documento de identidad</Label>
+                  <Input placeholder="12345678" />
+                  <FieldError>{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
+                </TextField>
+              )}
+            </form.Field>
 
             <div className="flex gap-3 pt-2">
-              <Button
-                type="submit"
-                isDisabled={loading}
-                className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
-              >
-                {loading ? "Guardando…" : "Crear paciente"}
-              </Button>
+              <form.Subscribe selector={(s) => s.isSubmitting}>
+                {(isSubmitting) => (
+                  <Button
+                    type="submit"
+                    isDisabled={isSubmitting}
+                    className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
+                  >
+                    {isSubmitting ? "Guardando…" : "Crear paciente"}
+                  </Button>
+                )}
+              </form.Subscribe>
               <button
                 type="button"
                 onClick={() => navigate({ to: "/pacientes" })}

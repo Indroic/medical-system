@@ -1,4 +1,5 @@
 import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import { Toast } from "@heroui/react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { AuthContext, useAuthState } from "@/lib/auth-store";
@@ -24,6 +25,7 @@ function RootComponent() {
   return (
     <AuthContext.Provider value={auth}>
       <HeadContent />
+      <Toast.Provider placement="bottom end" />
       <Outlet />
       <TanStackRouterDevtools position="bottom-left" />
     </AuthContext.Provider>

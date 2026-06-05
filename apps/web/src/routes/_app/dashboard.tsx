@@ -1,3 +1,4 @@
+import { toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -25,7 +26,7 @@ function Dashboard() {
       .then((res) => setEstudios(res.items))
       .catch((err) => {
         if (err instanceof ApiError && err.status === 401) navigate({ to: "/login" });
-        else console.error("Error cargando estudios");
+        else toast.danger("Error cargando estudios");
       })
       .finally(() => setLoading(false));
   }, [token, navigate]);
