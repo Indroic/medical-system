@@ -17,6 +17,14 @@ RUN pnpm install --frozen-lockfile
 
 # Compilar la aplicación React/Vite
 WORKDIR /app/apps/web
+
+# Vite hornea las variables VITE_* en el bundle estático durante el build.
+# Se reciben como ARG y se exportan como ENV para que el proceso de build las vea.
+ARG VITE_SERVER_URL=/server
+ARG VITE_PYTHON_API_URL=/api
+ENV VITE_SERVER_URL=$VITE_SERVER_URL
+ENV VITE_PYTHON_API_URL=$VITE_PYTHON_API_URL
+
 RUN pnpm run build
 
 # Imagen del Servidor Web

@@ -54,6 +54,9 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        VITE_SERVER_URL: ${VITE_SERVER_URL:-/server}
+        VITE_PYTHON_API_URL: ${VITE_PYTHON_API_URL:-/api}
     restart: always
     ports:
       - "8080:80"
