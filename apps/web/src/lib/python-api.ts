@@ -105,16 +105,19 @@ export interface ReporteResponse {
 // ─── Auth ───────────────────────────────────────────────────────────────────
 
 export const usuariosApi = {
+  checkSetup: () =>
+    request<{ setup_required: boolean }>("/api/v1/usuarios/check-setup"),
+
   login: (email: string, password: string) =>
     request<TokenResponse>("/api/v1/usuarios/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
 
-  registrar: (nombre: string, email: string, password: string, rol = "medico") =>
+  registrarAdmin: (nombre: string, email: string, password: string) =>
     request<UserResponse>("/api/v1/usuarios/registrar", {
       method: "POST",
-      body: JSON.stringify({ nombre, email, password, rol }),
+      body: JSON.stringify({ nombre, email, password, rol: "admin" }),
     }),
 
   me: (token: string) =>
