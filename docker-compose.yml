@@ -57,11 +57,9 @@ services:
     restart: always
     ports:
       - "8080:80"
-    # El Frontend (Vite) no necesita variables de entorno de BD al ejecutarse, 
-    # ya que se buildearon de forma estática, pero puede necesitar variables de API.
-    # En Vite las variables de entorno de build deben estar disponibles 
-    # al momento del 'pnpm run build' (usualmente con VITE_ prefix)
-    # Por ahora asume configuración estática o variables manejadas externamente en el CD.
+    depends_on:
+      - api
+      - server
 
 volumes:
   postgres_data:
