@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 import EstadoBadge from "@/components/estado-badge";
 import PageHeader from "@/components/page-header";
@@ -22,6 +21,7 @@ function EstudioDetail() {
   const [reporte, setReporte] = useState<ReporteResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -36,7 +36,7 @@ function EstudioDetail() {
         if (p.status === "fulfilled") setPaciente(p.value);
         if (r.status === "fulfilled") setReporte(r.value);
       })
-      .catch((err) => toast.error(err instanceof ApiError ? err.message : "Error cargando estudio"))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [token, estudioId]);
 
@@ -44,23 +44,18 @@ function EstudioDetail() {
     if (!token || !estudio) return;
     setAnalyzing(true);
     try {
+      setAnalyzeError(null);
       await analisisApi.ejecutar(token, estudio.id, estudio.imagen_path);
-      toast.success("Análisis iniciado");
       navigate({ to: "/analisis/$estudioId", params: { estudioId } });
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Error al iniciar análisis");
+      setAnalyzeError(err instanceof ApiError ? err.message : "Error al iniciar análisis");
     } finally {
       setAnalyzing(false);
     }
   };
 
-  if (loading) {
-    return <div className="p-8 text-[13px] text-concrete">Cargando…</div>;
-  }
-
-  if (!estudio) {
-    return <div className="p-8 text-[13px] text-concrete">Estudio no encontrado.</div>;
-  }
+  if (loading) return <div className="p-8 text-[13px] text-smoke">Cargando…</div>;
+  if (!estudio) return <div className="p-8 text-[13px] text-smoke">Estudio no encontrado.</div>;
 
   const isPendiente = estudio.estado === "PENDIENTE";
   const hasAnalisis = estudio.estado !== "PENDIENTE";
@@ -75,7 +70,7 @@ function EstudioDetail() {
             <button
               type="button"
               onClick={() => navigate({ to: "/estudios" })}
-              className="text-[13px] text-concrete hover:text-graphite transition-colors"
+              className="text-[13px] text-smoke hover:text-silver transition-colors"
             >
               ← Volver
             </button>
@@ -83,10 +78,10 @@ function EstudioDetail() {
         }
       />
 
-      <div className="mt-6 grid grid-cols-[1fr_320px] gap-6">
+      <div className="mt-6 grid grid-cols-[1fr_300px] gap-6">
         {/* Left: image */}
         <div>
-          <div className="rounded-[14px] border border-hairline overflow-hidden bg-mist flex items-center justify-center min-h-[320px]">
+          <div className="rounded-2xl border border-charcoal overflow-hidden bg-ash flex items-center justify-center min-h-[320px]">
             {estudio.imagen_path ? (
               <img
                 src={estudio.imagen_path}
@@ -94,18 +89,23 @@ function EstudioDetail() {
                 className="max-h-[480px] w-auto object-contain"
               />
             ) : (
-              <p className="text-[13px] text-concrete">Sin imagen disponible</p>
+              <p className="text-[13px] text-smoke">Sin imagen disponible</p>
             )}
           </div>
 
-          {/* Actions */}
+          {analyzeError && (
+            <p className="mt-3 text-[13px] text-smoke border border-charcoal rounded-lg px-3 py-2 bg-ash">
+              {analyzeError}
+            </p>
+          )}
+
           <div className="mt-4 flex gap-3">
             {isPendiente && (
               <button
                 type="button"
                 onClick={handleAnalizar}
                 disabled={analyzing}
-                className="rounded-[10px] bg-graphite px-5 py-2.5 text-[14px] font-medium text-chalk hover:bg-carbon disabled:opacity-50 transition-colors"
+                className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
               >
                 {analyzing ? "Analizando…" : "Ejecutar análisis IA"}
               </button>
@@ -114,7 +114,7 @@ function EstudioDetail() {
               <button
                 type="button"
                 onClick={() => navigate({ to: "/analisis/$estudioId", params: { estudioId } })}
-                className="rounded-[10px] border border-hairline px-5 py-2.5 text-[14px] font-medium text-graphite hover:bg-mist transition-colors"
+                className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
               >
                 Ver análisis →
               </button>
@@ -123,7 +123,7 @@ function EstudioDetail() {
               <a
                 href={`${import.meta.env.VITE_PYTHON_API_URL}/api/v1/reportes/${estudioId}/descargar`}
                 download
-                className="rounded-[10px] border border-hairline px-5 py-2.5 text-[14px] font-medium text-graphite hover:bg-mist transition-colors"
+                className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
               >
                 Descargar PDF
               </a>
@@ -135,8 +135,8 @@ function EstudioDetail() {
         <div className="flex flex-col gap-4">
           {paciente && <PatientCard paciente={paciente} />}
 
-          <div className="rounded-[14px] border border-hairline bg-chalk p-4">
-            <p className="text-[12px] font-medium text-concrete uppercase tracking-wide mb-3">
+          <div className="rounded-2xl border border-charcoal bg-ash p-4">
+            <p className="text-[11px] font-medium text-smoke uppercase tracking-widest mb-3">
               Detalles del estudio
             </p>
             <dl className="flex flex-col gap-2">
@@ -147,11 +147,9 @@ function EstudioDetail() {
                 <Row
                   label="Reporte"
                   value={
-                    reporte.estado === "LISTO"
-                      ? "Disponible"
-                      : reporte.estado === "GENERANDO"
-                      ? "Generando…"
-                      : "Error"
+                    reporte.estado === "LISTO" ? "Disponible"
+                    : reporte.estado === "GENERANDO" ? "Generando…"
+                    : "Error"
                   }
                 />
               )}
@@ -163,19 +161,11 @@ function EstudioDetail() {
   );
 }
 
-function Row({
-  label,
-  value,
-  mono,
-}: {
-  label: string;
-  value: React.ReactNode;
-  mono?: boolean;
-}) {
+function Row({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <dt className="text-[12px] text-concrete shrink-0">{label}</dt>
-      <dd className={`text-[13px] text-graphite text-right ${mono ? "font-mono" : ""}`}>{value}</dd>
+      <dt className="text-[12px] text-smoke shrink-0">{label}</dt>
+      <dd className={`text-[13px] text-silver text-right ${mono ? "font-mono" : ""}`}>{value}</dd>
     </div>
   );
 }

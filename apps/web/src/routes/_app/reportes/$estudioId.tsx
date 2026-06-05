@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import PageHeader from "@/components/page-header";
 import RiesgoBadge from "@/components/riesgo-badge";
@@ -18,6 +17,7 @@ function ReportePage() {
   const navigate = useNavigate();
   const [reporte, setReporte] = useState<ReporteResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchReporte = async () => {
@@ -31,8 +31,6 @@ function ReportePage() {
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) {
         setReporte(null);
-      } else {
-        toast.error("Error cargando reporte");
       }
       if (pollingRef.current) clearInterval(pollingRef.current);
     } finally {
@@ -50,6 +48,7 @@ function ReportePage() {
 
   const handleDownload = async () => {
     if (!token) return;
+    setDownloadError(null);
     try {
       const url = reportesApi.urlDescarga(estudioId);
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -61,8 +60,8 @@ function ReportePage() {
       a.download = `reporte_${estudioId}.pdf`;
       a.click();
       URL.revokeObjectURL(href);
-    } catch (err) {
-      toast.error("Error al descargar el reporte");
+    } catch {
+      setDownloadError("Error al descargar el reporte");
     }
   };
 
@@ -74,7 +73,7 @@ function ReportePage() {
           <button
             type="button"
             onClick={() => navigate({ to: "/analisis/$estudioId", params: { estudioId } })}
-            className="text-[13px] text-concrete hover:text-graphite transition-colors"
+            className="text-[13px] text-smoke hover:text-silver transition-colors"
           >
             ← Análisis
           </button>
@@ -83,22 +82,21 @@ function ReportePage() {
 
       <div className="mt-6 max-w-lg">
         {loading ? (
-          <div className="rounded-[14px] border border-hairline p-8 text-center text-[13px] text-concrete">
+          <div className="rounded-2xl border border-charcoal p-8 text-center text-[13px] text-smoke">
             Cargando reporte…
           </div>
         ) : !reporte ? (
-          <div className="rounded-[14px] border border-hairline p-8 text-center">
-            <p className="text-[14px] font-medium text-graphite mb-2">Reporte no disponible</p>
-            <p className="text-[13px] text-concrete">
+          <div className="rounded-2xl border border-charcoal p-8 text-center">
+            <p className="text-[14px] text-snow mb-2">Reporte no disponible</p>
+            <p className="text-[13px] text-smoke">
               El reporte se genera automáticamente tras completar el análisis.
             </p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {/* Status card */}
-            <div className="rounded-[14px] border border-hairline bg-chalk p-5">
+            <div className="rounded-2xl border border-charcoal bg-ash p-5">
               <div className="flex items-center justify-between mb-4">
-                <p className="text-[13px] font-semibold text-graphite">Estado del reporte</p>
+                <p className="text-[13px] text-silver">Estado del reporte</p>
                 <StatusIndicator estado={reporte.estado} />
               </div>
 
@@ -106,19 +104,21 @@ function ReportePage() {
                 <Row label="ID del reporte" value={reporte.reporte_id.slice(0, 12) + "…"} mono />
                 <Row label="Nivel de riesgo" value={<RiesgoBadge nivel={reporte.nivel_riesgo} />} />
                 <Row label="Hallazgos" value={String(reporte.total_hallazgos)} />
-                <Row
-                  label="PDF disponible"
-                  value={reporte.pdf_disponible ? "Sí" : "No"}
-                />
+                <Row label="PDF disponible" value={reporte.pdf_disponible ? "Sí" : "No"} />
               </dl>
             </div>
 
-            {/* Download */}
+            {downloadError && (
+              <p className="text-[13px] text-smoke border border-charcoal rounded-lg px-3 py-2 bg-ash">
+                {downloadError}
+              </p>
+            )}
+
             <button
               type="button"
               onClick={handleDownload}
               disabled={reporte.estado !== "LISTO" || !reporte.pdf_disponible}
-              className="w-full rounded-[10px] bg-graphite py-3 text-[14px] font-medium text-chalk hover:bg-carbon disabled:opacity-40 transition-colors"
+              className="w-full rounded-full bg-green py-2.5 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-40 transition-colors"
             >
               {reporte.estado === "GENERANDO"
                 ? "Generando PDF…"
@@ -136,40 +136,32 @@ function ReportePage() {
 function StatusIndicator({ estado }: { estado: string }) {
   if (estado === "GENERANDO") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-[26px] border border-hairline bg-mist px-3 py-1 text-[12px] font-medium text-concrete">
-        <span className="h-1.5 w-1.5 rounded-full bg-concrete animate-pulse" />
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-charcoal bg-ash px-3 py-1 text-[12px] text-smoke">
+        <span className="h-1.5 w-1.5 rounded-full bg-smoke animate-pulse" />
         Generando
       </span>
     );
   }
   if (estado === "LISTO") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-[26px] bg-graphite px-3 py-1 text-[12px] font-medium text-chalk">
-        <span className="h-1.5 w-1.5 rounded-full bg-chalk" />
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-green/10 border border-green/30 px-3 py-1 text-[12px] font-medium text-green">
+        <span className="h-1.5 w-1.5 rounded-full bg-green" />
         Listo
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-[26px] border border-hairline bg-mist px-3 py-1 text-[12px] font-medium text-concrete">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-charcoal bg-ash px-3 py-1 text-[12px] text-smoke">
       Error
     </span>
   );
 }
 
-function Row({
-  label,
-  value,
-  mono,
-}: {
-  label: string;
-  value: React.ReactNode;
-  mono?: boolean;
-}) {
+function Row({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <dt className="text-[12px] text-concrete">{label}</dt>
-      <dd className={`text-[13px] text-graphite ${mono ? "font-mono" : ""}`}>{value}</dd>
+      <dt className="text-[12px] text-smoke">{label}</dt>
+      <dd className={`text-[13px] text-silver ${mono ? "font-mono" : ""}`}>{value}</dd>
     </div>
   );
 }

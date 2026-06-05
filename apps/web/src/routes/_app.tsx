@@ -31,21 +31,21 @@ function AppLayout() {
   };
 
   return (
-    <div className="flex h-svh bg-chalk font-sans">
+    <div className="flex h-svh bg-obsidian font-sans">
       {/* Sidebar */}
-      <aside className="flex w-60 flex-col border-r border-hairline bg-chalk">
+      <aside className="flex w-56 flex-col border-r border-charcoal bg-obsidian">
         {/* Logo */}
-        <div className="flex items-center gap-2 px-5 py-5 border-b border-hairline">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[4px] bg-graphite">
-            <Scan size={14} className="text-chalk" />
+        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-charcoal">
+          <div className="flex h-6 w-6 items-center justify-center rounded bg-green">
+            <Scan size={13} className="text-obsidian" />
           </div>
-          <span className="text-[13px] font-semibold tracking-tight text-graphite">
+          <span className="text-[13px] font-medium tracking-tight text-snow">
             MedImaging
           </span>
         </div>
 
         {/* Nav */}
-        <nav className="flex flex-col gap-1 p-3 flex-1">
+        <nav className="flex flex-col gap-0.5 p-2 flex-1">
           {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
             const active = location.pathname === to || location.pathname.startsWith(to + "/");
             return (
@@ -54,13 +54,13 @@ function AppLayout() {
                 type="button"
                 onClick={() => navigate({ to })}
                 className={[
-                  "flex items-center gap-3 rounded-[10px] px-3 py-2 text-[13px] font-medium transition-colors text-left w-full",
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors text-left w-full",
                   active
-                    ? "bg-graphite text-chalk"
-                    : "text-concrete hover:bg-mist hover:text-graphite",
+                    ? "bg-ash text-snow font-medium"
+                    : "text-smoke hover:bg-ash hover:text-silver",
                 ].join(" ")}
               >
-                <Icon size={15} />
+                <Icon size={14} />
                 {label}
               </button>
             );
@@ -68,17 +68,17 @@ function AppLayout() {
         </nav>
 
         {/* User + logout */}
-        <div className="border-t border-hairline p-3">
+        <div className="border-t border-charcoal p-2">
           {user && (
-            <div className="mb-2 px-3 py-2">
-              <p className="text-[13px] font-medium text-graphite truncate">{user.nombre}</p>
-              <p className="text-[12px] text-concrete truncate">{user.email}</p>
+            <div className="mb-1 px-3 py-2">
+              <p className="text-[13px] font-medium text-snow truncate">{user.nombre}</p>
+              <p className="text-[12px] text-smoke truncate">{user.email}</p>
             </div>
           )}
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full rounded-[10px] px-3 py-2 text-[13px] text-concrete hover:bg-mist hover:text-graphite text-left transition-colors"
+            className="w-full rounded-lg px-3 py-2 text-[13px] text-smoke hover:bg-ash hover:text-silver text-left transition-colors"
           >
             Cerrar sesión
           </button>
@@ -86,7 +86,7 @@ function AppLayout() {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto bg-chalk">
+      <main className="flex-1 overflow-y-auto bg-obsidian">
         <Outlet />
       </main>
     </div>

@@ -14,19 +14,14 @@ export default function MriViewer({ imagePath, hallazgos = [] }: MriViewerProps)
   const handleLoad = () => {
     const el = imgRef.current;
     if (!el) return;
-    setDims({
-      w: el.naturalWidth,
-      h: el.naturalHeight,
-      nw: el.clientWidth,
-      nh: el.clientHeight,
-    });
+    setDims({ w: el.naturalWidth, h: el.naturalHeight, nw: el.clientWidth, nh: el.clientHeight });
   };
 
   const scaleX = dims.nw / (dims.w || 1);
   const scaleY = dims.nh / (dims.h || 1);
 
   return (
-    <div className="relative inline-block border border-hairline rounded-[14px] overflow-hidden">
+    <div className="relative inline-block border border-charcoal rounded-2xl overflow-hidden bg-obsidian">
       <img
         ref={imgRef}
         src={imagePath}
@@ -46,26 +41,12 @@ export default function MriViewer({ imagePath, hallazgos = [] }: MriViewerProps)
             const y = h.y_min * scaleY;
             const w = (h.x_max - h.x_min) * scaleX;
             const ht = (h.y_max - h.y_min) * scaleY;
-            const stroke = h.es_critico ? "#0a0a0a" : "#a1a1a1";
+            const stroke = h.es_critico ? "#3ecf8e" : "#4d4d4d";
             return (
               <g key={i}>
-                <rect
-                  x={x}
-                  y={y}
-                  width={w}
-                  height={ht}
-                  fill="none"
-                  stroke={stroke}
-                  strokeWidth={1.5}
-                />
+                <rect x={x} y={y} width={w} height={ht} fill="none" stroke={stroke} strokeWidth={1.5} />
                 <rect x={x} y={y - 16} width={Math.max(w, 60)} height={16} fill={stroke} />
-                <text
-                  x={x + 3}
-                  y={y - 4}
-                  fill="#ffffff"
-                  fontSize={10}
-                  fontFamily="Geist Variable, monospace"
-                >
+                <text x={x + 3} y={y - 4} fill={h.es_critico ? "#121212" : "#fafafa"} fontSize={10} fontFamily="Geist Variable, monospace">
                   {h.etiqueta} {Math.round(h.confianza * 100)}%
                 </text>
               </g>

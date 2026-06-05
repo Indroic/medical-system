@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "sonner";
+import { Button, FieldError, Input, Label, TextField } from "@heroui/react";
 
 import { authClient } from "@/lib/auth-client";
 import { useAuthStore } from "@/lib/auth-store";
@@ -20,18 +20,19 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
+    setError(null);
     setLoading(true);
     try {
       const { data, error } = await authClient.signIn.email({ email, password });
-      if (error || !data) throw new Error(error?.message ?? "Error al iniciar sesión");
+      if (error || !data) throw new Error(error?.message ?? "Credenciales inválidas");
 
-      // Intercambiar el token opaco de sesión por un JWT firmado con JWKS
       const tokenRes = await fetch(`${env.VITE_SERVER_URL}/api/auth/token`, {
-        headers: { Authorization: `Bearer ${data.session.token}` },
+        headers: { Authorization: `Bearer ${data.token}` },
       });
       if (!tokenRes.ok) throw new Error("No se pudo obtener el token JWT");
       const { token: jwtToken } = await tokenRes.json();
@@ -45,67 +46,70 @@ function LoginPage() {
       });
       navigate({ to: "/dashboard" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al iniciar sesión");
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-svh bg-chalk flex items-center justify-center p-6">
+    <div className="min-h-svh bg-obsidian flex items-center justify-center p-6">
       <div className="w-full max-w-90">
+        {/* Header */}
         <div className="mb-8">
-          <p className="text-[12px] font-medium text-concrete uppercase tracking-wide mb-2">
+          <p className="text-[11px] font-medium text-smoke uppercase tracking-widest mb-3">
             Medical Imaging System
           </p>
-          <h1 className="text-[24px] font-semibold text-graphite tracking-tight">
+          <h1 className="text-[22px] font-normal text-snow leading-tight tracking-[-0.3px]">
             Acceder al sistema
           </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Field label="Correo electrónico">
-            <input
+        {/* Card */}
+        <div className="rounded-2xl border border-charcoal bg-ash p-6">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <TextField
+              name="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="doctor@clinica.com"
-              required
-              className={INPUT_CLASS}
-            />
-          </Field>
-          <Field label="Contraseña">
-            <input
+              onChange={setEmail}
+              isRequired
+              className="w-full"
+            >
+              <Label className="text-[13px] text-silver mb-1.5">Correo electrónico</Label>
+              <Input placeholder="doctor@clinica.com" />
+              <FieldError />
+            </TextField>
+
+            <TextField
+              name="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              className={INPUT_CLASS}
-            />
-          </Field>
+              onChange={setPassword}
+              isRequired
+              className="w-full"
+            >
+              <Label className="text-[13px] text-silver mb-1.5">Contraseña</Label>
+              <Input placeholder="••••••••" />
+              <FieldError />
+            </TextField>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 w-full rounded-[10px] bg-graphite py-2.5 text-[14px] font-medium text-chalk hover:bg-carbon disabled:opacity-50 transition-colors"
-          >
-            {loading ? "Accediendo…" : "Acceder"}
-          </button>
-        </form>
+            {error && (
+              <p className="text-[13px] text-smoke border border-charcoal rounded-lg px-3 py-2 bg-ash">
+                {error}
+              </p>
+            )}
+
+            <Button
+              type="submit"
+              isDisabled={loading}
+              className="mt-1 w-full rounded-full bg-green text-obsidian font-medium text-[14px] py-2.5 transition-opacity disabled:opacity-50"
+            >
+              {loading ? "Accediendo…" : "Acceder"}
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-[13px] font-medium text-graphite">{label}</label>
-      {children}
-    </div>
-  );
-}
-
-const INPUT_CLASS =
-  "w-full rounded-[10px] border border-hairline bg-chalk px-3 py-2.5 font-mono text-[14px] text-graphite placeholder:text-concrete focus:outline-none focus:border-graphite transition-colors";

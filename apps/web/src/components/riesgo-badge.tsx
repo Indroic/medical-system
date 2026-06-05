@@ -1,25 +1,23 @@
 type NivelRiesgo = "BAJO" | "MODERADO" | "CRITICO" | "NO_EVALUADO" | string;
 
 const STYLES: Record<string, string> = {
-  BAJO: "bg-mist text-graphite border-hairline",
-  MODERADO: "bg-ash text-graphite border-transparent",
-  CRITICO: "bg-carbon text-chalk border-transparent",
-  NO_EVALUADO: "bg-mist text-concrete border-hairline",
+  NO_EVALUADO: "bg-ash text-smoke border-charcoal",
+  BAJO:        "bg-green/10 text-green border-green/30",
+  MODERADO:    "bg-slate/40 text-silver border-transparent",
+  CRITICO:     "bg-snow text-obsidian border-transparent",
 };
 
 const LABELS: Record<string, string> = {
-  BAJO: "Riesgo bajo",
-  MODERADO: "Riesgo moderado",
-  CRITICO: "Riesgo crítico",
   NO_EVALUADO: "No evaluado",
+  BAJO:        "Riesgo bajo",
+  MODERADO:    "Riesgo moderado",
+  CRITICO:     "Riesgo crítico",
 };
 
 export default function RiesgoBadge({ nivel }: { nivel: NivelRiesgo }) {
-  const cls = STYLES[nivel] ?? "bg-mist text-graphite border-hairline";
+  const cls = STYLES[nivel] ?? "bg-ash text-smoke border-charcoal";
   return (
-    <span
-      className={`inline-flex items-center rounded-[26px] border px-3 py-1 text-[12px] font-medium ${cls}`}
-    >
+    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[12px] font-medium ${cls}`}>
       {LABELS[nivel] ?? nivel}
     </span>
   );

@@ -1,4 +1,3 @@
-import { Toaster } from "@medical-system/ui/components/sonner";
 import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
@@ -26,7 +25,6 @@ function RootComponent() {
     <AuthContext.Provider value={auth}>
       <HeadContent />
       <Outlet />
-      <Toaster />
       <TanStackRouterDevtools position="bottom-left" />
     </AuthContext.Provider>
   );

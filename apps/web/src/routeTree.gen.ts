@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SetupRouteImport } from './routes/setup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ import { Route as AppEstudiosNuevoRouteImport } from './routes/_app/estudios/nue
 import { Route as AppEstudiosEstudioIdRouteImport } from './routes/_app/estudios/$estudioId'
 import { Route as AppAnalisisEstudioIdRouteImport } from './routes/_app/analisis/$estudioId'
 
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -91,6 +97,7 @@ const AppAnalisisEstudioIdRoute = AppAnalisisEstudioIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/setup': typeof SetupRoute
   '/dashboard': typeof AppDashboardRoute
   '/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/setup': typeof SetupRoute
   '/dashboard': typeof AppDashboardRoute
   '/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/setup': typeof SetupRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/_app/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/setup'
     | '/dashboard'
     | '/analisis/$estudioId'
     | '/estudios/$estudioId'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/setup'
     | '/dashboard'
     | '/analisis/$estudioId'
     | '/estudios/$estudioId'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/login'
+    | '/setup'
     | '/_app/dashboard'
     | '/_app/analisis/$estudioId'
     | '/_app/estudios/$estudioId'
@@ -182,10 +194,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  SetupRoute: typeof SetupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -312,6 +332,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  SetupRoute: SetupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
