@@ -60,7 +60,7 @@ app.add_middleware(
 
 # -- Routers ------------------------------------------------------------------
 app.include_router(usuarios_router, prefix="/api/v1")
-app.include_router(pacientes_router) # The prefix is already in router.py
+app.include_router(pacientes_router, prefix="/api/v1")
 app.include_router(estudios_router, prefix="/api/v1")
 app.include_router(analizador_router, prefix="/api/v1")
 app.include_router(reportes_router, prefix="/api/v1")

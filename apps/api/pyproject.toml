@@ -7,7 +7,9 @@ requires-python = ">=3.14"
 dependencies = [
     # Framework principal
     "hexcore>=2.0.1",
+    "async-typer<0.2.0",
     "fastapi[standard]>=0.115.0",
+    "typer>=0.17.3",
 
     # Base de datos
     "sqlalchemy[asyncio]>=2.0.0",

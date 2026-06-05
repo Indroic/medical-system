@@ -27,4 +27,6 @@ async def get_crear_paciente_uc(
 async def get_obtener_paciente_uc(
     uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ) -> ObtenerPacienteUseCase:
-    return ObtenerPacienteUseCase(uow=uow)
+    repo = PacienteRepositoryImpl(uow)
+    service = PacienteService(paciente_repo=repo)
+    return ObtenerPacienteUseCase(service=service, uow=uow)

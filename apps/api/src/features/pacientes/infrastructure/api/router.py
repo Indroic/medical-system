@@ -9,7 +9,7 @@ from ...application.use_cases.obtener_paciente import ObtenerPacienteUseCase
 from ...domain.exceptions import DocumentoDuplicadoException, PacienteNotFoundException
 from .dependencies import get_crear_paciente_uc, get_obtener_paciente_uc
 
-router = APIRouter(prefix="/api/v1/pacientes", tags=["Pacientes"])
+router = APIRouter(prefix="/pacientes", tags=["Pacientes"])
 
 
 @router.post("/", response_model=PacienteResponse, status_code=201)

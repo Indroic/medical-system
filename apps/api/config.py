@@ -1,20 +1,26 @@
 from pathlib import Path
+import sys
+from types import ModuleType
 
 from pydantic import ConfigDict
 
-# Patch para evitar cargar async_typer (y por ende typer.clear) que rompe la app
-import sys
-from types import ModuleType
+# async_typer 0.1.x imports `clear` from typer, which was removed in typer>=0.13.
+# async_typer 0.2.x changed the AsyncTyper constructor, breaking hexcore's cli.py.
+# Replace with a minimal stub so hexcore can import without errors.
 if "async_typer" not in sys.modules:
-    mock_async_typer = ModuleType("async_typer")
-    mock_async_typer.AsyncTyper = type("AsyncTyper", (), {})
-    sys.modules["async_typer"] = mock_async_typer
+    class _AsyncTyper:
+        def __init__(self, *args, **kwargs): pass
+        def command(self, *args, **kwargs): return lambda f: f
+        def __call__(self, *args, **kwargs): pass
+    _mod = ModuleType("async_typer")
+    _mod.AsyncTyper = _AsyncTyper
+    sys.modules["async_typer"] = _mod
 
 from hexcore.config import ServerConfig
 from hexcore.domain.events import IEventDispatcher
 from hexcore.infrastructure.cache import ICache
-from src.shared.infrastructure.events import AsyncEventDispatcher
 from hexcore.infrastructure.cache.cache_backends.memory import MemoryCache
+from hexcore.infrastructure.events.events_backends.memory import InMemoryEventDispatcher
 
 
 class ProjectConfig(ServerConfig):
@@ -41,10 +47,8 @@ class ProjectConfig(ServerConfig):
     allow_methods: list[str] = ["*"]
     allow_headers: list[str] = ["*"]
 
-    # Backends
     cache_backend: ICache = MemoryCache()
-    event_dispatcher: IEventDispatcher = AsyncEventDispatcher()
-
+    event_dispatcher: IEventDispatcher = InMemoryEventDispatcher()
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 

@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from uuid import UUID
 
@@ -7,6 +8,8 @@ from .entities import AnalisisResonancia
 from .exceptions import ImagenNoAccesibleException
 from .ports import IModeloInferenciaAdapter
 from .repositories import IAnalisisRepository
+
+logger = logging.getLogger(__name__)
 
 
 class AnalizadorDomainService(BaseDomainService):
@@ -32,15 +35,12 @@ class AnalizadorDomainService(BaseDomainService):
         analisis.marcar_procesando()
 
         try:
-            # Llamada al puerto de IA (implementado en infraestructura)
             hallazgos = await self._ia_adapter.inferir(imagen_path)
             analisis.registrar_resultados(hallazgos)  # emite AnalisisCompletadoEvent
-            print(f"Events after registrar_resultados: {analisis._domain_events}")
+            logger.debug("Inferencia completada: %d hallazgos", len(hallazgos))
         except Exception:
             analisis.marcar_fallido()
             raise
 
-        print(f"Events before save: {analisis._domain_events}")
         await self._repo.save(analisis)
-        print(f"Events after save: {analisis._domain_events}")
         return analisis

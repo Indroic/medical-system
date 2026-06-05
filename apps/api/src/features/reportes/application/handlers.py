@@ -37,8 +37,6 @@ async def on_analisis_completado(event: AnalisisCompletadoEvent) -> None:
     try:
         async with shared_db.async_session_factory() as session:
             uow = SqlAlchemyUnitOfWork(session=session)
-            async with uow:
-                repo = ReporteRepositoryImpl(uow)
             pdf_adapter = ReportLabPDFAdapter()
 
             reporte = Reporte(
@@ -55,9 +53,9 @@ async def on_analisis_completado(event: AnalisisCompletadoEvent) -> None:
                 logger.exception("Fallo al generar PDF: %s", exc)
                 reporte.marcar_fallido()
 
-            await repo.save(reporte)
-            await uow.commit()
-    except Exception as e:
-        print(f"FATAL ERROR IN HANDLER: {e}")
-        import traceback
-        traceback.print_exc()
+            async with uow:
+                repo = ReporteRepositoryImpl(uow)
+                await repo.save(reporte)
+                await uow.commit()
+    except Exception:
+        logger.exception("FATAL ERROR en handler on_analisis_completado")
