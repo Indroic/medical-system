@@ -44,6 +44,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/server_db
       - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3000}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-super-secret-key-replace-me}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:8080}
     # Puertos ocultos: Solo accesibles internamente vía Nginx
     depends_on:
       db:
