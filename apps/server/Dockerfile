@@ -30,6 +30,8 @@ ENV NODE_ENV=production
 # Copiar los node_modules desde la etapa de construcción
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages ./packages
+# drizzle-kit es devDep de packages/db — sus binarios están en packages/db/node_modules
+COPY --from=builder /app/packages/db/node_modules ./packages/db/node_modules
 COPY --from=builder /app/apps/server/package.json ./apps/server/
 COPY --from=builder /app/apps/server/node_modules ./apps/server/node_modules
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
@@ -38,6 +40,5 @@ WORKDIR /app/apps/server
 
 EXPOSE 3000
 
-# Aplicar schema (additive only: nuevas columnas y tablas) antes de arrancar.
-# drizzle-kit push usa DATABASE_URL del entorno — sin prompts en modo no-interactivo.
-CMD ["sh", "-c", "node /app/node_modules/.bin/drizzle-kit push --config=/app/packages/db/drizzle.config.ts && npm run start"]
+# Aplica schema aditivo (crea role + tabla jwks si no existen) antes de arrancar.
+CMD ["sh", "-c", "/app/packages/db/node_modules/.bin/drizzle-kit push --config=/app/packages/db/drizzle.config.ts && npm run start"]
