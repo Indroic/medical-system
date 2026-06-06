@@ -20,7 +20,7 @@ class LoginCommand(DTO):
 # ── Respuestas (Salida) ─────────────────────────────────────────────────────
 
 class UserResponse(DTO):
-    id: UUID
+    id: str
     email: str
     nombre: str
     rol: str
