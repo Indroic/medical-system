@@ -145,7 +145,7 @@ export const estudiosApi = {
   crear: (token: string, pacienteId: string, file: File) => {
     const form = new FormData();
     form.append("paciente_id", pacienteId);
-    form.append("file", file);
+    form.append("archivo", file);
     return request<EstudioResponse>("/api/estudios", {
       method: "POST",
       body: form,
