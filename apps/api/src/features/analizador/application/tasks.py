@@ -40,10 +40,13 @@ async def _procesar_estudio_ia_async(estudio_id_str: str, imagen_path: str):
             analisis = await service.ejecutar_inferencia(estudio_id, imagen_path)
             await uow.commit()  # Esto dispara el AnalisisCompletadoEvent asíncronamente
             
-        from src.shared.infrastructure.redis_client import publish_event
-        await publish_event("estudios_updates", "ANALISIS_COMPLETADO", {
-            "estudio_id": estudio_id_str
-        })
+        from src.shared.infrastructure.redis_client import publish_event, close_redis
+        try:
+            await publish_event("estudios_updates", "ANALISIS_COMPLETADO", {
+                "estudio_id": estudio_id_str
+            })
+        finally:
+            await close_redis()
 
 @shared_task(name="procesar_estudio_ia")
 def procesar_estudio_ia(estudio_id_str: str, imagen_path: str):

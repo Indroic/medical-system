@@ -21,3 +21,9 @@ async def publish_event(channel: str, event_name: str, payload: dict) -> None:
         await r.publish(channel, message)
     except Exception as e:
         logger.error(f"Error publishing to redis: {e}")
+
+async def close_redis() -> None:
+    global _redis_pool
+    if _redis_pool is not None:
+        await _redis_pool.aclose() if hasattr(_redis_pool, 'aclose') else await _redis_pool.close()
+        _redis_pool = None
