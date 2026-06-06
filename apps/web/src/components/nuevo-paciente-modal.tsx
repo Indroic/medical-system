@@ -36,10 +36,11 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
   });
 
   return (
-    <Modal state={state}>
-      <Modal.Backdrop />
-      <Modal.Container>
-        <Modal.Dialog className="bg-ash border border-charcoal max-w-2xl w-full">
+    <Modal>
+      <Modal.Backdrop isOpen={state.isOpen} onOpenChange={state.setOpen}>
+        <Modal.Container>
+          <Modal.Dialog className="bg-ash border border-charcoal sm:max-w-2xl w-full">
+            <Modal.CloseTrigger />
           <Modal.Header className="flex flex-col gap-1 text-snow">
             <Modal.Heading>Nuevo paciente</Modal.Heading>
             <p className="text-[13px] text-smoke font-normal mt-1">Registra los datos del paciente antes de subir el estudio.</p>
@@ -145,6 +146,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
           </Modal.Footer>
         </Modal.Dialog>
       </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   );
 }

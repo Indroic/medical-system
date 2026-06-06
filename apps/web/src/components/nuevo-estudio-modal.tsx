@@ -89,10 +89,11 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
   };
 
   return (
-    <Modal state={state}>
-      <Modal.Backdrop />
+    <Modal>
+      <Modal.Backdrop isOpen={state.isOpen} onOpenChange={state.setOpen}>
       <Modal.Container>
-        <Modal.Dialog className="bg-ash border border-charcoal max-w-2xl w-full">
+        <Modal.Dialog className="bg-ash border border-charcoal sm:max-w-2xl w-full">
+          <Modal.CloseTrigger />
           <Modal.Header className="flex flex-col gap-1 text-snow">
             <Modal.Heading>Nuevo estudio</Modal.Heading>
             <div className="mt-2 flex items-center gap-3">
@@ -294,6 +295,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
           </Modal.Footer>
         </Modal.Dialog>
       </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   );
 }
