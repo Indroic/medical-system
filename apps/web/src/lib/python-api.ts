@@ -106,7 +106,7 @@ export interface ReporteResponse {
 
 export const usuariosApi = {
   me: (token: string) =>
-    request<UserResponse>("/api/usuarios/me", {}, token),
+    request<UserResponse>("api/usuarios/me", {}, token),
 };
 
 // ─── Pacientes ──────────────────────────────────────────────────────────────
@@ -116,13 +116,13 @@ export const pacientesApi = {
     token: string,
     data: { nombre: string; apellido: string; fecha_nacimiento: string; documento_identidad: string },
   ) =>
-    request<PacienteResponse>("/api/pacientes/", {
+    request<PacienteResponse>("api/pacientes/", {
       method: "POST",
       body: JSON.stringify(data),
     }, token),
 
   obtener: (token: string, id: string) =>
-    request<PacienteResponse>(`/api/pacientes/${id}`, {}, token),
+    request<PacienteResponse>(`api/pacientes/${id}`, {}, token),
 };
 
 // ─── Estudios ───────────────────────────────────────────────────────────────
@@ -132,38 +132,38 @@ export const estudiosApi = {
     const form = new FormData();
     form.append("paciente_id", pacienteId);
     form.append("file", file);
-    return request<EstudioResponse>("/api/estudios/", {
+    return request<EstudioResponse>("api/estudios/", {
       method: "POST",
       body: form,
     }, token);
   },
 
   listar: (token: string) =>
-    request<EstudioListResponse>("/api/estudios/", {}, token),
+    request<EstudioListResponse>("api/estudios/", {}, token),
 
   obtener: (token: string, id: string) =>
-    request<EstudioResponse>(`/api/estudios/${id}`, {}, token),
+    request<EstudioResponse>(`api/estudios/${id}`, {}, token),
 };
 
 // ─── Análisis ───────────────────────────────────────────────────────────────
 
 export const analisisApi = {
   ejecutar: (token: string, estudio_id: string, imagen_path: string) =>
-    request<AnalisisResponse>("/api/analisis/", {
+    request<AnalisisResponse>("api/analisis/", {
       method: "POST",
       body: JSON.stringify({ estudio_id, imagen_path }),
     }, token),
 
   obtener: (token: string, estudio_id: string) =>
-    request<AnalisisResponse>(`/api/analisis/${estudio_id}`, {}, token),
+    request<AnalisisResponse>(`api/analisis/${estudio_id}`, {}, token),
 };
 
 // ─── Reportes ───────────────────────────────────────────────────────────────
 
 export const reportesApi = {
   obtener: (token: string, estudio_id: string) =>
-    request<ReporteResponse>(`/api/reportes/${estudio_id}`, {}, token),
+    request<ReporteResponse>(`api/reportes/${estudio_id}`, {}, token),
 
   urlDescarga: (estudio_id: string) =>
-    `${BASE}/api/reportes/${estudio_id}/descargar`,
+    `${BASE}api/reportes/${estudio_id}/descargar`,
 };
