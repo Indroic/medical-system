@@ -7,7 +7,7 @@ import { getAuthToken } from "../utils";
 export const pacientes = new Hono()
   .get("/:id", async (c) => {
     const id = c.req.param("id");
-    const token = getAuthToken(c);
+      const token = await getAuthToken(c);
     
     const res = await fetch(`${env.PYTHON_API_URL}/api/v1/pacientes/${id}`, {
       headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
@@ -33,7 +33,7 @@ export const pacientes = new Hono()
     ),
     async (c) => {
       const body = c.req.valid("json");
-      const token = getAuthToken(c);
+        const token = await getAuthToken(c);
       
       const res = await fetch(`${env.PYTHON_API_URL}/api/v1/pacientes/`, {
         method: "POST",

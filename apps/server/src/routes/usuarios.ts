@@ -4,7 +4,7 @@ import { getAuthToken } from "../utils";
 
 export const usuarios = new Hono()
   .get("/me", async (c) => {
-    const token = getAuthToken(c);
+    const token = await getAuthToken(c);
     
     const res = await fetch(`${env.PYTHON_API_URL}/api/v1/usuarios/me`, {
       headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },

@@ -6,7 +6,7 @@ import { getAuthToken } from "../utils";
 
 export const estudios = new Hono()
   .get("/", async (c) => {
-    const token = getAuthToken(c);
+    const token = await getAuthToken(c);
     // Pasar cualquier query parameter hacia Python
     const url = new URL(`${env.PYTHON_API_URL}/api/v1/estudios/`);
     Object.entries(c.req.query()).forEach(([key, val]) => url.searchParams.append(key, val));
@@ -24,7 +24,7 @@ export const estudios = new Hono()
   })
   .get("/:id", async (c) => {
     const id = c.req.param("id");
-    const token = getAuthToken(c);
+    const token = await getAuthToken(c);
     
     const res = await fetch(`${env.PYTHON_API_URL}/api/v1/estudios/${id}`, {
       headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
@@ -38,7 +38,7 @@ export const estudios = new Hono()
     return c.json(data);
   })
   .post("/", async (c) => {
-    const token = getAuthToken(c);
+    const token = await getAuthToken(c);
     const formData = await c.req.formData();
     
     const res = await fetch(`${env.PYTHON_API_URL}/api/v1/estudios/`, {

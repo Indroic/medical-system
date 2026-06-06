@@ -21,17 +21,7 @@ async function request<T>(
     ...(options.headers as Record<string, string>),
   };
 
-  let finalToken = token;
-  try {
-    const { data } = await authClient.jwt();
-    if (data?.token) {
-      finalToken = data.token;
-    }
-  } catch (e) {
-    // Fallback silencioso si falla jwt
-  }
-
-  if (finalToken) headers["Authorization"] = `Bearer ${finalToken}`;
+  if (token) headers["Authorization"] = `Bearer ${token}`;
   if (!(options.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
