@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { auth } from "./index";
+import { auth } from "@medical-system/auth";
 import { env } from "@medical-system/env/server";
 
 export async function getAuthToken(c: Context): Promise<string | undefined> {
