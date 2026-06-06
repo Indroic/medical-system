@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import os
 from types import ModuleType
 
 from pydantic import ConfigDict
@@ -27,11 +28,11 @@ class ProjectConfig(ServerConfig):
     base_dir: Path = Path(".")
     host: str = "0.0.0.0"
     port: int = 8000
-    debug: bool = True
+    debug: bool = os.getenv("ENVIRONMENT") != "production"
 
     # Base de datos SQL (SQLite para dev, Postgres para prod)
-    sql_database_url: str = "sqlite:///./db.sqlite3"
-    async_sql_database_url: str = "sqlite+aiosqlite:///./db.sqlite3"
+    sql_database_url: str = os.getenv("DATABASE_URL_SYNC", "sqlite:///./db.sqlite3")
+    async_sql_database_url: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./db.sqlite3")
 
     # Seguridad
     secret_key: str = "dev-secret-change-in-production"
