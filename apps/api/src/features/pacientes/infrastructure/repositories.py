@@ -49,11 +49,7 @@ class PacienteRepositoryImpl(
         model = result.scalar_one_or_none()
         if model is None:
             return None
-        return await to_entity_from_model_or_document(
-            model_or_document=model,
-            entity_cls=self.entity_cls,
-            fields_resolvers=self.fields_resolvers,
-        )
+        return await to_entity_from_model_or_document(model, self.entity_cls, self.fields_resolvers)
 
     async def get_all(self) -> list[Paciente]:
         session = self.uow.session  # type: ignore[attr-defined]
@@ -62,10 +58,6 @@ class PacienteRepositoryImpl(
         )
         models = result.scalars().all()
         return [
-            await to_entity_from_model_or_document(
-                model_or_document=model,
-                entity_cls=self.entity_cls,
-                fields_resolvers=self.fields_resolvers,
-            )
+            await to_entity_from_model_or_document(model, self.entity_cls, self.fields_resolvers)
             for model in models
         ]
