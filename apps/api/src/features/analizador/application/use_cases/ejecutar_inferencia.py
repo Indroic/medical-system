@@ -24,7 +24,7 @@ class EjecutarInferenciaUseCase(UseCase[EjecutarInferenciaCommand, AnalisisRespo
             await self.uow.commit()
 
         # Encolar la tarea asíncrona
-        from .tasks import procesar_estudio_ia
+        from src.features.analizador.application.tasks import procesar_estudio_ia
         procesar_estudio_ia.delay(str(command.estudio_id), command.imagen_path)
 
         return AnalisisResponse(
