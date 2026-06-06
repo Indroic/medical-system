@@ -70,6 +70,8 @@ services:
       - S3_ENDPOINT=http://seaweedfs:8333
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
+      - YOLO_CONFIG_DIR=/tmp/Ultralytics
+      - C_FORCE_ROOT=true
     depends_on:
       db:
         condition: service_healthy

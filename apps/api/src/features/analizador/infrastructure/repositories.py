@@ -1,5 +1,6 @@
 from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
 import json
+from uuid import UUID
 
 from hexcore.domain.uow import IUnitOfWork
 from hexcore.infrastructure.repositories.implementations import (
@@ -33,6 +34,10 @@ async def _resolver_hallazgos(model: "AnalisisModel") -> list[Hallazgo]:
     ]
 
 
+async def _resolver_estudio_id(model: "AnalisisModel") -> UUID:
+    return UUID(str(model.estudio_id))
+
+
 class AnalisisRepositoryImpl(
     SQLAlchemyCommonImplementationsRepo[AnalisisResonancia, AnalisisModel],
     IAnalisisRepository,
@@ -54,7 +59,10 @@ class AnalisisRepositoryImpl(
 
     @property
     def fields_resolvers(self) -> FieldResolversType | None:
-        return {"hallazgos": ("hallazgos_json", _resolver_hallazgos)}
+        return {
+            "hallazgos": ("hallazgos_json", _resolver_hallazgos),
+            "estudio_id": ("estudio_id", _resolver_estudio_id),
+        }
 
     @property
     def fields_serializers(self) -> FieldSerializersType | None:

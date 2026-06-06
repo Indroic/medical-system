@@ -12,9 +12,25 @@ from config import config
 
 logger = logging.getLogger(__name__)
 
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
+
+celery_engine = create_async_engine(
+    config.async_sql_database_url,
+    echo=config.debug,
+    future=True,
+    poolclass=NullPool
+)
+
+celery_session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
+    celery_engine,
+    expire_on_commit=False,
+    class_=AsyncSession,
+)
+
 async def _procesar_estudio_ia_async(estudio_id_str: str, imagen_path: str):
     estudio_id = UUID(estudio_id_str)
-    async with shared_db.async_session_factory() as session:
+    async with celery_session_factory() as session:
         uow = SqlAlchemyUnitOfWork(session=session)
         repo = AnalisisRepositoryImpl(uow)
         adapter = YoloInferenciaAdapter(model_path=config.yolo_model_path)
