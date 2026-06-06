@@ -24,7 +24,12 @@ async function request<T>(
     headers["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(`${BASE}${path}`, { ...options, headers });
+  // Eliminar cualquier slash al final del BASE y al principio del path para unirlos de forma segura
+  const cleanBase = BASE.replace(/\/+$/, "");
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  const targetUrl = `${cleanBase}${cleanPath}`;
+
+  const res = await fetch(targetUrl, { ...options, headers });
   if (!res.ok) {
     let message = res.statusText;
     try {
@@ -106,7 +111,7 @@ export interface ReporteResponse {
 
 export const usuariosApi = {
   me: (token: string) =>
-    request<UserResponse>("api/usuarios/me", {}, token),
+    request<UserResponse>("/api/usuarios/me", {}, token),
 };
 
 // ─── Pacientes ──────────────────────────────────────────────────────────────
@@ -116,13 +121,13 @@ export const pacientesApi = {
     token: string,
     data: { nombre: string; apellido: string; fecha_nacimiento: string; documento_identidad: string },
   ) =>
-    request<PacienteResponse>("api/pacientes/", {
+    request<PacienteResponse>("/api/pacientes", {
       method: "POST",
       body: JSON.stringify(data),
     }, token),
 
   obtener: (token: string, id: string) =>
-    request<PacienteResponse>(`api/pacientes/${id}`, {}, token),
+    request<PacienteResponse>(`/api/pacientes/${id}`, {}, token),
 };
 
 // ─── Estudios ───────────────────────────────────────────────────────────────
@@ -132,38 +137,40 @@ export const estudiosApi = {
     const form = new FormData();
     form.append("paciente_id", pacienteId);
     form.append("file", file);
-    return request<EstudioResponse>("api/estudios/", {
+    return request<EstudioResponse>("/api/estudios", {
       method: "POST",
       body: form,
     }, token);
   },
 
   listar: (token: string) =>
-    request<EstudioListResponse>("api/estudios/", {}, token),
+    request<EstudioListResponse>("/api/estudios", {}, token),
 
   obtener: (token: string, id: string) =>
-    request<EstudioResponse>(`api/estudios/${id}`, {}, token),
+    request<EstudioResponse>(`/api/estudios/${id}`, {}, token),
 };
 
 // ─── Análisis ───────────────────────────────────────────────────────────────
 
 export const analisisApi = {
   ejecutar: (token: string, estudio_id: string, imagen_path: string) =>
-    request<AnalisisResponse>("api/analisis/", {
+    request<AnalisisResponse>("/api/analisis", {
       method: "POST",
       body: JSON.stringify({ estudio_id, imagen_path }),
     }, token),
 
   obtener: (token: string, estudio_id: string) =>
-    request<AnalisisResponse>(`api/analisis/${estudio_id}`, {}, token),
+    request<AnalisisResponse>(`/api/analisis/${estudio_id}`, {}, token),
 };
 
 // ─── Reportes ───────────────────────────────────────────────────────────────
 
 export const reportesApi = {
   obtener: (token: string, estudio_id: string) =>
-    request<ReporteResponse>(`api/reportes/${estudio_id}`, {}, token),
+    request<ReporteResponse>(`/api/reportes/${estudio_id}`, {}, token),
 
-  urlDescarga: (estudio_id: string) =>
-    `${BASE}api/reportes/${estudio_id}/descargar`,
+  urlDescarga: (estudio_id: string) => {
+    const cleanBase = BASE.replace(/\/+$/, "");
+    return `${cleanBase}/api/reportes/${estudio_id}/descargar`;
+  }
 };

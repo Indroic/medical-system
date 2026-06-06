@@ -10,8 +10,11 @@ import { estudios } from "./routes/estudios";
 import { analisis } from "./routes/analisis";
 import { reportes } from "./routes/reportes";
 import { usuarios } from "./routes/usuarios";
+import { trimTrailingSlash } from "hono/trailing-slash";
 
 const app = new Hono();
+
+app.use(trimTrailingSlash());
 
 app.use(logger());
 app.use(
