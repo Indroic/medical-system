@@ -8,6 +8,8 @@ import { logger } from "hono/logger";
 import { pacientes } from "./routes/pacientes";
 import { estudios } from "./routes/estudios";
 import { analisis } from "./routes/analisis";
+import { reportes } from "./routes/reportes";
+import { usuarios } from "./routes/usuarios";
 
 const app = new Hono();
 
@@ -36,7 +38,9 @@ app.get("/", (c) => {
 const routes = app
   .route("/api/pacientes", pacientes)
   .route("/api/estudios", estudios)
-  .route("/api/analisis", analisis);
+  .route("/api/analisis", analisis)
+  .route("/api/reportes", reportes)
+  .route("/api/usuarios", usuarios);
 
 export type AppType = typeof routes;
 
