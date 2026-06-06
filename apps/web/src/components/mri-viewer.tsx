@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 
-import { generateUrl } from "@imgproxy/imgproxy-js-core";
 import type { HallazgoDTO } from "@/lib/python-api";
+import { useImgproxyUrl } from "@/lib/imgproxy";
 
 interface MriViewerProps {
   imagePath: string;
@@ -21,14 +21,7 @@ export default function MriViewer({ imagePath, hallazgos = [] }: MriViewerProps)
   const scaleX = dims.nw / (dims.w || 1);
   const scaleY = dims.nh / (dims.h || 1);
 
-  // Dominio dedicado en producción (hardcodeado por requerimiento en Dokploy)
-  const imgproxyUrl = "https://medicalimages.indroic.dev";
-  
-  const proxyPath = generateUrl(
-    { value: `s3://medical-system/${imagePath}`, type: "plain" },
-    { resize: { resizing_type: "fit", width: 1000, height: 1000 } }
-  );
-  const proxySrc = `${imgproxyUrl}${proxyPath}`;
+  const proxySrc = useImgproxyUrl(imagePath, 1000, 1000);
 
   return (
     <div className="relative inline-block border border-charcoal rounded-2xl overflow-hidden bg-obsidian">

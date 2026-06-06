@@ -6,9 +6,9 @@ import EstadoBadge from "@/components/estado-badge";
 import PageHeader from "@/components/page-header";
 import PatientCard from "@/components/patient-card";
 import { useAuthStore } from "@/lib/auth-store";
+import { useImgproxyUrl } from "@/lib/imgproxy";
 import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
 import type { EstudioResponse, PacienteResponse, ReporteResponse } from "@/lib/python-api";
-import { generateUrl } from "@imgproxy/imgproxy-js-core";
 
 export const Route = createFileRoute("/_app/estudios/$estudioId")({
   component: EstudioDetail,
@@ -23,6 +23,8 @@ function EstudioDetail() {
   const [reporte, setReporte] = useState<ReporteResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
+
+  const proxySrc = useImgproxyUrl(estudio?.imagen_path, 1000, 1000);
 
   useEffect(() => {
     if (!token) return;
@@ -97,15 +99,6 @@ function EstudioDetail() {
 
   const isPendiente = estudio.estado === "PENDIENTE";
   const hasAnalisis = estudio.estado !== "PENDIENTE";
-
-  const imgproxyUrl = "https://medicalimages.indroic.dev";
-  const proxyPath = estudio.imagen_path 
-    ? generateUrl(
-        { value: `s3://medical-system/${estudio.imagen_path}`, type: "plain" },
-        { resize: { resizing_type: "fit", width: 1000, height: 1000 } }
-      )
-    : "";
-  const proxySrc = proxyPath ? `${imgproxyUrl}${proxyPath}` : "";
 
   return (
     <div className="p-8">
