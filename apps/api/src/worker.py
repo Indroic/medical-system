@@ -1,4 +1,5 @@
 import os
+import src.config  # Importante: Carga config.py para aplicar el monkey-patch de typer
 from celery import Celery
 
 broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
@@ -10,7 +11,6 @@ celery_app = Celery(
     backend=redis_url,
     include=[
         "src.features.analizador.application.tasks",
-        "src.features.reportes.application.tasks",
     ]
 )
 
