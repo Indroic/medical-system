@@ -12,7 +12,12 @@ import { reportes } from "./routes/reportes";
 import { usuarios } from "./routes/usuarios";
 import { trimTrailingSlash } from "hono/trailing-slash";
 
-const app = new Hono();
+const app = new Hono<{
+  Variables: {
+    user: typeof auth.$Infer.Session.user | null;
+    session: typeof auth.$Infer.Session.session | null;
+  };
+}>();
 
 app.use(trimTrailingSlash());
 
@@ -26,6 +31,28 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use("*", async (c, next) => {
+  if (c.req.path.startsWith("/api/auth") || c.req.path === "/check-setup" || c.req.path === "/") {
+    return next();
+  }
+
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+
+  if (!session) {
+    c.set("user", null);
+    c.set("session", null);
+    // Si es una ruta protegida (empieza por /api/ y no es auth), lanzar 401 inmediato
+    if (c.req.path.startsWith("/api/")) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+  } else {
+    c.set("user", session.user);
+    c.set("session", session.session);
+  }
+
+  await next();
+});
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 

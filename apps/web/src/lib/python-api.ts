@@ -31,7 +31,7 @@ async function request<T>(
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
   const targetUrl = `${cleanBase}${cleanPath}`;
 
-  const res = await fetch(targetUrl, { ...options, headers });
+  const res = await fetch(targetUrl, { ...options, headers, credentials: "include" });
   if (!res.ok) {
     let message = res.statusText;
     try {

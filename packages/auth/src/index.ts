@@ -33,6 +33,9 @@ export function createAuth() {
     baseURL: env.BETTER_AUTH_URL,
     basePath: "/api/auth",
     advanced: {
+      crossSubDomainCookies: {
+        enabled: true,
+      },
       defaultCookieAttributes: {
         sameSite: "none",
         secure: true,

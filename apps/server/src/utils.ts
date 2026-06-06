@@ -8,17 +8,12 @@ export async function getAuthToken(c: Context): Promise<string | undefined> {
     return authHeader.replace("Bearer ", "");
   }
   
-  // Generar JWT directamente en el servidor invocando el handler de auth
+  // Generar JWT directamente usando el plugin de better-auth
   try {
-    const req = new Request(`${env.VITE_SERVER_URL || "http://localhost:3000"}/api/auth/token`, {
-      method: "GET",
+    const data = await auth.api.token({
       headers: c.req.raw.headers,
     });
-    const res = await auth.handler(req);
-    if (res.ok) {
-      const data = await res.json();
-      return data.token;
-    }
+    return data?.token;
   } catch (e) {
     console.error("Error al generar JWT en servidor:", e);
   }
