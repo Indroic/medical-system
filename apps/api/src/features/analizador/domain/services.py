@@ -23,7 +23,8 @@ class AnalizadorDomainService(BaseDomainService):
         super().__init__()
 
     async def iniciar_inferencia(self, estudio_id: UUID, imagen_path: str) -> AnalisisResonancia:
-        if not Path(imagen_path).exists():
+        from src.shared.infrastructure.storage.s3_client import S3StorageAdapter
+        if not await S3StorageAdapter().exists(imagen_path):
             raise ImagenNoAccesibleException(imagen_path)
 
         analisis = await self._repo.get_by_estudio(estudio_id)

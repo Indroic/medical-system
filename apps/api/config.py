@@ -51,6 +51,13 @@ class ProjectConfig(ServerConfig):
     allow_methods: list[str] = ["*"]
     allow_headers: list[str] = ["*"]
 
+    # S3 Storage
+    s3_endpoint: str = os.getenv("S3_ENDPOINT", "http://localhost:8333")
+    s3_access_key: str = os.getenv("AWS_ACCESS_KEY_ID", "seaweed")
+    s3_secret_key: str = os.getenv("AWS_SECRET_ACCESS_KEY", "seaweed")
+    s3_region: str = os.getenv("AWS_REGION", "us-east-1")
+    s3_bucket: str = os.getenv("S3_BUCKET", "medical-system")
+
     cache_backend: ICache = MemoryCache()
     event_dispatcher: IEventDispatcher = InMemoryEventDispatcher()
     model_config = ConfigDict(arbitrary_types_allowed=True)

@@ -34,13 +34,14 @@ class YoloInferenciaAdapter(IModeloInferenciaAdapter):
                 )
             self._model = YOLO(self._model_path)
 
-    def _ejecutar_inferencia_sync(self, imagen_path: str) -> list[Hallazgo]:
+    def _ejecutar_inferencia_sync_bytes(self, image_bytes: bytes) -> list[Hallazgo]:
         """Bloque síncrono de CPU. Se ejecuta en un hilo separado."""
         self._cargar_modelo_si_necesario()
 
-        imagen = cv2.imread(imagen_path)
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        imagen = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         if imagen is None:
-            raise FileNotFoundError(f"OpenCV no pudo abrir: {imagen_path}")
+            raise ValueError("OpenCV no pudo decodificar la imagen.")
 
         resultados = self._model(imagen)[0]
         hallazgos: list[Hallazgo] = []
@@ -69,9 +70,15 @@ class YoloInferenciaAdapter(IModeloInferenciaAdapter):
     @override
     async def inferir(self, imagen_path: str) -> list[Hallazgo]:
         """Corre la inferencia en un hilo del pool para no bloquear asyncio."""
+        from src.shared.infrastructure.storage.s3_client import S3StorageAdapter
+        
+        # 1. Descargamos la imagen asincrónicamente
+        storage = S3StorageAdapter()
+        file_bytes = await storage.download_file(imagen_path)
+
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             None,  # usa el ThreadPoolExecutor por defecto
-            self._ejecutar_inferencia_sync,
-            imagen_path,
+            self._ejecutar_inferencia_sync_bytes,
+            file_bytes,
         )

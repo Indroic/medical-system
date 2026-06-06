@@ -20,11 +20,15 @@ export default function MriViewer({ imagePath, hallazgos = [] }: MriViewerProps)
   const scaleX = dims.nw / (dims.w || 1);
   const scaleY = dims.nh / (dims.h || 1);
 
+  // Asume que VITE_IMGPROXY_URL fue proveido por Dokploy, fallback local
+  const imgproxyUrl = import.meta.env.VITE_IMGPROXY_URL || "/imgproxy";
+  const proxySrc = `${imgproxyUrl}/insecure/fit/1000/1000/no/0/plain/s3://medical-system/${imagePath}`;
+
   return (
     <div className="relative inline-block border border-charcoal rounded-2xl overflow-hidden bg-obsidian">
       <img
         ref={imgRef}
-        src={imagePath}
+        src={proxySrc}
         alt="Resonancia MRI"
         onLoad={handleLoad}
         className="block max-h-[480px] w-auto"

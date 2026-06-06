@@ -13,7 +13,7 @@ from ...application.use_cases.recepcionar_estudio import RecepcionarEstudioUseCa
 from ...domain.exceptions import EstudioNotFoundException, TipoArchivoNoPermitidoException
 from ...domain.services import EstudioService
 from ..repositories import EstudioRepositoryImpl
-from ..storage import LocalStorageAdapter
+from src.shared.infrastructure.storage.s3_client import S3StorageAdapter
 
 
 async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:
@@ -26,7 +26,7 @@ async def get_recepcionar_uc(
     uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ) -> RecepcionarEstudioUseCase:
     contenido = await archivo.read()
-    storage = LocalStorageAdapter()
+    storage = S3StorageAdapter()
     repo = EstudioRepositoryImpl(uow)
     service = EstudioService(estudio_repo=repo, storage=storage)
     return RecepcionarEstudioUseCase(

@@ -43,6 +43,9 @@ services:
       - SERVER_URL=http://server:3000
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
+      - S3_ENDPOINT=http://seaweedfs:8333
+      - AWS_ACCESS_KEY_ID=seaweed
+      - AWS_SECRET_ACCESS_KEY=seaweed
     # Puertos ocultos: Solo accesibles internamente vía Nginx
     depends_on:
       db:
@@ -64,6 +67,9 @@ services:
       - SERVER_URL=http://server:3000
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
+      - S3_ENDPOINT=http://seaweedfs:8333
+      - AWS_ACCESS_KEY_ID=seaweed
+      - AWS_SECRET_ACCESS_KEY=seaweed
     depends_on:
       db:
         condition: service_healthy
@@ -106,6 +112,35 @@ services:
       db:
         condition: service_healthy
 
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    restart: always
+    ports:
+      - "8333:8333" # S3 API
+    command: "server -s3"
+    environment:
+      - WEED_S3_ALLOW_EMPTY_FOLDER=true
+      - WEED_S3_ALLOW_DELETE_BUCKET_NOT_EMPTY=true
+    volumes:
+      - seaweedfs_data:/data
+
+  imgproxy:
+    image: darthsim/imgproxy:latest
+    restart: always
+    environment:
+      - IMGPROXY_USE_S3=true
+      - IMGPROXY_S3_ENDPOINT=http://seaweedfs:8333
+      # Para usar seaweedfs sin certificados SSL
+      - IMGPROXY_S3_USE_HTTP=true
+      # Credenciales fake/internas de S3 para SeaweedFS (por defecto acepta cualquiera si no configuras identity)
+      - AWS_ACCESS_KEY_ID=seaweed
+      - AWS_SECRET_ACCESS_KEY=seaweed
+      - AWS_REGION=us-east-1
+      # Desactivamos el firmado obligatorio para la prueba interna
+      - IMGPROXY_ENFORCE_SIGNATURE=false
+    depends_on:
+      - seaweedfs
+
   web:
     build:
       context: .
@@ -114,12 +149,16 @@ services:
         # VITE_SERVER_URL debe ser provisto en Dokploy. Default para dev local:
         VITE_SERVER_URL: ${VITE_SERVER_URL:-http://localhost:3000}
         VITE_PYTHON_API_URL: ${VITE_PYTHON_API_URL:-/api}
+        # Aseguramos que vite conozca el proxy de las imgs (Dokploy Nginx expondrá esto)
+        VITE_IMGPROXY_URL: ${VITE_IMGPROXY_URL:-/imgproxy}
     restart: always
     ports:
       - "8080:80"
     depends_on:
       - api
       - server
+      - imgproxy
 
 volumes:
   postgres_data:
+  seaweedfs_data:
