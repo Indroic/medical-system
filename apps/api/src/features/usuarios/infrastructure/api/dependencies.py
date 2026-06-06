@@ -74,6 +74,7 @@ async def get_current_user(
             token,
             signing_key.key,
             algorithms=["EdDSA", "ES256", "RS256"],
+            options={"verify_audience": False, "verify_issuer": False},
         )
     except jwt.ExpiredSignatureError:
         raise HTTPException(
@@ -81,10 +82,11 @@ async def get_current_user(
             detail="Token expirado.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except (jwt.InvalidTokenError, Exception):
+    except Exception as e:
+        print(f"Error decodificando JWT: {repr(e)}", flush=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido.",
+            detail=f"Token inválido: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
