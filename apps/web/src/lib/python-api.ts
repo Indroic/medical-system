@@ -20,7 +20,7 @@ async function request<T>(
     ...(options.headers as Record<string, string>),
   };
 
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+
   if (!(options.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }

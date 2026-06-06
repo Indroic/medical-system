@@ -28,13 +28,7 @@ function LoginPage() {
         });
         if (error || !data) throw new Error(error?.message ?? "Credenciales inválidas");
 
-        const tokenRes = await fetch(`${env.VITE_SERVER_URL}/api/auth/token`, {
-          headers: { Authorization: `Bearer ${data.token}` },
-        });
-        if (!tokenRes.ok) throw new Error("No se pudo obtener el token JWT");
-        const { token: jwtToken } = await tokenRes.json();
-
-        login(jwtToken, {
+        login("cookie-based", {
           id: data.user.id,
           email: data.user.email,
           nombre: data.user.name,

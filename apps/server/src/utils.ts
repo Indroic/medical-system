@@ -3,10 +3,6 @@ import { auth } from "@medical-system/auth";
 import { env } from "@medical-system/env/server";
 
 export async function getAuthToken(c: Context): Promise<string | undefined> {
-  const authHeader = c.req.header("Authorization");
-  if (authHeader) {
-    return authHeader.replace("Bearer ", "");
-  }
   
   // Generar JWT directamente usando el handler en memoria (sin red)
   try {
