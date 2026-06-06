@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-import config  # Monkey-patch de typer ANTES de cargar hexcore
+import config as my_project_config  # Monkey-patch de typer ANTES de cargar hexcore y carga la config real
 from alembic import context
 from hexcore.config import LazyConfig
 from hexcore.infrastructure.repositories.orms.sqlalchemy import Base
@@ -19,7 +19,7 @@ import src.features.reportes.infrastructure.models
 # access to the values within the .ini file in use.
 config = context.config
 
-database_url = LazyConfig().get_config().sql_database_url
+database_url = my_project_config.config.sql_database_url
 if database_url:
     config.set_main_option("sqlalchemy.url", database_url)
 
