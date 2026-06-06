@@ -7,7 +7,8 @@ from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 import src.shared.infrastructure.database as shared_db
 from src.features.analizador.domain.services import AnalizadorDomainService
 from src.features.analizador.infrastructure.repositories import AnalisisRepositoryImpl
-from src.features.analizador.infrastructure.adapters.yolo_adapter import YOLOv8Adapter
+from src.features.analizador.infrastructure.adapters.yolo_adapter import YoloInferenciaAdapter
+from src.config import config
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ async def _procesar_estudio_ia_async(estudio_id_str: str, imagen_path: str):
     async with shared_db.async_session_factory() as session:
         uow = SqlAlchemyUnitOfWork(session=session)
         repo = AnalisisRepositoryImpl(uow)
-        adapter = YOLOv8Adapter()
+        adapter = YoloInferenciaAdapter(model_path=config.yolo_model_path)
         service = AnalizadorDomainService(repo=repo, ia_adapter=adapter)
         
         async with uow:
