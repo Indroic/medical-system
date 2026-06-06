@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { client } from "@/lib/api-client";
+import { useAuthStore } from "@/lib/auth-store";
 import { useQuery } from "@tanstack/react-query";
 import type { EstudioResponse, EstudioListResponse } from "@/lib/api-client";
 import EstadoBadge from "@/components/estado-badge";

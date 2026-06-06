@@ -37,6 +37,8 @@ app.use("*", async (c, next) => {
     return next();
   }
 
+  const cookieStr = c.req.raw.headers.get("cookie") || "";
+  console.log(`[AUTH] Path: ${c.req.path} | Cookies presentes: ${cookieStr.includes("better-auth.session_token")}`);
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
 
   if (!session) {
