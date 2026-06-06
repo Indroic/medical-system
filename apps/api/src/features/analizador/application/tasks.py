@@ -7,7 +7,7 @@ from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 import src.shared.infrastructure.database as shared_db
 from src.features.analizador.domain.services import AnalizadorDomainService
 from src.features.analizador.infrastructure.repositories import AnalisisRepositoryImpl
-from src.features.analizador.infrastructure.ai.yolo_adapter import YOLOv8Adapter
+from src.features.analizador.infrastructure.adapters.yolo_adapter import YOLOv8Adapter
 
 logger = logging.getLogger(__name__)
 
