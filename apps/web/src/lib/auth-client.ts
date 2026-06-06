@@ -8,5 +8,5 @@ const serverBaseURL = env.VITE_SERVER_URL.startsWith("http")
   : `${window.location.origin}${env.VITE_SERVER_URL}`;
 
 export const authClient = createAuthClient({
-  baseURL: serverBaseURL,
+  baseURL: `${serverBaseURL}/api/auth`,
 });
