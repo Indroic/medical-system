@@ -3,11 +3,12 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from src.features.usuarios.infrastructure.api.dependencies import get_current_user
 
-from ...application.dtos import CrearPacienteCommand, PacienteResponse
+from ...application.dtos import CrearPacienteCommand, PacienteResponse, PacienteListResponse
 from ...application.use_cases.crear_paciente import CrearPacienteUseCase
 from ...application.use_cases.obtener_paciente import ObtenerPacienteUseCase
+from ...application.use_cases.listar_pacientes import ListarPacientesUseCase
 from ...domain.exceptions import DocumentoDuplicadoException, PacienteNotFoundException
-from .dependencies import get_crear_paciente_uc, get_obtener_paciente_uc
+from .dependencies import get_crear_paciente_uc, get_obtener_paciente_uc, get_listar_pacientes_uc
 
 router = APIRouter(prefix="/pacientes", tags=["Pacientes"])
 
@@ -22,6 +23,14 @@ async def crear_paciente(
         return await uc.execute(command)
     except DocumentoDuplicadoException as e:
         raise HTTPException(status_code=409, detail=str(e))
+
+
+@router.get("/", response_model=PacienteListResponse)
+async def listar_pacientes(
+    uc: ListarPacientesUseCase = Depends(get_listar_pacientes_uc),
+    current_user=Depends(get_current_user),
+):
+    return await uc.execute()
 
 
 @router.get("/{paciente_id}", response_model=PacienteResponse)

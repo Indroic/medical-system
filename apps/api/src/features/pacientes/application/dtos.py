@@ -15,3 +15,8 @@ class PacienteResponse(BaseModel):
     apellido: str
     fecha_nacimiento: str
     documento_identidad: str
+
+
+class PacienteListResponse(BaseModel):
+    items: list[PacienteResponse]
+    total: int

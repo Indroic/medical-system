@@ -49,3 +49,11 @@ class PacienteRepositoryImpl(
         if model is None:
             return None
         return await self._to_entity(model)
+
+    async def get_all(self) -> list[Paciente]:
+        session = self.uow.session  # type: ignore[attr-defined]
+        result = await session.execute(
+            select(PacienteModel).order_by(PacienteModel.created_at.desc())
+        )
+        models = result.scalars().all()
+        return [await self._to_entity(model) for model in models]

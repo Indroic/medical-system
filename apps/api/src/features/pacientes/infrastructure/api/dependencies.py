@@ -7,6 +7,7 @@ import src.shared.infrastructure.database as shared_db
 
 from ...application.use_cases.crear_paciente import CrearPacienteUseCase
 from ...application.use_cases.obtener_paciente import ObtenerPacienteUseCase
+from ...application.use_cases.listar_pacientes import ListarPacientesUseCase
 from ...domain.services import PacienteService
 from ..repositories import PacienteRepositoryImpl
 
@@ -30,3 +31,10 @@ async def get_obtener_paciente_uc(
     repo = PacienteRepositoryImpl(uow)
     service = PacienteService(paciente_repo=repo)
     return ObtenerPacienteUseCase(service=service, uow=uow)
+
+
+async def get_listar_pacientes_uc(
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> ListarPacientesUseCase:
+    repo = PacienteRepositoryImpl(uow)
+    return ListarPacientesUseCase(repo=repo)

@@ -12,7 +12,9 @@ export const reportes = new Hono()
     });
     
     if (!res.ok) {
-      return c.json({ error: "Failed to fetch from API" }, res.status as any);
+      const errorText = await res.text();
+      console.error(`[Python API Error] GET /reportes/${estudio_id}: ${res.status} - ${errorText}`);
+      return c.json({ error: "Failed to fetch from API", detail: errorText }, res.status as any);
     }
     
     const data = await res.json();
@@ -25,6 +27,12 @@ export const reportes = new Hono()
     const res = await fetch(`${env.PYTHON_API_URL}/api/v1/reportes/${estudio_id}/descargar`, {
       headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`[Python API Error] GET /reportes/${estudio_id}/descargar: ${res.status} - ${errorText}`);
+      return c.json({ error: "Failed to download PDF", detail: errorText }, res.status as any);
+    }
     
     return res;
   });

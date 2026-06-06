@@ -67,6 +67,11 @@ export interface PacienteResponse {
   documento_identidad: string;
 }
 
+export interface PacienteListResponse {
+  items: PacienteResponse[];
+  total: number;
+}
+
 export interface EstudioResponse {
   id: string;
   paciente_id: string;
@@ -129,6 +134,9 @@ export const pacientesApi = {
 
   obtener: (token: string, id: string) =>
     request<PacienteResponse>(`/api/pacientes/${id}`, {}, token),
+
+  listar: (token: string) =>
+    request<PacienteListResponse>("/api/pacientes", {}, token),
 };
 
 // ─── Estudios ───────────────────────────────────────────────────────────────

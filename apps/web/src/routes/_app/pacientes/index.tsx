@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 
 import PageHeader from "@/components/page-header";
 import { useAuthStore } from "@/lib/auth-store";
+import { pacientesApi } from "@/lib/python-api";
 import type { PacienteResponse } from "@/lib/python-api";
+import { toast } from "@heroui/react";
 
 export const Route = createFileRoute("/_app/pacientes/")({
   component: PacientesList,
@@ -12,12 +14,16 @@ export const Route = createFileRoute("/_app/pacientes/")({
 function PacientesList() {
   const { token } = useAuthStore();
   const navigate = useNavigate();
-  const [pacientes] = useState<PacienteResponse[]>([]);
+  const [pacientes, setPacientes] = useState<PacienteResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
-    setLoading(false);
+    pacientesApi
+      .listar(token)
+      .then((res) => setPacientes(res.items))
+      .catch((err) => toast.danger("Error cargando pacientes"))
+      .finally(() => setLoading(false));
   }, [token]);
 
   return (
