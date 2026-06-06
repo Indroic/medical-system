@@ -36,6 +36,8 @@ export const eventsRouter = new Hono();
 eventsRouter.get("/:id", async (c) => {
   const estudioId = c.req.param("id");
 
+  c.header("X-Accel-Buffering", "no");
+
   return streamSSE(c, async (stream) => {
     // Al conectar
     const callback = async (data: any) => {

@@ -8,6 +8,7 @@ import PatientCard from "@/components/patient-card";
 import { useAuthStore } from "@/lib/auth-store";
 import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
 import type { EstudioResponse, PacienteResponse, ReporteResponse } from "@/lib/python-api";
+import { generateUrl } from "@imgproxy/imgproxy-js-core";
 
 export const Route = createFileRoute("/_app/estudios/$estudioId")({
   component: EstudioDetail,
@@ -54,7 +55,8 @@ function EstudioDetail() {
     loadData();
 
     // Reemplazar polling por Server-Sent Events (SSE)
-    const sseUrl = `${import.meta.env.VITE_SERVER_URL}/api/events/${estudioId}`;
+    const baseUrl = import.meta.env.VITE_SERVER_URL.replace(/\/$/, '');
+    const sseUrl = `${baseUrl}/api/events/${estudioId}`;
     const eventSource = new EventSource(sseUrl, { withCredentials: true });
 
     eventSource.addEventListener("ANALISIS_COMPLETADO", () => {
@@ -96,6 +98,15 @@ function EstudioDetail() {
   const isPendiente = estudio.estado === "PENDIENTE";
   const hasAnalisis = estudio.estado !== "PENDIENTE";
 
+  const imgproxyUrl = "https://medicalimages.indroic.dev";
+  const proxyPath = estudio.imagen_path 
+    ? generateUrl(
+        { value: `s3://medical-system/${estudio.imagen_path}`, type: "plain" },
+        { resize: { resizing_type: "fit", width: 1000, height: 1000 } }
+      )
+    : "";
+  const proxySrc = proxyPath ? `${imgproxyUrl}${proxyPath}` : "";
+
   return (
     <div className="p-8">
       <PageHeader
@@ -118,9 +129,9 @@ function EstudioDetail() {
         {/* Left: image */}
         <div>
           <div className="rounded-2xl border border-charcoal overflow-hidden bg-ash flex items-center justify-center min-h-[320px]">
-            {estudio.imagen_path ? (
+            {proxySrc ? (
               <img
-                src={estudio.imagen_path}
+                src={proxySrc}
                 alt="Resonancia Magnética"
                 className="max-h-[480px] w-auto object-contain"
               />
