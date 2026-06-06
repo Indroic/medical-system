@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 
+import { generateUrl } from "@imgproxy/imgproxy-js-core";
 import type { HallazgoDTO } from "@/lib/python-api";
 
 interface MriViewerProps {
@@ -22,7 +23,12 @@ export default function MriViewer({ imagePath, hallazgos = [] }: MriViewerProps)
 
   // Asume que VITE_IMGPROXY_URL fue proveido por Dokploy, fallback local
   const imgproxyUrl = import.meta.env.VITE_IMGPROXY_URL || "/imgproxy";
-  const proxySrc = `${imgproxyUrl}/insecure/fit/1000/1000/no/0/plain/s3://medical-system/${imagePath}`;
+  
+  const proxyPath = generateUrl(
+    { value: `s3://medical-system/${imagePath}`, type: "plain" },
+    { resize: { resizing_type: "fit", width: 1000, height: 1000 } }
+  );
+  const proxySrc = `${imgproxyUrl}${proxyPath}`;
 
   return (
     <div className="relative inline-block border border-charcoal rounded-2xl overflow-hidden bg-obsidian">

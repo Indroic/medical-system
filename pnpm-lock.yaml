@@ -130,6 +130,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.4.0(react-hook-form@7.77.0(react@19.2.6))
+      '@imgproxy/imgproxy-js-core':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@medical-system/env':
         specifier: workspace:*
         version: link:../../packages/env
@@ -1167,6 +1170,9 @@ packages:
     resolution: {integrity: sha512-EIsqr/t/qbinPIhGjMdtvutIN1Kk4uwbROE9/UQ93CAVGR7GkA7Y92+fX80OzXi/OB67jVFYwKGO1WzkxmkFZw==}
     peerDependencies:
       react-hook-form: ^7.55.0
+
+  '@imgproxy/imgproxy-js-core@1.8.0':
+    resolution: {integrity: sha512-Gh0fO/MnRGAvHQqESLHn9bN3S7Z9peAm5dTcwTluFeAYPgFsr0QpIcyvClcThaz3YJKWEhk3up1Z13G6pk9Qww==}
 
   '@inquirer/ansi@2.0.7':
     resolution: {integrity: sha512-3eTuUO1vH2cZm2ZKHeQxnOqlTi9EfZDGgIe3BL3I4u+rJHocr9Fz86M4fjYABPvFnQG/gGK551HqDiIcETwU6Q==}
@@ -4577,6 +4583,8 @@ snapshots:
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.77.0(react@19.2.6)
+
+  '@imgproxy/imgproxy-js-core@1.8.0': {}
 
   '@inquirer/ansi@2.0.7': {}
 
