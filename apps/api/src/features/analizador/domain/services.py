@@ -22,9 +22,7 @@ class AnalizadorDomainService(BaseDomainService):
         self._ia_adapter = ia_adapter
         super().__init__()
 
-    async def ejecutar_inferencia(
-        self, estudio_id: UUID, imagen_path: str
-    ) -> AnalisisResonancia:
+    async def iniciar_inferencia(self, estudio_id: UUID, imagen_path: str) -> AnalisisResonancia:
         if not Path(imagen_path).exists():
             raise ImagenNoAccesibleException(imagen_path)
 
@@ -33,6 +31,15 @@ class AnalizadorDomainService(BaseDomainService):
             imagen_path=imagen_path,
         )
         analisis.marcar_procesando()
+        await self._repo.save(analisis)
+        return analisis
+
+    async def ejecutar_inferencia(self, estudio_id: UUID, imagen_path: str) -> AnalisisResonancia:
+        # Método usado por Celery Worker
+        analisis = await self._repo.get_by_estudio(estudio_id)
+        if not analisis:
+            analisis = AnalisisResonancia(estudio_id=estudio_id, imagen_path=imagen_path)
+            analisis.marcar_procesando()
 
         try:
             hallazgos = await self._ia_adapter.inferir(imagen_path)

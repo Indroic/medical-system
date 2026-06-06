@@ -10,6 +10,7 @@ import { estudios } from "./routes/estudios";
 import { analisis } from "./routes/analisis";
 import { reportes } from "./routes/reportes";
 import { usuarios } from "./routes/usuarios";
+import { eventsRouter } from "./routes/events";
 import { trimTrailingSlash } from "hono/trailing-slash";
 
 const app = new Hono<{
@@ -72,7 +73,8 @@ const routes = app
   .route("/api/estudios", estudios)
   .route("/api/analisis", analisis)
   .route("/api/reportes", reportes)
-  .route("/api/usuarios", usuarios);
+  .route("/api/usuarios", usuarios)
+  .route("/api/events", eventsRouter);
 
 export type AppType = typeof routes;
 

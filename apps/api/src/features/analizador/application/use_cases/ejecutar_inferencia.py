@@ -17,30 +17,21 @@ class EjecutarInferenciaUseCase(UseCase[EjecutarInferenciaCommand, AnalisisRespo
 
     async def execute(self, command: EjecutarInferenciaCommand) -> AnalisisResponse:
         async with self.uow:
-            analisis = await self.service.ejecutar_inferencia(
+            analisis = await self.service.iniciar_inferencia(
                 estudio_id=command.estudio_id,
                 imagen_path=command.imagen_path,
             )
-            await self.uow.commit()  # persiste y despacha AnalisisCompletadoEvent
+            await self.uow.commit()
 
-        hallazgos_dto = [
-            HallazgoDTO(
-                etiqueta=h.etiqueta,
-                confianza=h.confianza,
-                x_min=h.bbox.x_min,
-                y_min=h.bbox.y_min,
-                x_max=h.bbox.x_max,
-                y_max=h.bbox.y_max,
-                es_critico=h.es_critico(),
-            )
-            for h in analisis.hallazgos
-        ]
+        # Encolar la tarea asíncrona
+        from .tasks import procesar_estudio_ia
+        procesar_estudio_ia.delay(str(command.estudio_id), command.imagen_path)
 
         return AnalisisResponse(
             analisis_id=analisis.id,
             estudio_id=analisis.estudio_id,
             estado=analisis.estado,
             nivel_riesgo=analisis.nivel_riesgo,
-            hallazgos=hallazgos_dto,
-            total_hallazgos=len(hallazgos_dto),
+            hallazgos=[],
+            total_hallazgos=0,
         )

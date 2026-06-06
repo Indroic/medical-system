@@ -53,15 +53,28 @@ function EstudioDetail() {
 
     loadData();
 
-    // Polling si está analizando o generando el reporte
-    if (estudio?.estado === "EN_ANALISIS" || reporte?.estado === "GENERANDO") {
-      intervalId = setInterval(loadData, 5000); // Revisar cada 5 segundos
-    }
+    // Reemplazar polling por Server-Sent Events (SSE)
+    const sseUrl = `${import.meta.env.VITE_SERVER_URL}/api/events/${estudioId}`;
+    const eventSource = new EventSource(sseUrl, { withCredentials: true });
+
+    eventSource.addEventListener("ANALISIS_COMPLETADO", () => {
+      toast.success("Análisis completado. Generando reporte...");
+      loadData();
+    });
+
+    eventSource.addEventListener("REPORTE_LISTO", () => {
+      toast.success("¡Reporte listo para descargar!");
+      loadData();
+    });
+
+    eventSource.onerror = () => {
+      console.error("Error en conexión SSE");
+    };
 
     return () => {
-      if (intervalId) clearInterval(intervalId);
+      eventSource.close();
     };
-  }, [token, estudioId, estudio?.estado, reporte?.estado]);
+  }, [token, estudioId]);
 
   const handleAnalizar = async () => {
     if (!token || !estudio) return;

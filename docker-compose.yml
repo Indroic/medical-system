@@ -27,10 +27,43 @@ services:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
       - SERVER_URL=http://server:3000
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - REDIS_URL=redis://redis:6379/0
     # Puertos ocultos: Solo accesibles internamente vía Nginx
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  api-worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: always
+    command: ["uv", "run", "celery", "-A", "src.worker", "worker", "--loglevel=info"]
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
+      - SERVER_URL=http://server:3000
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   server:
     build:

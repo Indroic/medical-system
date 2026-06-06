@@ -57,5 +57,12 @@ async def on_analisis_completado(event: AnalisisCompletadoEvent) -> None:
                 repo = ReporteRepositoryImpl(uow)
                 await repo.save(reporte)
                 await uow.commit()
+            
+            # Notificar por WebSockets vía Redis Pub/Sub
+            from src.shared.infrastructure.redis_client import publish_event
+            await publish_event("estudios_updates", "REPORTE_LISTO", {
+                "estudio_id": str(event.estudio_id),
+                "reporte_id": str(reporte.id)
+            })
     except Exception:
         logger.exception("FATAL ERROR en handler on_analisis_completado")
