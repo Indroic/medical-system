@@ -1,12 +1,13 @@
 import { Hono } from "hono";
 import { env } from "@medical-system/env/server";
+import { getAuthToken } from "../utils";
 
 export const usuarios = new Hono()
   .get("/me", async (c) => {
-    const token = c.req.header("Authorization");
+    const token = getAuthToken(c);
     
     const res = await fetch(`${env.PYTHON_API_URL}/api/v1/usuarios/me`, {
-      headers: { ...(token ? { Authorization: token } : {}) },
+      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     });
     
     if (!res.ok) {

@@ -2,14 +2,15 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { env } from "@medical-system/env/server";
+import { getAuthToken } from "../utils";
 
 export const pacientes = new Hono()
   .get("/:id", async (c) => {
     const id = c.req.param("id");
-    const token = c.req.header("Authorization");
+    const token = getAuthToken(c);
     
     const res = await fetch(`${env.PYTHON_API_URL}/api/v1/pacientes/${id}`, {
-      headers: { ...(token ? { Authorization: token } : {}) },
+      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     });
     
     if (!res.ok) {
@@ -32,13 +33,13 @@ export const pacientes = new Hono()
     ),
     async (c) => {
       const body = c.req.valid("json");
-      const token = c.req.header("Authorization");
+      const token = getAuthToken(c);
       
       const res = await fetch(`${env.PYTHON_API_URL}/api/v1/pacientes/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: token } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(body),
       });

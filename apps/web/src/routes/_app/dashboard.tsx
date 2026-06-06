@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/lib/auth-store";
 import { client } from "@/lib/api-client";
+import { authClient } from "@/lib/auth-client";
 import { useQuery } from "@tanstack/react-query";
 import type { EstudioResponse, EstudioListResponse } from "@/lib/api-client";
 import EstadoBadge from "@/components/estado-badge";
@@ -20,9 +21,12 @@ function Dashboard() {
   const { data, isLoading: loading, error } = useQuery({
     queryKey: ["estudios"],
     queryFn: async () => {
+      const { data: jwtData } = await authClient.jwt();
+      const jwtToken = jwtData?.token || token; // Fallback al store viejo por si acaso
+      
       const res = await client.api.estudios.$get({
         header: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${jwtToken}`
         }
       });
       if (!res.ok) {

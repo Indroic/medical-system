@@ -1,4 +1,5 @@
 import { env } from "@medical-system/env/web";
+import { authClient } from "@/lib/auth-client";
 
 const BASE = env.VITE_SERVER_URL || "http://localhost:3000";
 
@@ -19,7 +20,18 @@ async function request<T>(
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>),
   };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  let finalToken = token;
+  try {
+    const { data } = await authClient.jwt();
+    if (data?.token) {
+      finalToken = data.token;
+    }
+  } catch (e) {
+    // Fallback silencioso si falla jwt
+  }
+
+  if (finalToken) headers["Authorization"] = `Bearer ${finalToken}`;
   if (!(options.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }

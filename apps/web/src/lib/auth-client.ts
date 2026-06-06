@@ -7,6 +7,9 @@ const serverBaseURL = env.VITE_SERVER_URL.startsWith("http")
   ? env.VITE_SERVER_URL
   : `${window.location.origin}${env.VITE_SERVER_URL}`;
 
+import { jwtClient } from "better-auth/client/plugins";
+
 export const authClient = createAuthClient({
   baseURL: `${serverBaseURL}/api/auth`,
+  plugins: [jwtClient()],
 });
