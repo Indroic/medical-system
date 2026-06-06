@@ -28,6 +28,8 @@ dependencies = [
     "psycopg2-binary>=2.9.12",
     "aioboto3>=15.5.0",
     "types-aioboto3>=15.5.0",
+    "ultralytics>=8.4.60",
+    "opencv-python-headless>=4.13.0.92",
 ]
 
 [project.optional-dependencies]
