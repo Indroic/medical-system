@@ -1,10 +1,10 @@
-from hexcore.application.use_cases.base import IUseCase
+from hexcore.application.use_cases.base import UseCase
 
 from ..dtos import PacienteListResponse, PacienteResponse
 from ...domain.repositories import IPacienteRepository
 
 
-class ListarPacientesUseCase(IUseCase[None, PacienteListResponse]):
+class ListarPacientesUseCase(UseCase[None, PacienteListResponse]):
     def __init__(self, repo: IPacienteRepository) -> None:
         self.repo = repo
 
