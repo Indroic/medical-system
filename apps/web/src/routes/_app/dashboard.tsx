@@ -3,8 +3,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/lib/auth-store";
-import { ApiError, estudiosApi } from "@/lib/python-api";
-import type { EstudioResponse } from "@/lib/python-api";
+import { client } from "@/lib/api-client";
+import { useQuery } from "@tanstack/react-query";
+import type { EstudioResponse, EstudioListResponse } from "@/lib/api-client";
 import EstadoBadge from "@/components/estado-badge";
 import PageHeader from "@/components/page-header";
 import StatCard from "@/components/stat-card";
@@ -16,20 +17,34 @@ export const Route = createFileRoute("/_app/dashboard")({
 function Dashboard() {
   const { user, token } = useAuthStore();
   const navigate = useNavigate();
-  const [estudios, setEstudios] = useState<EstudioResponse[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading, error } = useQuery({
+    queryKey: ["estudios"],
+    queryFn: async () => {
+      const res = await client.api.estudios.$get({
+        header: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        if (res.status === 401) {
+          navigate({ to: "/login" });
+          throw new Error("Unauthorized");
+        }
+        throw new Error("Error cargando estudios");
+      }
+      const data = (await res.json()) as unknown as EstudioListResponse;
+      return data.items;
+    },
+    enabled: !!token,
+  });
 
   useEffect(() => {
-    if (!token) return;
-    estudiosApi
-      .listar(token)
-      .then((res) => setEstudios(res.items))
-      .catch((err) => {
-        if (err instanceof ApiError && err.status === 401) navigate({ to: "/login" });
-        else toast.danger("Error cargando estudios");
-      })
-      .finally(() => setLoading(false));
-  }, [token, navigate]);
+    if (error && error.message !== "Unauthorized") {
+      toast.danger("Error cargando estudios");
+    }
+  }, [error]);
+
+  const estudios = data || [];
 
   const completados = estudios.filter((e) => e.estado === "COMPLETADO").length;
   const pendientes = estudios.filter((e) => e.estado === "PENDIENTE").length;

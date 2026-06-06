@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.4",
+    "@hono/zod-validator": "^0.8.0",
     "@medical-system/auth": "workspace:*",
     "@medical-system/db": "workspace:*",
     "@medical-system/env": "workspace:*",

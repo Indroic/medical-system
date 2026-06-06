@@ -47,6 +47,7 @@ services:
       - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://server:3000}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-super-secret-key-replace-me}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:8080}
+      - PYTHON_API_URL=${PYTHON_API_URL:-http://api:8000}
     # Exponer puerto 3000 en caso de no usar proxy externo
     ports:
       - "3000:3000"

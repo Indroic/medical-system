@@ -3,6 +3,16 @@ import { Toast } from "@heroui/react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { AuthContext, useAuthState } from "@/lib/auth-store";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 import "../index.css";
 
@@ -23,11 +33,13 @@ function RootComponent() {
   const auth = useAuthState();
 
   return (
-    <AuthContext.Provider value={auth}>
-      <HeadContent />
-      <Toast.Provider placement="bottom end" />
-      <Outlet />
-      <TanStackRouterDevtools position="bottom-left" />
-    </AuthContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <AuthContext.Provider value={auth}>
+        <HeadContent />
+        <Toast.Provider placement="bottom end" />
+        <Outlet />
+        <TanStackRouterDevtools position="bottom-left" />
+      </AuthContext.Provider>
+    </QueryClientProvider>
   );
 }

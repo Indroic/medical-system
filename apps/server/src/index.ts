@@ -5,6 +5,9 @@ import { env } from "@medical-system/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { pacientes } from "./routes/pacientes";
+import { estudios } from "./routes/estudios";
+import { analisis } from "./routes/analisis";
 
 const app = new Hono();
 
@@ -29,6 +32,13 @@ app.get("/check-setup", async (c) => {
 app.get("/", (c) => {
   return c.text("OK");
 });
+
+const routes = app
+  .route("/api/pacientes", pacientes)
+  .route("/api/estudios", estudios)
+  .route("/api/analisis", analisis);
+
+export type AppType = typeof routes;
 
 import { serve } from "@hono/node-server";
 
