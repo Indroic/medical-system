@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import EstadoBadge from "@/components/estado-badge";
 import PageHeader from "@/components/page-header";
 import { useAuthStore } from "@/lib/auth-store";
-import { ApiError, estudiosApi } from "@/lib/python-api";
-import type { EstudioResponse } from "@/lib/python-api";
+import { ApiError, estudiosApi, pacientesApi } from "@/lib/python-api";
+import type { EstudioResponse, PacienteResponse } from "@/lib/python-api";
 import { useOverlayState } from "@heroui/react";
 import NuevoEstudioModal from "@/components/nuevo-estudio-modal";
 
@@ -18,14 +18,24 @@ function EstudiosList() {
   const { token } = useAuthStore();
   const navigate = useNavigate();
   const [estudios, setEstudios] = useState<EstudioResponse[]>([]);
+  const [pacientesMap, setPacientesMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const state = useOverlayState({ defaultOpen: false });
 
   useEffect(() => {
     if (!token) return;
-    estudiosApi
-      .listar(token)
-      .then((res) => setEstudios(res.items))
+    Promise.all([
+      estudiosApi.listar(token),
+      pacientesApi.listar(token)
+    ])
+      .then(([resEstudios, resPacientes]) => {
+        setEstudios(resEstudios.items);
+        const map: Record<string, string> = {};
+        resPacientes.items.forEach((p) => {
+          map[p.id] = `${p.nombre} ${p.apellido}`;
+        });
+        setPacientesMap(map);
+      })
       .catch((err) => toast.danger("Error cargando estudios"))
       .finally(() => setLoading(false));
   }, [token]);
@@ -71,7 +81,7 @@ function EstudiosList() {
               <thead>
                 <tr className="border-b border-charcoal bg-ash">
                   <th className="px-4 py-3 text-left text-smoke font-normal">ID</th>
-                  <th className="px-4 py-3 text-left text-smoke font-normal">Paciente ID</th>
+                  <th className="px-4 py-3 text-left text-smoke font-normal">Paciente</th>
                   <th className="px-4 py-3 text-left text-smoke font-normal">Estado</th>
                   <th className="px-4 py-3 text-left text-smoke font-normal">Tipo</th>
                   <th className="px-4 py-3 text-right text-smoke font-normal">Acción</th>
@@ -81,7 +91,7 @@ function EstudiosList() {
                 {estudios.map((e, i) => (
                   <tr key={e.id} className={i < estudios.length - 1 ? "border-b border-charcoal" : ""}>
                     <td className="px-4 py-3 font-mono text-smoke">{e.id.slice(0, 8)}…</td>
-                    <td className="px-4 py-3 font-mono text-smoke">{e.paciente_id.slice(0, 8)}…</td>
+                    <td className="px-4 py-3 text-snow">{pacientesMap[e.paciente_id] || "Desconocido"}</td>
                     <td className="px-4 py-3"><EstadoBadge estado={e.estado} /></td>
                     <td className="px-4 py-3 text-smoke">{e.mime_type}</td>
                     <td className="px-4 py-3 text-right">

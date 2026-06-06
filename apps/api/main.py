@@ -24,9 +24,11 @@ async def lifespan(app: FastAPI):
     # -- Registro de handlers de eventos (inter-slice) -----------------------
     from src.features.analizador.domain.events import AnalisisCompletadoEvent
     from src.features.reportes.application.handlers import on_analisis_completado
+    from src.features.estudios.application.handlers import on_analisis_completado_update_estudio
 
     dispatcher = config.event_dispatcher
     dispatcher.register(AnalisisCompletadoEvent, on_analisis_completado)
+    dispatcher.register(AnalisisCompletadoEvent, on_analisis_completado_update_estudio)
 
     # -- Crear tablas en dev (en prod usar: hexcore migrate) ------------------
     if config.debug:
