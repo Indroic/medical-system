@@ -25,20 +25,43 @@ function EstudioDetail() {
 
   useEffect(() => {
     if (!token) return;
-    estudiosApi
-      .obtener(token, estudioId)
-      .then(async (e) => {
+
+    let intervalId: ReturnType<typeof setInterval>;
+
+    const loadData = async () => {
+      try {
+        const e = await estudiosApi.obtener(token, estudioId);
         setEstudio(e);
-        const [p, r] = await Promise.allSettled([
-          pacientesApi.obtener(token, e.paciente_id),
-          reportesApi.obtener(token, estudioId),
-        ]);
+
+        // Solo pedimos el reporte si el estudio ya no está en estado "PENDIENTE"
+        const promises: Promise<any>[] = [pacientesApi.obtener(token, e.paciente_id)];
+        if (e.estado === "COMPLETADO") {
+          promises.push(reportesApi.obtener(token, estudioId));
+        } else {
+          promises.push(Promise.reject("Reporte no disponible aún"));
+        }
+
+        const [p, r] = await Promise.allSettled(promises);
         if (p.status === "fulfilled") setPaciente(p.value);
         if (r.status === "fulfilled") setReporte(r.value);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [token, estudioId]);
+      } catch (error) {
+        console.error("Error al cargar datos del estudio", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+
+    // Polling si está analizando o generando el reporte
+    if (estudio?.estado === "EN_ANALISIS" || reporte?.estado === "GENERANDO") {
+      intervalId = setInterval(loadData, 5000); // Revisar cada 5 segundos
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [token, estudioId, estudio?.estado, reporte?.estado]);
 
   const handleAnalizar = async () => {
     if (!token || !estudio) return;
