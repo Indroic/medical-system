@@ -16,7 +16,9 @@ export const estudios = new Hono()
     });
     
     if (!res.ok) {
-      return c.json({ error: "Failed to fetch from API" }, res.status as any);
+      const errorText = await res.text();
+      console.error(`[Python API Error] GET /estudios: ${res.status} - ${errorText}`);
+      return c.json({ error: "Failed to fetch from API", detail: errorText }, res.status as any);
     }
     
     const data = await res.json();
