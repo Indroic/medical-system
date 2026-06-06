@@ -74,7 +74,8 @@ async def get_current_user(
             token,
             signing_key.key,
             algorithms=["EdDSA", "ES256", "RS256"],
-            options={"verify_audience": False, "verify_issuer": False},
+            audience="https://medicalserver.indroic.dev",
+            issuer="https://medicalserver.indroic.dev",
         )
     except jwt.ExpiredSignatureError:
         raise HTTPException(
