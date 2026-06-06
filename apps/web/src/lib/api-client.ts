@@ -1,8 +1,10 @@
 import { hc } from "hono/client";
 import type { AppType } from "../../../server/src/index";
-import { env } from "@medical-system/env/web";
 
-export const client = hc<AppType>(env.VITE_SERVER_URL || "http://localhost:3000", {
+// Hardcodeado temporalmente para asegurar que apunte al Hono Server y no a sí mismo
+const SERVER_URL = "https://medicalserver.indroic.dev";
+
+export const client = hc<AppType>(SERVER_URL, {
   init: {
     credentials: "include",
   },

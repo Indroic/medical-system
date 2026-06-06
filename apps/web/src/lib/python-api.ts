@@ -1,7 +1,6 @@
-import { env } from "@medical-system/env/web";
 import { authClient } from "@/lib/auth-client";
 
-const BASE = env.VITE_SERVER_URL || "http://localhost:3000";
+const BASE = "https://medicalserver.indroic.dev";
 
 export class ApiError extends Error {
   constructor(
