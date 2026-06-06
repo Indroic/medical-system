@@ -18,6 +18,20 @@ services:
       timeout: 5s
       retries: 5
 
+  api-migrator:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: "no"
+    command: ["uv", "run", "alembic", "upgrade", "head"]
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL_SYNC=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
+    depends_on:
+      db:
+        condition: service_healthy
+
   api:
     build:
       context: .
@@ -35,6 +49,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      api-migrator:
+        condition: service_completed_successfully
 
   api-worker:
     build:
@@ -53,6 +69,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      api-migrator:
+        condition: service_completed_successfully
 
   redis:
     image: redis:7-alpine
