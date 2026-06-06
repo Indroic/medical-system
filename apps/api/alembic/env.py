@@ -8,10 +8,12 @@ from alembic import context
 from hexcore.config import LazyConfig
 from hexcore.infrastructure.repositories.orms.sqlalchemy import Base
 from hexcore.infrastructure.repositories.orms.sqlalchemy.utils import import_all_models
-import src.shared.infrastructure.database.models as models
-
-import_all_models(models)
-
+from hexcore.infrastructure.repositories.orms.sqlalchemy.utils import import_all_models
+import src.features.usuarios.infrastructure.models
+import src.features.pacientes.infrastructure.models
+import src.features.estudios.infrastructure.models
+import src.features.analizador.infrastructure.models
+import src.features.reportes.infrastructure.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
