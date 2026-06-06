@@ -7,6 +7,8 @@ import PageHeader from "@/components/page-header";
 import { useAuthStore } from "@/lib/auth-store";
 import { ApiError, estudiosApi } from "@/lib/python-api";
 import type { EstudioResponse } from "@/lib/python-api";
+import { useOverlayState } from "@heroui/react";
+import NuevoEstudioModal from "@/components/nuevo-estudio-modal";
 
 export const Route = createFileRoute("/_app/estudios/")({
   component: EstudiosList,
@@ -17,6 +19,7 @@ function EstudiosList() {
   const navigate = useNavigate();
   const [estudios, setEstudios] = useState<EstudioResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const state = useOverlayState({ defaultOpen: false });
 
   useEffect(() => {
     if (!token) return;
@@ -35,7 +38,7 @@ function EstudiosList() {
         action={
           <button
             type="button"
-            onClick={() => navigate({ to: "/estudios/nuevo", search: { pacienteId: undefined } })}
+            onClick={state.open}
             className="rounded-full bg-green px-4 py-2 text-[13px] font-medium text-obsidian hover:bg-green-deep transition-colors"
           >
             Nuevo estudio
@@ -56,7 +59,7 @@ function EstudiosList() {
             </p>
             <button
               type="button"
-              onClick={() => navigate({ to: "/estudios/nuevo", search: { pacienteId: undefined } })}
+              onClick={state.open}
               className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep transition-colors"
             >
               Nuevo estudio
@@ -97,6 +100,8 @@ function EstudiosList() {
           </div>
         )}
       </div>
+
+      <NuevoEstudioModal state={state} />
     </div>
   );
 }

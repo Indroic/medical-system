@@ -5,7 +5,8 @@ import PageHeader from "@/components/page-header";
 import { useAuthStore } from "@/lib/auth-store";
 import { pacientesApi } from "@/lib/python-api";
 import type { PacienteResponse } from "@/lib/python-api";
-import { toast } from "@heroui/react";
+import { toast, useOverlayState } from "@heroui/react";
+import NuevoPacienteModal from "@/components/nuevo-paciente-modal";
 
 export const Route = createFileRoute("/_app/pacientes/")({
   component: PacientesList,
@@ -16,6 +17,7 @@ function PacientesList() {
   const navigate = useNavigate();
   const [pacientes, setPacientes] = useState<PacienteResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const state = useOverlayState({ defaultOpen: false });
 
   useEffect(() => {
     if (!token) return;
@@ -33,7 +35,7 @@ function PacientesList() {
         action={
           <button
             type="button"
-            onClick={() => navigate({ to: "/pacientes/nuevo" })}
+            onClick={state.open}
             className="rounded-full bg-green px-4 py-2 text-[13px] font-medium text-obsidian hover:bg-green-deep transition-colors"
           >
             Nuevo paciente
@@ -54,7 +56,7 @@ function PacientesList() {
             </p>
             <button
               type="button"
-              onClick={() => navigate({ to: "/pacientes/nuevo" })}
+              onClick={state.open}
               className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep transition-colors"
             >
               Crear paciente
@@ -93,6 +95,11 @@ function PacientesList() {
           </div>
         )}
       </div>
+
+      <NuevoPacienteModal
+        state={state}
+        onPacienteCreado={(paciente) => setPacientes((prev) => [...prev, paciente])}
+      />
     </div>
   );
 }

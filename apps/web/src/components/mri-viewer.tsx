@@ -21,8 +21,8 @@ export default function MriViewer({ imagePath, hallazgos = [] }: MriViewerProps)
   const scaleX = dims.nw / (dims.w || 1);
   const scaleY = dims.nh / (dims.h || 1);
 
-  // Asume que VITE_IMGPROXY_URL fue proveido por Dokploy, fallback local
-  const imgproxyUrl = import.meta.env.VITE_IMGPROXY_URL || "/imgproxy";
+  // Dominio dedicado en producción (hardcodeado por requerimiento en Dokploy)
+  const imgproxyUrl = "https://medicalimages.indroic.dev";
   
   const proxyPath = generateUrl(
     { value: `s3://medical-system/${imagePath}`, type: "plain" },

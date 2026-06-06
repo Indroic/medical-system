@@ -8,6 +8,8 @@ import PatientCard from "@/components/patient-card";
 import { useAuthStore } from "@/lib/auth-store";
 import { ApiError, estudiosApi, pacientesApi } from "@/lib/python-api";
 import type { EstudioResponse, PacienteResponse } from "@/lib/python-api";
+import { useOverlayState } from "@heroui/react";
+import NuevoEstudioModal from "@/components/nuevo-estudio-modal";
 
 export const Route = createFileRoute("/_app/pacientes/$pacienteId")({
   component: PacienteDetail,
@@ -20,6 +22,7 @@ function PacienteDetail() {
   const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
   const [estudios, setEstudios] = useState<EstudioResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const state = useOverlayState({ defaultOpen: false });
 
   useEffect(() => {
     if (!token) return;
@@ -43,7 +46,7 @@ function PacienteDetail() {
           <div className="flex gap-3 items-center">
             <button
               type="button"
-              onClick={() => navigate({ to: "/estudios/nuevo", search: { pacienteId } })}
+              onClick={state.open}
               className="rounded-full bg-green px-4 py-2 text-[13px] font-medium text-obsidian hover:bg-green-deep transition-colors"
             >
               Nuevo estudio
@@ -103,6 +106,8 @@ function PacienteDetail() {
           </div>
         )}
       </div>
+
+      <NuevoEstudioModal state={state} prefilledPacienteId={pacienteId} />
     </div>
   );
 }
