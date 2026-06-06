@@ -8,7 +8,7 @@ import src.shared.infrastructure.database as shared_db
 from src.features.analizador.domain.services import AnalizadorDomainService
 from src.features.analizador.infrastructure.repositories import AnalisisRepositoryImpl
 from src.features.analizador.infrastructure.adapters.yolo_adapter import YoloInferenciaAdapter
-from src.config import config
+from config import config
 
 logger = logging.getLogger(__name__)
 
