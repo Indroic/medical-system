@@ -26,6 +26,10 @@ class AnalizadorDomainService(BaseDomainService):
         if not Path(imagen_path).exists():
             raise ImagenNoAccesibleException(imagen_path)
 
+        analisis = await self._repo.get_by_estudio(estudio_id)
+        if analisis:
+            return analisis
+
         analisis = AnalisisResonancia(
             estudio_id=estudio_id,
             imagen_path=imagen_path,
