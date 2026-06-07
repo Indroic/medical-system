@@ -26,7 +26,7 @@ export const analisis = new Hono()
       "json",
       z.object({
         estudio_id: z.string(),
-        imagen_path: z.string(),
+        imagenes_paths: z.array(z.string()),
       })
     ),
     async (c) => {
