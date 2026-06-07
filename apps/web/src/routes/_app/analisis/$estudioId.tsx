@@ -5,7 +5,6 @@ import ReactMarkdown from "react-markdown";
 
 import MriViewer from "@/components/mri-viewer";
 import PageHeader from "@/components/page-header";
-import PageHeader from "@/components/page-header";
 import RiesgoBadge from "@/components/riesgo-badge";
 import { useAuthStore } from "@/lib/auth-store";
 import { ApiError, analisisApi, estudiosApi } from "@/lib/python-api";
