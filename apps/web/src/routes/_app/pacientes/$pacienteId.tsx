@@ -9,6 +9,7 @@ import { useAuthStore } from "@/lib/auth-store";
 import { ApiError, estudiosApi, pacientesApi } from "@/lib/python-api";
 import type { EstudioResponse, PacienteResponse } from "@/lib/python-api";
 import { useOverlayState } from "@heroui/react";
+import EstudioDetailModal from "@/components/estudio-detail-modal";
 import NuevoEstudioModal from "@/components/nuevo-estudio-modal";
 
 export const Route = createFileRoute("/_app/pacientes/$pacienteId")({
@@ -23,6 +24,8 @@ function PacienteDetail() {
   const [estudios, setEstudios] = useState<EstudioResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const state = useOverlayState({ defaultOpen: false });
+  const detailModalState = useOverlayState({ defaultOpen: false });
+  const [selectedEstudioId, setSelectedEstudioId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -93,7 +96,10 @@ function PacienteDetail() {
                     <td className="px-4 py-3 text-right">
                       <button
                         type="button"
-                        onClick={() => navigate({ to: "/estudios/$estudioId", params: { estudioId: e.id } })}
+                        onClick={() => {
+                          setSelectedEstudioId(e.id);
+                          detailModalState.open();
+                        }}
                         className="text-green font-medium hover:underline"
                       >
                         Ver →
@@ -108,6 +114,7 @@ function PacienteDetail() {
       </div>
 
       <NuevoEstudioModal state={state} prefilledPacienteId={pacienteId} />
+      <EstudioDetailModal state={detailModalState} estudioId={selectedEstudioId} />
     </div>
   );
 }
