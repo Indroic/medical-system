@@ -1,9 +1,10 @@
 from logging.config import fileConfig
 
+# ruff: noqa: E402, I001
+import config as my_project_config  # Monkey-patch de typer ANTES de cargar hexcore y carga la config real
+
 from hexcore.infrastructure.repositories.orms.sqlalchemy import Base
 from sqlalchemy import engine_from_config, pool
-
-import config as my_project_config  # Monkey-patch de typer ANTES de cargar hexcore y carga la config real
 from alembic import context
 
 # this is the Alembic Config object, which provides
@@ -20,6 +21,11 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
+from src.features.usuarios.infrastructure.models import UserModel
+from src.features.estudios.infrastructure.models import EstudioModel
+from src.features.analizador.infrastructure.models import AnalisisModel
+from src.features.reportes.infrastructure.models import ReporteModel
+from src.features.pacientes.infrastructure.models import PacienteModel
 
 target_metadata = Base.metadata
 
