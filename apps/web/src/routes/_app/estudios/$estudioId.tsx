@@ -100,35 +100,31 @@ function EstudioDetail() {
   const hasAnalisis = estudio.estado !== "PENDIENTE";
 
   return (
-    <Modal
-      isOpen={true}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) navigate({ to: "/estudios" });
-      }}
-      size="full"
-      classNames={{
-        base: "bg-obsidian border-charcoal",
-        header: "border-b border-charcoal",
-        body: "p-8 overflow-y-auto custom-scrollbar"
-      }}
-    >
-      <Modal.Content>
-        <Modal.Header className="flex flex-col gap-1">
-          <div className="flex items-center justify-between w-full">
-            <h2 className="text-[20px] font-medium text-snow">Detalle de estudio</h2>
-            <div className="flex items-center gap-3 mr-8">
-              <EstadoBadge estado={estudio.estado} />
-              <button
-                type="button"
-                onClick={() => navigate({ to: "/estudios" })}
-                className="text-[13px] text-smoke hover:text-silver transition-colors"
-              >
-                Cerrar
-              </button>
+    <Modal>
+      <Modal.Backdrop
+        isOpen={true}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) navigate({ to: "/estudios" });
+        }}
+      >
+      <Modal.Container>
+        <Modal.Dialog className="bg-obsidian border-charcoal w-full h-full max-w-none m-0 rounded-none">
+          <Modal.Header className="flex flex-col gap-1 border-b border-charcoal pb-4">
+            <div className="flex items-center justify-between w-full">
+              <Modal.Heading className="text-[20px] font-medium text-snow">Detalle de estudio</Modal.Heading>
+              <div className="flex items-center gap-3 mr-8">
+                <EstadoBadge estado={estudio.estado} />
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/estudios" })}
+                  className="text-[13px] text-smoke hover:text-silver transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
-          </div>
-        </Modal.Header>
-        <Modal.Body>
+          </Modal.Header>
+          <Modal.Body className="p-8 overflow-y-auto custom-scrollbar">
           <div className="grid grid-cols-[1fr_300px] gap-6">
             {/* Left: image */}
             <div>
@@ -202,8 +198,10 @@ function EstudioDetail() {
               </div>
             </div>
           </div>
-        </Modal.Body>
-      </Modal.Content>
+          </Modal.Body>
+        </Modal.Dialog>
+      </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   );
 }
