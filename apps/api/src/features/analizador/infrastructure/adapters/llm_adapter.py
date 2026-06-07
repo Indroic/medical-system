@@ -31,7 +31,7 @@ class OllamaAdapter(ILLMAdapter):
 
         # 2. Llamada asíncrona a la API de Ollama
         try:
-            async with httpx.AsyncClient(timeout=60.0) as client:
+            async with httpx.AsyncClient(timeout=600.0) as client:
                 response = await client.post(
                     f"{self.ollama_url}/api/generate",
                     json={
@@ -68,5 +68,5 @@ class OllamaAdapter(ILLMAdapter):
             logger.error(f"Error HTTP de Ollama ({e.response.status_code}): {error_body}")
             return f"Hubo un error al generar el reporte avanzado (HTTP {e.response.status_code}): {error_body}"
         except Exception as e:
-            logger.error(f"Error comunicando con Ollama: {e}")
-            return f"Hubo un error al generar el reporte avanzado usando IA: {e}"
+            logger.error(f"Error comunicando con Ollama: {repr(e)}")
+            return f"Hubo un error al generar el reporte avanzado usando IA: {repr(e)}"
