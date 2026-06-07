@@ -26,15 +26,10 @@ class GeminiAdapter(ILLMAdapter):
             ),
         ]
         
-        tools = [
-            types.Tool(googleSearch=types.GoogleSearch()),
-        ]
-        
         generate_content_config = types.GenerateContentConfig(
             thinking_config=types.ThinkingConfig(
                 thinking_level="MEDIUM",
             ),
-            tools=tools,
             response_mime_type="application/json",
             response_schema=genai.types.Schema(
                 type=genai.types.Type.OBJECT,
