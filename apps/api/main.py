@@ -3,6 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# ruff: noqa: E402, I001
+import config  # Monkey-patch debe ejecutarse antes que cualquier modelo
+from config import config as app_config
+
 import src.features.analizador.infrastructure.models  # noqa: F401
 import src.features.estudios.infrastructure.models  # noqa: F401
 import src.features.pacientes.infrastructure.models  # noqa: F401
@@ -10,7 +14,6 @@ import src.features.reportes.infrastructure.models  # noqa: F401
 
 # -- Importar todos los modelos para que Alembic/SQLAlchemy los detecte ------
 import src.features.usuarios.infrastructure.models  # noqa: F401
-from config import config
 from src.features.analizador.infrastructure.api.router import router as analizador_router
 from src.features.estudios.infrastructure.api.router import router as estudios_router
 from src.features.pacientes.infrastructure.api.router import router as pacientes_router
@@ -26,12 +29,12 @@ async def lifespan(app: FastAPI):
     from src.features.estudios.application.handlers import on_analisis_completado_update_estudio
     from src.features.reportes.application.handlers import on_analisis_completado
 
-    dispatcher = config.event_dispatcher
+    dispatcher = app_config.event_dispatcher
     dispatcher.register(AnalisisCompletadoEvent, on_analisis_completado)
     dispatcher.register(AnalisisCompletadoEvent, on_analisis_completado_update_estudio)
 
     # -- Crear tablas en dev (en prod usar: hexcore migrate) ------------------
-    if config.debug:
+    if app_config.debug:
         from hexcore.infrastructure.repositories.orms.sqlalchemy import BaseModel
 
         import src.shared.infrastructure.database as shared_db
@@ -55,10 +58,10 @@ app = FastAPI(
 # -- CORS ---------------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=config.allow_origins,
-    allow_credentials=config.allow_credentials,
-    allow_methods=config.allow_methods,
-    allow_headers=config.allow_headers,
+    allow_origins=app_config.allow_origins,
+    allow_credentials=app_config.allow_credentials,
+    allow_methods=app_config.allow_methods,
+    allow_headers=app_config.allow_headers,
 )
 
 # -- Routers ------------------------------------------------------------------
