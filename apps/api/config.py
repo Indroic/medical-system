@@ -45,11 +45,11 @@ class ProjectConfig(ServerConfig):
     # YOLO / IA
     yolo_model_path: str = "models/yolo_resonancia.pt"
     
-    # LLM (Ollama)
-    ollama_url: str = os.getenv("OLLAMA_URL", "http://ollama:11434")
-    ollama_model_name: str = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
-    ollama_prompt_template: str = os.getenv(
-        "OLLAMA_PROMPT_TEMPLATE",
+    # LLM (Google Gemini)
+    gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
+    gemini_model_name: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+    gemini_prompt_template: str = os.getenv(
+        "GEMINI_PROMPT_TEMPLATE",
         "Eres un oncólogo radiólogo de clase mundial. Recibirás una lista de datos crudos extraídos por un "
         "modelo de visión artificial (YOLO) a partir de múltiples cortes (slices) de una Resonancia Magnética (MRI).\n"
         "Tu tarea es redactar un 'Informe Radiológico' profesional, claro y detallado en español (Markdown).\n\n"
@@ -63,6 +63,7 @@ class ProjectConfig(ServerConfig):
         "{datos_crudos}\n\n"
         "Redacta el informe clínico estructurado en formato Markdown:"
     )
+
 
     # CORS
     allow_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]

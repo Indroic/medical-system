@@ -72,7 +72,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=seaweed
       - YOLO_CONFIG_DIR=/tmp/Ultralytics
       - C_FORCE_ROOT=true
-      - OLLAMA_URL=http://ollama:11434
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       db:
         condition: service_healthy
@@ -176,15 +176,6 @@ services:
       db:
         condition: service_healthy
 
-  ollama:
-    image: ollama/ollama:latest
-    restart: always
-    volumes:
-      - ollama_data:/root/.ollama
-    # No exponemos el puerto hacia afuera por seguridad,
-    # solo los contenedores de la red interna podrán usarlo (api-worker).
-
 volumes:
   postgres_data:
   seaweedfs_data:
-  ollama_data:

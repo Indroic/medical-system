@@ -9,17 +9,17 @@ from config import config
 from ...application.use_cases.ejecutar_inferencia import EjecutarInferenciaUseCase
 from ...domain.services import AnalizadorDomainService
 from ..adapters.yolo_adapter import YoloInferenciaAdapter
-from ..adapters.llm_adapter import OllamaAdapter
+from ..adapters.gemini_adapter import GeminiAdapter
 from ..repositories import AnalisisRepositoryImpl
 
 # Singleton del adaptador YOLO — el modelo se carga una sola vez
 _yolo_adapter = YoloInferenciaAdapter(model_path=config.yolo_model_path)
 
 # Singleton del adaptador LLM
-_llm_adapter = OllamaAdapter(
-    ollama_url=config.ollama_url, 
-    model_name=config.ollama_model_name,
-    prompt_template=config.ollama_prompt_template
+_llm_adapter = GeminiAdapter(
+    api_key=config.gemini_api_key, 
+    model_name=config.gemini_model_name,
+    prompt_template=config.gemini_prompt_template
 )
 
 

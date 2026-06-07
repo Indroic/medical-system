@@ -9,7 +9,7 @@ from config import config as app_config
 from celery import shared_task
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 from src.features.analizador.domain.services import AnalizadorDomainService
-from src.features.analizador.infrastructure.adapters.llm_adapter import OllamaAdapter
+from src.features.analizador.infrastructure.adapters.gemini_adapter import GeminiAdapter
 from src.features.analizador.infrastructure.adapters.yolo_adapter import YoloInferenciaAdapter
 from src.features.analizador.infrastructure.repositories import AnalisisRepositoryImpl
 
@@ -37,10 +37,10 @@ async def _procesar_estudio_ia_async(estudio_id_str: str, imagenes_paths: list[s
         uow = SqlAlchemyUnitOfWork(session=session)
         repo = AnalisisRepositoryImpl(uow)
         adapter = YoloInferenciaAdapter(model_path=app_config.yolo_model_path)
-        llm_adapter = OllamaAdapter(
-            ollama_url=app_config.ollama_url, 
-            model_name=app_config.ollama_model_name,
-            prompt_template=app_config.ollama_prompt_template
+        llm_adapter = GeminiAdapter(
+            api_key=app_config.gemini_api_key, 
+            model_name=app_config.gemini_model_name,
+            prompt_template=app_config.gemini_prompt_template
         )
         service = AnalizadorDomainService(repo=repo, ia_adapter=adapter, llm_adapter=llm_adapter)
         
