@@ -39,7 +39,7 @@ export default function MriViewer({ imagePaths = [], hallazgos = [] }: MriViewer
         src={proxySrc}
         alt={`Resonancia MRI corte ${currentIndex + 1}`}
         onLoad={handleLoad}
-        className="block max-h-[480px] w-auto transition-opacity duration-300"
+        className="block w-full max-h-[700px] object-contain transition-opacity duration-300"
       />
       {dims.nw > 0 && currentHallazgos.length > 0 && (
         <svg

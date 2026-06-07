@@ -1,6 +1,7 @@
 import { toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 import MriViewer from "@/components/mri-viewer";
 import PageHeader from "@/components/page-header";
@@ -69,62 +70,30 @@ function AnalisisDetail() {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-[auto_1fr] gap-6 items-start">
+      <div className="mt-8 grid grid-cols-1 xl:grid-cols-[1.2fr_1fr] gap-8 items-start">
         {estudio?.imagenes_paths && estudio.imagenes_paths.length > 0 && (
           <MriViewer imagePaths={estudio.imagenes_paths} hallazgos={analisis.hallazgos} />
         )}
 
         <div>
           {analisis.hallazgos.length === 0 ? (
-            <div className="rounded-2xl border border-charcoal p-8 text-center text-[13px] text-smoke">
-              No se encontraron hallazgos en esta resonancia magnética.
+            <div className="rounded-2xl border border-charcoal p-8 text-center text-[14px] text-smoke bg-obsidian">
+              No se encontraron hallazgos patológicos en esta resonancia magnética.
+            </div>
+          ) : analisis.informe_avanzado_ia ? (
+            <div className="rounded-2xl border border-green/30 bg-obsidian p-6 shadow-lg">
+              <h3 className="text-[16px] text-green mb-4 flex items-center gap-2 font-medium">
+                <span className="w-2.5 h-2.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(62,207,142,0.6)]" />
+                Informe Clínico de IA
+              </h3>
+              <div className="prose prose-invert prose-sm max-w-none text-silver font-sans prose-headings:text-snow prose-a:text-green">
+                <ReactMarkdown>{analisis.informe_avanzado_ia}</ReactMarkdown>
+              </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-charcoal overflow-hidden">
-              <table className="w-full text-[12px]">
-                <thead>
-                  <tr className="border-b border-charcoal bg-ash">
-                    <th className="px-4 py-3 text-left text-smoke font-normal">Corte</th>
-                    <th className="px-4 py-3 text-left text-smoke font-normal">Etiqueta</th>
-                    <th className="px-4 py-3 text-left text-smoke font-normal">Confianza</th>
-                    <th className="px-4 py-3 text-left text-smoke font-normal">Crítico</th>
-                    <th className="px-4 py-3 text-left text-smoke font-normal">BBox</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {analisis.hallazgos.map((h, i) => (
-                    <tr key={i} className={i < analisis.hallazgos.length - 1 ? "border-b border-charcoal" : ""}>
-                      <td className="px-4 py-2.5 text-silver">{h.image_index + 1}</td>
-                      <td className="px-4 py-2.5 text-snow">{h.etiqueta}</td>
-                      <td className="px-4 py-2.5 font-mono text-smoke">{(h.confianza * 100).toFixed(1)}%</td>
-                      <td className="px-4 py-2.5">
-                        {h.es_critico ? (
-                          <span className="inline-flex rounded-full bg-green/10 border border-green/30 px-2 py-0.5 text-[11px] font-medium text-green">
-                            Crítico
-                          </span>
-                        ) : (
-                          <span className="text-smoke">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-2.5 font-mono text-smoke text-[11px]">
-                        ({h.x_min.toFixed(0)},{h.y_min.toFixed(0)}) → ({h.x_max.toFixed(0)},{h.y_max.toFixed(0)})
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {analisis.informe_avanzado_ia && (
-            <div className="mt-6 rounded-2xl border border-green/30 bg-green/5 p-6 shadow-sm">
-              <h3 className="text-[14px] text-green mb-3 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green animate-pulse" />
-                Informe Clínico IA (Ollama)
-              </h3>
-              <div className="text-[13px] text-silver leading-relaxed whitespace-pre-wrap font-sans">
-                {analisis.informe_avanzado_ia}
-              </div>
+            <div className="rounded-2xl border border-charcoal p-8 text-center text-[14px] text-smoke bg-obsidian flex items-center justify-center gap-3">
+              <span className="w-4 h-4 border-2 border-smoke border-t-transparent rounded-full animate-spin" />
+              Generando informe clínico...
             </div>
           )}
 

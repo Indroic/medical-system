@@ -28,6 +28,8 @@
   --radius-full: 9999px;     /* pill — buttons / tags */
 }
 
+@plugin "@tailwindcss/typography";
+
 /* ─── HeroUI v3 Semantic Token Overrides — forced dark ───────────────────── */
 :root {
   /* Accent → Phosphor Green #3ecf8e */
