@@ -47,6 +47,10 @@ class OllamaAdapter(ILLMAdapter):
                 data = response.json()
                 reporte = data.get("response", "El modelo no generó una respuesta.")
                 return reporte
+        except httpx.HTTPStatusError as e:
+            error_body = e.response.text
+            logger.error(f"Error HTTP de Ollama ({e.response.status_code}): {error_body}")
+            return f"Hubo un error al generar el reporte avanzado (HTTP {e.response.status_code}): {error_body}"
         except Exception as e:
             logger.error(f"Error comunicando con Ollama: {e}")
             return f"Hubo un error al generar el reporte avanzado usando IA: {e}"
