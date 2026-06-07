@@ -1,9 +1,10 @@
-import { Modal, toast } from "@heroui/react";
+import { toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import MriViewer from "@/components/mri-viewer";
+import PageHeader from "@/components/page-header";
 import PageHeader from "@/components/page-header";
 import RiesgoBadge from "@/components/riesgo-badge";
 import { useAuthStore } from "@/lib/auth-store";
@@ -36,92 +37,78 @@ function AnalisisDetail() {
   const criticos = analisis.hallazgos.filter((h) => h.es_critico);
 
   return (
-    <Modal 
-      isOpen={true} 
-      onOpenChange={(isOpen) => {
-        if (!isOpen) navigate({ to: "/estudios" });
-      }}
-      size="full"
-      classNames={{
-        base: "bg-obsidian border-charcoal",
-        header: "border-b border-charcoal",
-        body: "p-8 overflow-y-auto custom-scrollbar"
-      }}
-    >
-      <Modal.Content>
-        <Modal.Header className="flex flex-col gap-1">
-          <div className="flex items-center justify-between w-full">
-            <h2 className="text-[20px] font-medium text-snow">Resultados del análisis</h2>
-            <div className="flex items-center gap-3 mr-8">
-              <RiesgoBadge nivel={analisis.nivel_riesgo} />
-              <button
-                type="button"
-                onClick={() => navigate({ to: "/estudios" })}
-                className="text-[13px] text-smoke hover:text-silver transition-colors"
-              >
-                Cerrar
-              </button>
-            </div>
+    <div className="p-8">
+      <PageHeader
+        title="Resultados del análisis"
+        action={
+          <div className="flex items-center gap-3">
+            <RiesgoBadge nivel={analisis.nivel_riesgo} />
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/estudios/$estudioId", params: { estudioId } })}
+              className="text-[13px] text-smoke hover:text-silver transition-colors"
+            >
+              ← Estudio
+            </button>
           </div>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-charcoal bg-ash p-5">
-              <p className="text-[12px] text-smoke mb-2">Nivel de riesgo</p>
-              <RiesgoBadge nivel={analisis.nivel_riesgo} />
-            </div>
-            <div className="rounded-2xl border border-charcoal bg-ash p-5">
-              <p className="text-[12px] text-smoke mb-2">Hallazgos totales</p>
-              <p className="text-[32px] font-normal text-snow leading-none">{analisis.total_hallazgos}</p>
-            </div>
-            <div className="rounded-2xl border border-charcoal bg-ash p-5">
-              <p className="text-[12px] text-smoke mb-2">Hallazgos críticos</p>
-              <p className={`text-[32px] font-normal leading-none ${criticos.length > 0 ? "text-green" : "text-graphite"}`}>
-                {criticos.length}
-              </p>
-            </div>
-          </div>
+        }
+      />
 
-          <div className="mt-8 grid grid-cols-1 xl:grid-cols-[1.2fr_1fr] gap-8 items-start">
-            {estudio?.imagenes_paths && estudio.imagenes_paths.length > 0 && (
-              <MriViewer imagePaths={estudio.imagenes_paths} hallazgos={analisis.hallazgos} />
-            )}
+      <div className="mt-6 grid grid-cols-3 gap-4">
+        <div className="rounded-2xl border border-charcoal bg-ash p-5">
+          <p className="text-[12px] text-smoke mb-2">Nivel de riesgo</p>
+          <RiesgoBadge nivel={analisis.nivel_riesgo} />
+        </div>
+        <div className="rounded-2xl border border-charcoal bg-ash p-5">
+          <p className="text-[12px] text-smoke mb-2">Hallazgos totales</p>
+          <p className="text-[32px] font-normal text-snow leading-none">{analisis.total_hallazgos}</p>
+        </div>
+        <div className="rounded-2xl border border-charcoal bg-ash p-5">
+          <p className="text-[12px] text-smoke mb-2">Hallazgos críticos</p>
+          <p className={`text-[32px] font-normal leading-none ${criticos.length > 0 ? "text-green" : "text-graphite"}`}>
+            {criticos.length}
+          </p>
+        </div>
+      </div>
 
-            <div>
-              {analisis.hallazgos.length === 0 ? (
-                <div className="rounded-2xl border border-charcoal p-8 text-center text-[14px] text-smoke bg-obsidian">
-                  No se encontraron hallazgos patológicos en esta resonancia magnética.
-                </div>
-              ) : analisis.informe_avanzado_ia ? (
-                <div className="rounded-2xl border border-green/30 bg-obsidian p-6 shadow-lg overflow-y-auto max-h-[calc(100vh-300px)] custom-scrollbar">
-                  <h3 className="text-[16px] text-green mb-4 flex items-center gap-2 font-medium">
-                    <span className="w-2.5 h-2.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(62,207,142,0.6)]" />
-                    Informe Clínico de IA
-                  </h3>
-                  <div className="prose prose-invert prose-sm max-w-none text-silver font-sans prose-headings:text-snow prose-a:text-green">
-                    <ReactMarkdown>{analisis.informe_avanzado_ia}</ReactMarkdown>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-charcoal p-8 text-center text-[14px] text-smoke bg-obsidian flex items-center justify-center gap-3">
-                  <span className="w-4 h-4 border-2 border-smoke border-t-transparent rounded-full animate-spin" />
-                  Generando informe clínico...
-                </div>
-              )}
+      <div className="mt-8 grid grid-cols-1 xl:grid-cols-[1.2fr_1fr] gap-8 items-start">
+        {estudio?.imagenes_paths && estudio.imagenes_paths.length > 0 && (
+          <MriViewer imagePaths={estudio.imagenes_paths} hallazgos={analisis.hallazgos} />
+        )}
 
-              <div className="mt-6 flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => navigate({ to: "/reportes" })}
-                  className="rounded-full border border-charcoal px-5 py-2 text-[13px] text-snow hover:bg-ash hover:border-slate transition-colors"
-                >
-                  Ver reportes PDF →
-                </button>
+        <div>
+          {analisis.hallazgos.length === 0 ? (
+            <div className="rounded-2xl border border-charcoal p-8 text-center text-[14px] text-smoke bg-obsidian">
+              No se encontraron hallazgos patológicos en esta resonancia magnética.
+            </div>
+          ) : analisis.informe_avanzado_ia ? (
+            <div className="rounded-2xl border border-green/30 bg-obsidian p-6 shadow-lg overflow-y-auto max-h-[calc(100vh-300px)] custom-scrollbar">
+              <h3 className="text-[16px] text-green mb-4 flex items-center gap-2 font-medium">
+                <span className="w-2.5 h-2.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(62,207,142,0.6)]" />
+                Informe Clínico de IA
+              </h3>
+              <div className="prose prose-invert prose-sm max-w-none text-silver font-sans prose-headings:text-snow prose-a:text-green">
+                <ReactMarkdown>{analisis.informe_avanzado_ia}</ReactMarkdown>
               </div>
             </div>
+          ) : (
+            <div className="rounded-2xl border border-charcoal p-8 text-center text-[14px] text-smoke bg-obsidian flex items-center justify-center gap-3">
+              <span className="w-4 h-4 border-2 border-smoke border-t-transparent rounded-full animate-spin" />
+              Generando informe clínico...
+            </div>
+          )}
+
+          <div className="mt-6 flex gap-4">
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/reportes" })}
+              className="rounded-full border border-charcoal px-5 py-2 text-[13px] text-snow hover:bg-ash hover:border-slate transition-colors"
+            >
+              Ver reportes PDF →
+            </button>
           </div>
-        </Modal.Body>
-      </Modal.Content>
-    </Modal>
+        </div>
+      </div>
+    </div>
   );
 }

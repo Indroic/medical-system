@@ -1,9 +1,9 @@
-import { toast } from "@heroui/react";
+import { Modal, toast } from "@heroui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import EstadoBadge from "@/components/estado-badge";
-import PageHeader from "@/components/page-header";
+import EstadoBadge from "@/components/estado-badge";
 import PatientCard from "@/components/patient-card";
 import { useAuthStore } from "@/lib/auth-store";
 import { useImgproxyUrl } from "@/lib/imgproxy";
@@ -101,97 +101,111 @@ function EstudioDetail() {
   const hasAnalisis = estudio.estado !== "PENDIENTE";
 
   return (
-    <div className="p-8">
-      <PageHeader
-        title="Detalle de estudio"
-        action={
-          <div className="flex items-center gap-3">
-            <EstadoBadge estado={estudio.estado} />
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/estudios" })}
-              className="text-[13px] text-smoke hover:text-silver transition-colors"
-            >
-              ← Volver
-            </button>
-          </div>
-        }
-      />
-
-      <div className="mt-6 grid grid-cols-[1fr_300px] gap-6">
-        {/* Left: image */}
-        <div>
-          <div className="rounded-2xl border border-charcoal overflow-hidden bg-ash flex items-center justify-center min-h-[320px]">
-            {proxySrc ? (
-              <img
-                src={proxySrc}
-                alt="Resonancia Magnética"
-                className="max-h-[480px] w-auto object-contain"
-              />
-            ) : (
-              <p className="text-[13px] text-smoke">Sin imagen disponible</p>
-            )}
-          </div>
-
-          <div className="mt-4 flex gap-3">
-            {isPendiente && (
+    <Modal
+      isOpen={true}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) navigate({ to: "/estudios" });
+      }}
+      size="full"
+      classNames={{
+        base: "bg-obsidian border-charcoal",
+        header: "border-b border-charcoal",
+        body: "p-8 overflow-y-auto custom-scrollbar"
+      }}
+    >
+      <Modal.Content>
+        <Modal.Header className="flex flex-col gap-1">
+          <div className="flex items-center justify-between w-full">
+            <h2 className="text-[20px] font-medium text-snow">Detalle de estudio</h2>
+            <div className="flex items-center gap-3 mr-8">
+              <EstadoBadge estado={estudio.estado} />
               <button
                 type="button"
-                onClick={handleAnalizar}
-                disabled={analyzing}
-                className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
+                onClick={() => navigate({ to: "/estudios" })}
+                className="text-[13px] text-smoke hover:text-silver transition-colors"
               >
-                {analyzing ? "Analizando…" : "Ejecutar análisis IA"}
+                Cerrar
               </button>
-            )}
-            {hasAnalisis && (
-              <button
-                type="button"
-                onClick={() => navigate({ to: "/analisis/$estudioId", params: { estudioId } })}
-                className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
-              >
-                Ver análisis →
-              </button>
-            )}
-            {reporte?.estado === "LISTO" && (
-              <a
-                href={`${import.meta.env.VITE_PYTHON_API_URL}/api/v1/reportes/${estudioId}/descargar`}
-                download
-                className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
-              >
-                Descargar PDF
-              </a>
-            )}
+            </div>
           </div>
-        </div>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="grid grid-cols-[1fr_300px] gap-6">
+            {/* Left: image */}
+            <div>
+              <div className="rounded-2xl border border-charcoal overflow-hidden bg-ash flex items-center justify-center min-h-[320px]">
+                {proxySrc ? (
+                  <img
+                    src={proxySrc}
+                    alt="Resonancia Magnética"
+                    className="max-h-[480px] w-auto object-contain"
+                  />
+                ) : (
+                  <p className="text-[13px] text-smoke">Sin imagen disponible</p>
+                )}
+              </div>
 
-        {/* Right: info panel */}
-        <div className="flex flex-col gap-4">
-          {paciente && <PatientCard paciente={paciente} />}
+              <div className="mt-4 flex gap-3">
+                {isPendiente && (
+                  <button
+                    type="button"
+                    onClick={handleAnalizar}
+                    disabled={analyzing}
+                    className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
+                  >
+                    {analyzing ? "Analizando…" : "Ejecutar análisis IA"}
+                  </button>
+                )}
+                {hasAnalisis && (
+                  <button
+                    type="button"
+                    onClick={() => navigate({ to: "/analisis/$estudioId", params: { estudioId } })}
+                    className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
+                  >
+                    Ver análisis →
+                  </button>
+                )}
+                {reporte?.estado === "LISTO" && (
+                  <a
+                    href={`${import.meta.env.VITE_PYTHON_API_URL}/api/v1/reportes/${estudioId}/descargar`}
+                    download
+                    className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
+                  >
+                    Descargar PDF
+                  </a>
+                )}
+              </div>
+            </div>
 
-          <div className="rounded-2xl border border-charcoal bg-ash p-4">
-            <p className="text-[11px] font-medium text-smoke uppercase tracking-widest mb-3">
-              Detalles del estudio
-            </p>
-            <dl className="flex flex-col gap-2">
-              <Row label="ID" value={estudio.id.slice(0, 12) + "…"} mono />
-              <Row label="Tipo de imagen" value={estudio.mime_type} />
-              <Row label="Estado" value={<EstadoBadge estado={estudio.estado} />} />
-              {reporte && (
-                <Row
-                  label="Reporte"
-                  value={
-                    reporte.estado === "LISTO" ? "Disponible"
-                    : reporte.estado === "GENERANDO" ? "Generando…"
-                    : "Error"
-                  }
-                />
-              )}
-            </dl>
+            {/* Right: info panel */}
+            <div className="flex flex-col gap-4">
+              {paciente && <PatientCard paciente={paciente} />}
+
+              <div className="rounded-2xl border border-charcoal bg-ash p-4">
+                <p className="text-[11px] font-medium text-smoke uppercase tracking-widest mb-3">
+                  Detalles del estudio
+                </p>
+                <dl className="flex flex-col gap-2">
+                  <Row label="ID" value={estudio.id.slice(0, 12) + "…"} mono />
+                  <Row label="Tipo de imagen" value={estudio.mime_type} />
+                  <Row label="Estado" value={<EstadoBadge estado={estudio.estado} />} />
+                  {reporte && (
+                    <Row
+                      label="Reporte"
+                      value={
+                        reporte.estado === "LISTO" ? "Disponible"
+                        : reporte.estado === "GENERANDO" ? "Generando…"
+                        : "Error"
+                      }
+                    />
+                  )}
+                </dl>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </Modal.Body>
+      </Modal.Content>
+    </Modal>
   );
 }
 
