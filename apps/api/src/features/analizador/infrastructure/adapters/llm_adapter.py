@@ -49,6 +49,22 @@ class OllamaAdapter(ILLMAdapter):
                 return reporte
         except httpx.HTTPStatusError as e:
             error_body = e.response.text
+            if e.response.status_code == 404 and "not found" in error_body.lower():
+                logger.info(f"Modelo {self.model_name} no encontrado en Ollama. Iniciando descarga automática... (Esto puede tardar varios minutos)")
+                try:
+                    async with httpx.AsyncClient(timeout=600.0) as client_pull:
+                        pull_resp = await client_pull.post(
+                            f"{self.ollama_url}/api/pull",
+                            json={"name": self.model_name, "stream": False}
+                        )
+                        pull_resp.raise_for_status()
+                    logger.info(f"Modelo {self.model_name} descargado exitosamente. Reintentando inferencia...")
+                    # Reintento recursivo (solo 1 vez en la práctica ya que ahora el modelo existe)
+                    return await self.generar_reporte_clinico(hallazgos)
+                except Exception as ex_pull:
+                    logger.error(f"Error al intentar descargar el modelo automáticamente: {ex_pull}")
+                    return f"Hubo un error al generar el reporte: El modelo {self.model_name} no está instalado y falló su descarga automática."
+
             logger.error(f"Error HTTP de Ollama ({e.response.status_code}): {error_body}")
             return f"Hubo un error al generar el reporte avanzado (HTTP {e.response.status_code}): {error_body}"
         except Exception as e:
