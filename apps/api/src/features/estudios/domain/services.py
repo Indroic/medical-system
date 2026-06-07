@@ -32,7 +32,7 @@ class EstudioService(BaseDomainService):
         self,
         paciente_id: UUID,
         archivos: list[dict], # [{"nombre_archivo": str, "contenido": bytes, "mime_type": str}]
-        medico_id: UUID,
+        medico_id: str,
     ) -> Estudio:
         imagenes_paths = []
         mime_types_usados = []

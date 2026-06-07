@@ -12,7 +12,7 @@ class Estudio(BaseEntity):
     paciente_id: UUID
     imagenes_paths: list[str]          # Rutas locales o URIs S3 de los archivos almacenados
     mime_type: str
-    medico_id: UUID            # UUID del médico que sube el estudio (FK lógica)
+    medico_id: str            # String del médico que sube el estudio (BetterAuth CUID)
     estado: str = "PENDIENTE" # PENDIENTE | EN_ANALISIS | COMPLETADO
 
     def registrar_recepcion(self) -> None:

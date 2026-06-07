@@ -37,11 +37,8 @@ class EstudioRepositoryImpl(
     def fields_resolvers(self) -> FieldResolversType | None:
         async def resolve_paciente_id(m):
             return UUID(m.paciente_id) if isinstance(m.paciente_id, str) else m.paciente_id
-        async def resolve_medico_id(m):
-            return UUID(m.medico_id) if isinstance(m.medico_id, str) else m.medico_id
         return {
             "paciente_id": ("paciente_id", resolve_paciente_id),
-            "medico_id": ("medico_id", resolve_medico_id)
         }
 
     @property
