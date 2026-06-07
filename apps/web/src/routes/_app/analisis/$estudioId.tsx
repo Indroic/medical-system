@@ -70,8 +70,8 @@ function AnalisisDetail() {
       </div>
 
       <div className="mt-6 grid grid-cols-[auto_1fr] gap-6 items-start">
-        {estudio?.imagen_path && (
-          <MriViewer imagePath={estudio.imagen_path} hallazgos={analisis.hallazgos} />
+        {estudio?.imagenes_paths && estudio.imagenes_paths.length > 0 && (
+          <MriViewer imagePaths={estudio.imagenes_paths} hallazgos={analisis.hallazgos} />
         )}
 
         <div>
@@ -84,6 +84,7 @@ function AnalisisDetail() {
               <table className="w-full text-[12px]">
                 <thead>
                   <tr className="border-b border-charcoal bg-ash">
+                    <th className="px-4 py-3 text-left text-smoke font-normal">Corte</th>
                     <th className="px-4 py-3 text-left text-smoke font-normal">Etiqueta</th>
                     <th className="px-4 py-3 text-left text-smoke font-normal">Confianza</th>
                     <th className="px-4 py-3 text-left text-smoke font-normal">Crítico</th>
@@ -93,6 +94,7 @@ function AnalisisDetail() {
                 <tbody>
                   {analisis.hallazgos.map((h, i) => (
                     <tr key={i} className={i < analisis.hallazgos.length - 1 ? "border-b border-charcoal" : ""}>
+                      <td className="px-4 py-2.5 text-silver">{h.image_index + 1}</td>
                       <td className="px-4 py-2.5 text-snow">{h.etiqueta}</td>
                       <td className="px-4 py-2.5 font-mono text-smoke">{(h.confianza * 100).toFixed(1)}%</td>
                       <td className="px-4 py-2.5">
@@ -114,7 +116,19 @@ function AnalisisDetail() {
             </div>
           )}
 
-          <div className="mt-4">
+          {analisis.informe_avanzado_ia && (
+            <div className="mt-6 rounded-2xl border border-green/30 bg-green/5 p-6 shadow-sm">
+              <h3 className="text-[14px] text-green mb-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green animate-pulse" />
+                Informe Clínico IA (Ollama)
+              </h3>
+              <div className="text-[13px] text-silver leading-relaxed whitespace-pre-wrap font-sans">
+                {analisis.informe_avanzado_ia}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6">
             <button
               type="button"
               onClick={() => navigate({ to: "/reportes" })}

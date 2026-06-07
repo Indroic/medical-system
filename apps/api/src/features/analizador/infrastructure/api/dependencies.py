@@ -1,13 +1,10 @@
 from collections.abc import AsyncGenerator
-from uuid import UUID
 
 from fastapi import Depends
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
-from config import config
-from src.features.usuarios.application.dtos import UserResponse
-from src.features.usuarios.infrastructure.api.dependencies import get_current_user
 import src.shared.infrastructure.database as shared_db
+from config import config
 
 from ...application.use_cases.ejecutar_inferencia import EjecutarInferenciaUseCase
 from ...domain.services import AnalizadorDomainService
@@ -18,7 +15,7 @@ from ..repositories import AnalisisRepositoryImpl
 _yolo_adapter = YoloInferenciaAdapter(model_path=config.yolo_model_path)
 
 
-async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:
+async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork]:
     async with shared_db.async_session_factory() as session:
         yield SqlAlchemyUnitOfWork(session=session)
 

@@ -24,8 +24,8 @@ async def test_yolo_real_inference():
     # Necesitamos una imagen dummy para pasarle a OpenCV
     imagen_dummy = Path("/tmp/sample_yolo.jpg")
     if not imagen_dummy.exists():
-        import numpy as np
         import cv2
+        import numpy as np
         # Crear imagen negra de 100x100
         img = np.zeros((100, 100, 3), dtype=np.uint8)
         cv2.imwrite(str(imagen_dummy), img)

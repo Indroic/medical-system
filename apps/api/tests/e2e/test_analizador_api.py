@@ -1,5 +1,6 @@
-import pytest
 import asyncio
+
+import pytest
 from httpx import AsyncClient
 
 
@@ -32,9 +33,9 @@ async def test_flujo_inferencia_y_reporte(async_client: AsyncClient):
     imagen_path = resp_upload.json()["imagen_path"]
     
     # 2. Mandar a inferir
+    from config import config
     from src.features.analizador.domain.events import AnalisisCompletadoEvent
     from src.features.reportes.application.handlers import on_analisis_completado
-    from config import config
     config.event_dispatcher.subscribe(AnalisisCompletadoEvent, on_analisis_completado)
     
     resp_infer = await async_client.post(

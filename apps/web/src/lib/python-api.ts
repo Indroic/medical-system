@@ -75,7 +75,7 @@ export interface PacienteListResponse {
 export interface EstudioResponse {
   id: string;
   paciente_id: string;
-  imagen_path: string;
+  imagenes_paths: string[];
   mime_type: string;
   estado: "PENDIENTE" | "EN_ANALISIS" | "COMPLETADO";
   medico_id: string;
@@ -94,6 +94,7 @@ export interface HallazgoDTO {
   x_max: number;
   y_max: number;
   es_critico: boolean;
+  image_index: number;
 }
 
 export interface AnalisisResponse {
@@ -103,6 +104,7 @@ export interface AnalisisResponse {
   nivel_riesgo: "BAJO" | "MODERADO" | "CRITICO" | "NO_EVALUADO";
   hallazgos: HallazgoDTO[];
   total_hallazgos: number;
+  informe_avanzado_ia?: string;
 }
 
 export interface ReporteResponse {
@@ -142,10 +144,12 @@ export const pacientesApi = {
 // ─── Estudios ───────────────────────────────────────────────────────────────
 
 export const estudiosApi = {
-  crear: (token: string, pacienteId: string, file: File) => {
+  crear: (token: string, pacienteId: string, files: File[]) => {
     const form = new FormData();
     form.append("paciente_id", pacienteId);
-    form.append("archivo", file);
+    files.forEach(file => {
+      form.append("archivos", file);
+    });
     return request<EstudioResponse>("/api/estudios", {
       method: "POST",
       body: form,

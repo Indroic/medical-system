@@ -1,6 +1,5 @@
 import pytest
 
-from src.features.usuarios.domain.exceptions import InvalidCredentialsException
 from src.features.usuarios.domain.services import AuthService, _hash_password, _verify_password
 
 

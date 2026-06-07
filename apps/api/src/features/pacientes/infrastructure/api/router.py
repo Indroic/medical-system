@@ -1,14 +1,15 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.features.usuarios.infrastructure.api.dependencies import get_current_user
 
-from ...application.dtos import CrearPacienteCommand, PacienteResponse, PacienteListResponse
+from ...application.dtos import CrearPacienteCommand, PacienteListResponse, PacienteResponse
 from ...application.use_cases.crear_paciente import CrearPacienteUseCase
-from ...application.use_cases.obtener_paciente import ObtenerPacienteUseCase
 from ...application.use_cases.listar_pacientes import ListarPacientesUseCase
+from ...application.use_cases.obtener_paciente import ObtenerPacienteUseCase
 from ...domain.exceptions import DocumentoDuplicadoException, PacienteNotFoundException
-from .dependencies import get_crear_paciente_uc, get_obtener_paciente_uc, get_listar_pacientes_uc
+from .dependencies import get_crear_paciente_uc, get_listar_pacientes_uc, get_obtener_paciente_uc
 
 router = APIRouter(prefix="/pacientes", tags=["Pacientes"])
 

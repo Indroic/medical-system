@@ -1,16 +1,18 @@
-from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
+from uuid import UUID
+
 from hexcore.domain.uow import IUnitOfWork
 from hexcore.infrastructure.repositories.implementations import (
     SQLAlchemyCommonImplementationsRepo,
 )
+from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
 from hexcore.types import FieldResolversType, FieldSerializersType
 from sqlalchemy import select
-from uuid import UUID
 
 from ..domain.entities import Estudio
 from ..domain.exceptions import EstudioNotFoundException
 from ..domain.repositories import IEstudioRepository
 from .models import EstudioModel
+
 
 class EstudioRepositoryImpl(
     SQLAlchemyCommonImplementationsRepo[Estudio, EstudioModel],
@@ -35,12 +37,18 @@ class EstudioRepositoryImpl(
     def fields_resolvers(self) -> FieldResolversType | None:
         async def resolve_paciente_id(m):
             return UUID(m.paciente_id) if isinstance(m.paciente_id, str) else m.paciente_id
-        return {"paciente_id": ("paciente_id", resolve_paciente_id)}
+        async def resolve_medico_id(m):
+            return UUID(m.medico_id) if isinstance(m.medico_id, str) else m.medico_id
+        return {
+            "paciente_id": ("paciente_id", resolve_paciente_id),
+            "medico_id": ("medico_id", resolve_medico_id)
+        }
 
     @property
     def fields_serializers(self) -> FieldSerializersType | None:
         return {
-            "paciente_id": ("paciente_id", lambda e: str(e.paciente_id))
+            "paciente_id": ("paciente_id", lambda e: str(e.paciente_id)),
+            "medico_id": ("medico_id", lambda e: str(e.medico_id))
         }
 
     async def list_by_medico(self, medico_id: str) -> list[Estudio]:

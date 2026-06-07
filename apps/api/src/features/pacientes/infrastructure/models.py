@@ -1,6 +1,6 @@
 from hexcore.infrastructure.repositories.orms.sqlalchemy import BaseModel
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class PacienteModel(BaseModel):

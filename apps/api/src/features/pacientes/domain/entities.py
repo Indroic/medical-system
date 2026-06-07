@@ -1,5 +1,6 @@
 from hexcore.domain.base import BaseEntity
 
+
 class Paciente(BaseEntity):
     nombre: str
     apellido: str

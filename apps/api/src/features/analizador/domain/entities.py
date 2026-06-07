@@ -11,10 +11,11 @@ class AnalisisResonancia(BaseEntity):
     id, created_at, updated_at, is_active provistos por BaseEntity."""
 
     estudio_id: UUID
-    imagen_path: str
+    imagenes_paths: list[str]
     estado: str = "PENDIENTE"          # PENDIENTE | PROCESANDO | COMPLETADO | FALLIDO
     hallazgos: list[Hallazgo] = None   # type: ignore[assignment]
     nivel_riesgo: str = "NO_EVALUADO"
+    informe_avanzado_ia: str | None = None
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

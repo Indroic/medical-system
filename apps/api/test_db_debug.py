@@ -1,10 +1,8 @@
 import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine
+
 from hexcore.infrastructure.repositories.orms.sqlalchemy import BaseModel
-import src.features.usuarios.infrastructure.models
-import src.features.pacientes.infrastructure.models
-import src.features.estudios.infrastructure.models
-import src.features.analizador.infrastructure.models
+from sqlalchemy.ext.asyncio import create_async_engine
+
 
 async def main():
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")

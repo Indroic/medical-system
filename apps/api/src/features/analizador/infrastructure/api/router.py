@@ -8,7 +8,7 @@ from src.features.usuarios.infrastructure.api.dependencies import get_current_us
 
 from ...application.dtos import AnalisisResponse, EjecutarInferenciaCommand
 from ...application.use_cases.ejecutar_inferencia import EjecutarInferenciaUseCase
-from ...domain.exceptions import AnalisisNotFoundException, ImagenNoAccesibleException
+from ...domain.exceptions import ImagenNoAccesibleException
 from ...infrastructure.repositories import AnalisisRepositoryImpl
 from .dependencies import get_ejecutar_uc, get_uow
 

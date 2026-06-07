@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ...application.dtos import RegistrarUsuarioCommand, LoginCommand, TokenResponse, UserResponse
-from ...application.use_cases.registrar_usuario import RegistrarUsuarioUseCase
+from ...application.dtos import LoginCommand, RegistrarUsuarioCommand, TokenResponse, UserResponse
 from ...application.use_cases.autenticar_usuario import AutenticarUsuarioUseCase
+from ...application.use_cases.registrar_usuario import RegistrarUsuarioUseCase
 from ...domain.exceptions import InvalidCredentialsException, UserAlreadyExistsException
 from .dependencies import get_autenticar_uc, get_current_user, get_registrar_uc
 

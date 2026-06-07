@@ -6,4 +6,4 @@ from hexcore.domain.events import DomainEvent
 class EstudioRecibidoEvent(DomainEvent):
     entity_id: UUID
     paciente_id: UUID
-    imagen_path: str
+    imagenes_paths: list[str]

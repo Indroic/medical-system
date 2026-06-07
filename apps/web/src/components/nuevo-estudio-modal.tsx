@@ -19,7 +19,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
 
   const [step, setStep] = useState<"patient" | "upload">("patient");
   const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [findDocumento, setFindDocumento] = useState("");
   const [createMode, setCreateMode] = useState(false);
@@ -36,7 +36,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
         setCreateMode(false);
         setFindDocumento("");
       }
-      setFile(null);
+      setFiles([]);
     }
   }, [state.isOpen, prefilledPacienteId]);
 
@@ -74,10 +74,10 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token || !paciente || !file) return;
+    if (!token || !paciente || files.length === 0) return;
     setUploading(true);
     try {
-      const estudio = await estudiosApi.crear(token, paciente.id, file);
+      const estudio = await estudiosApi.crear(token, paciente.id, files);
       toast.success("Estudio subido correctamente");
       state.close();
       navigate({ to: "/estudios/$estudioId", params: { estudioId: estudio.id } });
@@ -238,24 +238,28 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                         ref={fileRef}
                         type="file"
                         accept="image/png,image/jpeg,.dcm"
-                        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                        multiple
+                        onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
                         className="hidden"
                       />
                       <div
                         onClick={() => fileRef.current?.click()}
                         className={`flex flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 cursor-pointer transition-colors ${
-                          file ? "border-green/50 bg-green/5" : "border-charcoal hover:border-slate hover:bg-ash"
+                          files.length > 0 ? "border-green/50 bg-green/5" : "border-charcoal hover:border-slate hover:bg-ash"
                         }`}
                       >
-                        {file ? (
+                        {files.length > 0 ? (
                           <>
-                            <p className="text-[13px] font-medium text-snow">{file.name}</p>
-                            <p className="text-[12px] text-smoke mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                            <p className="text-[13px] font-medium text-snow">{files.length} archivo(s) seleccionado(s)</p>
+                            <p className="text-[12px] text-smoke mt-1 text-center">
+                              {files.map(f => f.name).join(", ").slice(0, 50)}
+                              {files.join(", ").length > 50 ? "..." : ""}
+                            </p>
                           </>
                         ) : (
                           <>
-                            <p className="text-[13px] text-silver">Seleccionar archivo</p>
-                            <p className="text-[12px] text-smoke mt-1">PNG, JPEG o DICOM</p>
+                            <p className="text-[13px] text-silver">Seleccionar imágenes (Múltiples cortes)</p>
+                            <p className="text-[12px] text-smoke mt-1">Soporta PNG, JPEG o DICOM</p>
                           </>
                         )}
                       </div>
@@ -268,7 +272,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
             {step === "upload" && (
               <button
                 type="button"
-                onClick={() => { setStep("patient"); setPaciente(null); setFile(null); }}
+                onClick={() => { setStep("patient"); setPaciente(null); setFiles([]); }}
                 className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors"
               >
                 Cambiar paciente
@@ -286,7 +290,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                 <Button
                   type="submit"
                   form="nuevo-estudio-upload-form"
-                  isDisabled={!file || uploading}
+                  isDisabled={files.length === 0 || uploading}
                   className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
                 >
                   {uploading ? "Subiendo…" : "Crear estudio"}

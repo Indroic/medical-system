@@ -1,6 +1,6 @@
-from pathlib import Path
-import sys
 import os
+import sys
+from pathlib import Path
 from types import ModuleType
 
 from pydantic import ConfigDict
@@ -44,6 +44,25 @@ class ProjectConfig(ServerConfig):
 
     # YOLO / IA
     yolo_model_path: str = "models/yolo_resonancia.pt"
+    
+    # LLM (Ollama)
+    ollama_url: str = os.getenv("OLLAMA_URL", "http://ollama:11434")
+    ollama_model_name: str = os.getenv("OLLAMA_MODEL", "phi3")
+    ollama_prompt_template: str = os.getenv(
+        "OLLAMA_PROMPT_TEMPLATE",
+        "Eres un oncólogo radiólogo de clase mundial. Recibirás una lista de datos crudos extraídos por un "
+        "modelo de visión artificial (YOLO) a partir de múltiples cortes (slices) de una Resonancia Magnética (MRI).\n"
+        "Tu tarea es redactar un 'Informe Radiológico' profesional, claro y detallado en español (Markdown).\n\n"
+        "REGLAS:\n"
+        "1. 'tumor' o 'hemorragia' o 'isquemia' son críticos.\n"
+        "2. La columna BBox (X_min, Y_min, X_max, Y_max) indica la ubicación.\n"
+        "3. La columna 'image_index' indica en qué corte (slice) se encontró.\n"
+        "4. Menciona si hay extensión vertical (el mismo tipo de tumor aparece en cortes secuenciales).\n"
+        "5. NO inventes datos. Limítate a interpretar los hallazgos provistos.\n\n"
+        "DATOS CRUDOS RECIBIDOS:\n"
+        "{datos_crudos}\n\n"
+        "Redacta el informe clínico estructurado en formato Markdown:"
+    )
 
     # CORS
     allow_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]

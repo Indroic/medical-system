@@ -1,11 +1,13 @@
 import asyncio
 import typing as t
 from collections import defaultdict
-from hexcore.domain.events import IEventDispatcher, DomainEvent
+
+from hexcore.domain.events import DomainEvent, IEventDispatcher
+
 
 class AsyncEventDispatcher(IEventDispatcher):
     def __init__(self) -> None:
-        self._handlers: t.DefaultDict[str, list[t.Callable[[DomainEvent], t.Awaitable[None]]]] = defaultdict(list)
+        self._handlers: defaultdict[str, list[t.Callable[[DomainEvent], t.Awaitable[None]]]] = defaultdict(list)
 
     async def dispatch(self, event: DomainEvent) -> None:
         event_name = event.__class__.__name__
@@ -15,7 +17,7 @@ class AsyncEventDispatcher(IEventDispatcher):
 
     def subscribe(
         self,
-        event_type: t.Type[DomainEvent],
+        event_type: type[DomainEvent],
         handler: t.Callable[[DomainEvent], t.Awaitable[None]],
     ) -> None:
         name = event_type.__name__
@@ -24,7 +26,7 @@ class AsyncEventDispatcher(IEventDispatcher):
         
     def register(
         self,
-        event_type: t.Type[DomainEvent],
+        event_type: type[DomainEvent],
         handler: t.Callable[[DomainEvent], t.Awaitable[None]],
     ) -> None:
         self.subscribe(event_type, handler)

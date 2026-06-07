@@ -1,7 +1,5 @@
-from uuid import UUID
 
 from hexcore.application.dtos.base import DTO
-
 
 # ── Comandos (Entrada) ──────────────────────────────────────────────────────
 

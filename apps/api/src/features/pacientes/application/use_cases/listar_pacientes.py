@@ -1,7 +1,7 @@
 from hexcore.application.use_cases.base import UseCase
 
-from ..dtos import PacienteListResponse, PacienteResponse
 from ...domain.repositories import IPacienteRepository
+from ..dtos import PacienteListResponse, PacienteResponse
 
 
 class ListarPacientesUseCase(UseCase[None, PacienteListResponse]):

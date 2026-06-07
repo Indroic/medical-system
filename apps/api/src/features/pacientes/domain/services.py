@@ -4,7 +4,7 @@ from uuid import UUID
 from hexcore.domain.services import BaseDomainService
 
 from .entities import Paciente
-from .exceptions import DocumentoDuplicadoException, PacienteNotFoundException
+from .exceptions import DocumentoDuplicadoException
 from .repositories import IPacienteRepository
 
 

@@ -1,22 +1,22 @@
 import os
 import tempfile
-from collections.abc import AsyncGenerator
-from typing import Generator
+from collections.abc import AsyncGenerator, Generator
 
 import httpx
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 from hexcore.infrastructure.repositories.orms.sqlalchemy import BaseModel
+from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from config import ProjectConfig, config
+from config import config
 from main import app as fastapi_app
 from tests.mocks import MockPDFAdapter, MockStorageAdapter, MockYoloAdapter
 
+
 # -- 1. Fixture de archivo SQLite físico temporal -----------------------------
 @pytest.fixture(scope="session")
-def sqlite_temp_db() -> Generator[str, None, None]:
+def sqlite_temp_db() -> Generator[str]:
     """Crea un archivo SQLite físico temporal (necesario para persistencia asíncrona concurrente)
     y lo elimina al terminar todos los tests."""
     fd, path = tempfile.mkstemp(suffix=".sqlite3")
@@ -53,7 +53,7 @@ def session_factory(db_engine) -> async_sessionmaker[AsyncSession]:
 
 
 @pytest_asyncio.fixture
-async def uow(session_factory) -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:
+async def uow(session_factory) -> AsyncGenerator[SqlAlchemyUnitOfWork]:
     """Provee un UoW para inyectar directo en tests de infraestructura/repositorios."""
     async with session_factory() as session:
         yield SqlAlchemyUnitOfWork(session=session)
@@ -61,7 +61,7 @@ async def uow(session_factory) -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:
 
 # -- 3. Configuración de Test inyectando Mocks Nativos Hexcore ----------------
 @pytest.fixture(autouse=True)
-def override_config(sqlite_temp_db: str) -> Generator[None, None, None]:
+def override_config(sqlite_temp_db: str) -> Generator[None]:
     """Sobrescribe la configuración global inyectando dependencias falsas.
     En Hexcore esto es preferible a app.dependency_overrides porque aísla desde la raíz."""
     
@@ -96,8 +96,9 @@ def override_config(sqlite_temp_db: str) -> Generator[None, None, None]:
     shared_db.async_session_factory = async_sessionmaker(test_engine, expire_on_commit=False)
     
     # Asegurar que las tablas existan antes de que empiece el test
-    from hexcore.infrastructure.repositories.orms.sqlalchemy import BaseModel
     import asyncio
+
+    from hexcore.infrastructure.repositories.orms.sqlalchemy import BaseModel
     
     async def _init_db():
         print(f"Creating tables on {sqlite_temp_db}. Tables known: {list(BaseModel.metadata.tables.keys())}")
@@ -119,7 +120,7 @@ def override_config(sqlite_temp_db: str) -> Generator[None, None, None]:
 
 # -- 4. Cliente E2E -----------------------------------------------------------
 @pytest_asyncio.fixture
-async def async_client() -> AsyncGenerator[httpx.AsyncClient, None]:
+async def async_client() -> AsyncGenerator[httpx.AsyncClient]:
     """TestClient asíncrono para pruebas E2E contra la API montada."""
     # Lifespan context asegura que se inicializa la DB si debug=True y corre el EventDispatcher
     async with httpx.AsyncClient(

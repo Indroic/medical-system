@@ -1,4 +1,3 @@
-import pytest
 from uuid import uuid4
 
 from src.features.analizador.domain.entities import AnalisisResonancia

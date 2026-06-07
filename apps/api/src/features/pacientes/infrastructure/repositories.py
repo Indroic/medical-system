@@ -1,4 +1,3 @@
-from uuid import UUID
 
 from hexcore.domain.uow import IUnitOfWork
 from hexcore.infrastructure.repositories.implementations import (

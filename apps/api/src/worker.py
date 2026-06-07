@@ -1,5 +1,5 @@
 import os
-import config  # Importante: Carga config.py para aplicar el monkey-patch de typer
+
 from celery import Celery
 
 broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")

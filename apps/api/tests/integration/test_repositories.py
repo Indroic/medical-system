@@ -1,5 +1,6 @@
-import pytest
 from uuid import uuid4
+
+import pytest
 
 from src.features.analizador.domain.entities import AnalisisResonancia
 from src.features.analizador.domain.value_objects import CoordenadasBBox, Hallazgo

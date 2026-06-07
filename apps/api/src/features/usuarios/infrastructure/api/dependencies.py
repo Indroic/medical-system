@@ -7,6 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 from jwt import PyJWKClient
 
+import src.shared.infrastructure.database as shared_db
 from config import config
 
 from ...application.dtos import UserResponse
@@ -14,8 +15,6 @@ from ...application.use_cases.autenticar_usuario import AutenticarUsuarioUseCase
 from ...application.use_cases.registrar_usuario import RegistrarUsuarioUseCase
 from ...domain.services import AuthService
 from ..repositories import UserRepositoryImpl
-
-import src.shared.infrastructure.database as shared_db
 
 security = HTTPBearer()
 
@@ -34,7 +33,7 @@ def _get_jwks_client() -> PyJWKClient:
     return _jwks_client
 
 
-async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:
+async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork]:
     async with shared_db.async_session_factory() as session:
         yield SqlAlchemyUnitOfWork(session=session)
 

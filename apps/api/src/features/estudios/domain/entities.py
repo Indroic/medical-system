@@ -1,7 +1,8 @@
+from uuid import UUID
+
 from hexcore.domain.base import BaseEntity
 
 from .events import EstudioRecibidoEvent
-from uuid import UUID
 
 
 class Estudio(BaseEntity):
@@ -9,9 +10,9 @@ class Estudio(BaseEntity):
     id, created_at, updated_at, is_active provistos por BaseEntity."""
 
     paciente_id: UUID
-    imagen_path: str          # Ruta local o URI S3 del archivo almacenado
+    imagenes_paths: list[str]          # Rutas locales o URIs S3 de los archivos almacenados
     mime_type: str
-    medico_id: str            # UUID del médico que sube el estudio (FK lógica)
+    medico_id: UUID            # UUID del médico que sube el estudio (FK lógica)
     estado: str = "PENDIENTE" # PENDIENTE | EN_ANALISIS | COMPLETADO
 
     def registrar_recepcion(self) -> None:
@@ -20,7 +21,7 @@ class Estudio(BaseEntity):
             EstudioRecibidoEvent(
                 entity_id=self.id,
                 paciente_id=self.paciente_id,
-                imagen_path=self.imagen_path,
+                imagenes_paths=self.imagenes_paths,
             )
         )
 

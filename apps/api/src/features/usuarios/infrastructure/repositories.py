@@ -1,10 +1,9 @@
-from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
-from uuid import UUID
 
 from hexcore.domain.uow import IUnitOfWork
 from hexcore.infrastructure.repositories.implementations import (
     SQLAlchemyCommonImplementationsRepo,
 )
+from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
 from hexcore.types import FieldResolversType, FieldSerializersType
 from sqlalchemy import select
 

@@ -1,14 +1,15 @@
 import asyncio
 import logging
-from celery import shared_task
 from uuid import UUID
 
+from celery import shared_task
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
-import src.shared.infrastructure.database as shared_db
-from src.features.analizador.domain.services import AnalizadorDomainService
-from src.features.analizador.infrastructure.repositories import AnalisisRepositoryImpl
-from src.features.analizador.infrastructure.adapters.yolo_adapter import YoloInferenciaAdapter
+
 from config import config
+from src.features.analizador.domain.services import AnalizadorDomainService
+from src.features.analizador.infrastructure.adapters.llm_adapter import OllamaAdapter
+from src.features.analizador.infrastructure.adapters.yolo_adapter import YoloInferenciaAdapter
+from src.features.analizador.infrastructure.repositories import AnalisisRepositoryImpl
 
 logger = logging.getLogger(__name__)
 
@@ -28,19 +29,24 @@ celery_session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
     class_=AsyncSession,
 )
 
-async def _procesar_estudio_ia_async(estudio_id_str: str, imagen_path: str):
+async def _procesar_estudio_ia_async(estudio_id_str: str, imagenes_paths: list[str]):
     estudio_id = UUID(estudio_id_str)
     async with celery_session_factory() as session:
         uow = SqlAlchemyUnitOfWork(session=session)
         repo = AnalisisRepositoryImpl(uow)
         adapter = YoloInferenciaAdapter(model_path=config.yolo_model_path)
-        service = AnalizadorDomainService(repo=repo, ia_adapter=adapter)
+        llm_adapter = OllamaAdapter(
+            ollama_url=config.ollama_url, 
+            model_name=config.ollama_model_name,
+            prompt_template=config.ollama_prompt_template
+        )
+        service = AnalizadorDomainService(repo=repo, ia_adapter=adapter, llm_adapter=llm_adapter)
         
         async with uow:
-            analisis = await service.ejecutar_inferencia(estudio_id, imagen_path)
+            analisis = await service.ejecutar_inferencia(estudio_id, imagenes_paths)
             await uow.commit()  # Esto dispara el AnalisisCompletadoEvent asíncronamente
             
-        from src.shared.infrastructure.redis_client import publish_event, close_redis
+        from src.shared.infrastructure.redis_client import close_redis, publish_event
         try:
             await publish_event("estudios_updates", "ANALISIS_COMPLETADO", {
                 "estudio_id": estudio_id_str
@@ -49,7 +55,7 @@ async def _procesar_estudio_ia_async(estudio_id_str: str, imagen_path: str):
             await close_redis()
 
 @shared_task(name="procesar_estudio_ia")
-def procesar_estudio_ia(estudio_id_str: str, imagen_path: str):
+def procesar_estudio_ia(estudio_id_str: str, imagenes_paths: list[str]):
     logger.info("Iniciando tarea celery para estudio %s", estudio_id_str)
-    asyncio.run(_procesar_estudio_ia_async(estudio_id_str, imagen_path))
+    asyncio.run(_procesar_estudio_ia_async(estudio_id_str, imagenes_paths))
     logger.info("Tarea celery finalizada para estudio %s", estudio_id_str)

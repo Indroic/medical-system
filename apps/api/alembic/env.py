@@ -1,19 +1,10 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from hexcore.infrastructure.repositories.orms.sqlalchemy import Base
+from sqlalchemy import engine_from_config, pool
 
 import config as my_project_config  # Monkey-patch de typer ANTES de cargar hexcore y carga la config real
 from alembic import context
-from hexcore.config import LazyConfig
-from hexcore.infrastructure.repositories.orms.sqlalchemy import Base
-from hexcore.infrastructure.repositories.orms.sqlalchemy.utils import import_all_models
-from hexcore.infrastructure.repositories.orms.sqlalchemy.utils import import_all_models
-import src.features.usuarios.infrastructure.models
-import src.features.pacientes.infrastructure.models
-import src.features.estudios.infrastructure.models
-import src.features.analizador.infrastructure.models
-import src.features.reportes.infrastructure.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -29,9 +20,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

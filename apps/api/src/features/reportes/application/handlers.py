@@ -8,12 +8,12 @@ AnalisisCompletadoEvent. Este módulo define el handler que el slice
 El handler tiene su PROPIO ciclo de UnitOfWork — completamente
 independiente de la transacción original del analizador.
 """
-import asyncio
 import logging
 
-from src.features.analizador.domain.events import AnalisisCompletadoEvent
-import src.shared.infrastructure.database as shared_db
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
+
+import src.shared.infrastructure.database as shared_db
+from src.features.analizador.domain.events import AnalisisCompletadoEvent
 
 from ..domain.entities import Reporte
 from ..infrastructure.pdf_adapter import ReportLabPDFAdapter

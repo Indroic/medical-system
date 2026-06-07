@@ -1,18 +1,18 @@
 from collections.abc import AsyncGenerator
-from fastapi import Depends
 
+from fastapi import Depends
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
 import src.shared.infrastructure.database as shared_db
 
 from ...application.use_cases.crear_paciente import CrearPacienteUseCase
-from ...application.use_cases.obtener_paciente import ObtenerPacienteUseCase
 from ...application.use_cases.listar_pacientes import ListarPacientesUseCase
+from ...application.use_cases.obtener_paciente import ObtenerPacienteUseCase
 from ...domain.services import PacienteService
 from ..repositories import PacienteRepositoryImpl
 
 
-async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:
+async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork]:
     async with shared_db.async_session_factory() as session:
         yield SqlAlchemyUnitOfWork(session=session)
 

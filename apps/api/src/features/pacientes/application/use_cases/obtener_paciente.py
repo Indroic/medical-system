@@ -3,8 +3,8 @@ from uuid import UUID
 from hexcore.application.use_cases.base import UseCase
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
-from ..dtos import PacienteResponse
 from ...domain.services import PacienteService
+from ..dtos import PacienteResponse
 
 
 class ObtenerPacienteUseCase(UseCase[UUID, PacienteResponse]):

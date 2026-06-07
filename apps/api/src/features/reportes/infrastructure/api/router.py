@@ -4,11 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
+import src.shared.infrastructure.database as shared_db
 from src.features.usuarios.application.dtos import UserResponse
 from src.features.usuarios.infrastructure.api.dependencies import get_current_user
-import src.shared.infrastructure.database as shared_db
 
-from ...domain.exceptions import ReporteNotFoundException
 from ...infrastructure.repositories import ReporteRepositoryImpl
 
 router = APIRouter(prefix="/reportes", tags=["reportes"])

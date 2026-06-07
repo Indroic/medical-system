@@ -30,6 +30,7 @@ dependencies = [
     "types-aioboto3>=15.5.0",
     "ultralytics>=8.4.60",
     "opencv-python-headless>=4.13.0.92",
+    "pydicom>=3.0.2",
 ]
 
 [project.optional-dependencies]

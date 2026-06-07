@@ -3,28 +3,28 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import config
-from src.features.usuarios.infrastructure.api.router import router as usuarios_router
-from src.features.pacientes.infrastructure.api.router import router as pacientes_router
-from src.features.estudios.infrastructure.api.router import router as estudios_router
-from src.features.analizador.infrastructure.api.router import router as analizador_router
-from src.features.reportes.infrastructure.api.router import router as reportes_router
-from src.shared.infrastructure.database import engine
+import src.features.analizador.infrastructure.models  # noqa: F401
+import src.features.estudios.infrastructure.models  # noqa: F401
+import src.features.pacientes.infrastructure.models  # noqa: F401
+import src.features.reportes.infrastructure.models  # noqa: F401
 
 # -- Importar todos los modelos para que Alembic/SQLAlchemy los detecte ------
 import src.features.usuarios.infrastructure.models  # noqa: F401
-import src.features.pacientes.infrastructure.models  # noqa: F401
-import src.features.estudios.infrastructure.models  # noqa: F401
-import src.features.analizador.infrastructure.models  # noqa: F401
-import src.features.reportes.infrastructure.models  # noqa: F401
+from config import config
+from src.features.analizador.infrastructure.api.router import router as analizador_router
+from src.features.estudios.infrastructure.api.router import router as estudios_router
+from src.features.pacientes.infrastructure.api.router import router as pacientes_router
+from src.features.reportes.infrastructure.api.router import router as reportes_router
+from src.features.usuarios.infrastructure.api.router import router as usuarios_router
+from src.shared.infrastructure.database import engine
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # -- Registro de handlers de eventos (inter-slice) -----------------------
     from src.features.analizador.domain.events import AnalisisCompletadoEvent
-    from src.features.reportes.application.handlers import on_analisis_completado
     from src.features.estudios.application.handlers import on_analisis_completado_update_estudio
+    from src.features.reportes.application.handlers import on_analisis_completado
 
     dispatcher = config.event_dispatcher
     dispatcher.register(AnalisisCompletadoEvent, on_analisis_completado)
@@ -33,6 +33,7 @@ async def lifespan(app: FastAPI):
     # -- Crear tablas en dev (en prod usar: hexcore migrate) ------------------
     if config.debug:
         from hexcore.infrastructure.repositories.orms.sqlalchemy import BaseModel
+
         import src.shared.infrastructure.database as shared_db
 
         async with shared_db.engine.begin() as conn:

@@ -19,6 +19,7 @@ class Hallazgo:
     etiqueta: str
     confianza: float   # 0.0 – 1.0
     bbox: CoordenadasBBox
+    image_index: int = 0
 
     def es_critico(self) -> bool:
         return self.etiqueta in {"tumor", "hemorragia", "isquemia"}

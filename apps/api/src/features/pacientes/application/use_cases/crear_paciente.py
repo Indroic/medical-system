@@ -1,8 +1,8 @@
 from hexcore.application.use_cases.base import UseCase
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
-from ..dtos import CrearPacienteCommand, PacienteResponse
 from ...domain.services import PacienteService
+from ..dtos import CrearPacienteCommand, PacienteResponse
 
 
 class CrearPacienteUseCase(UseCase[CrearPacienteCommand, PacienteResponse]):

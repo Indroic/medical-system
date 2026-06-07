@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
 from src.features.usuarios.application.dtos import UserResponse
@@ -53,7 +53,7 @@ async def listar_estudios(
         EstudioResponse(
             id=e.id,
             paciente_id=e.paciente_id,
-            imagen_path=e.imagen_path,
+            imagenes_paths=e.imagenes_paths,
             mime_type=e.mime_type,
             estado=e.estado,
             medico_id=e.medico_id,
@@ -83,7 +83,7 @@ async def obtener_estudio(
     return EstudioResponse(
         id=estudio.id,
         paciente_id=estudio.paciente_id,
-        imagen_path=estudio.imagen_path,
+        imagenes_paths=estudio.imagenes_paths,
         mime_type=estudio.mime_type,
         estado=estudio.estado,
         medico_id=estudio.medico_id,

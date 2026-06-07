@@ -1,10 +1,11 @@
 import logging
+
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
 import src.shared.infrastructure.database as shared_db
 from src.features.analizador.domain.events import AnalisisCompletadoEvent
-from src.features.estudios.infrastructure.repositories import EstudioRepositoryImpl
 from src.features.estudios.domain.services import EstudioService
+from src.features.estudios.infrastructure.repositories import EstudioRepositoryImpl
 from src.shared.infrastructure.storage.s3_client import S3StorageAdapter
 
 logger = logging.getLogger(__name__)

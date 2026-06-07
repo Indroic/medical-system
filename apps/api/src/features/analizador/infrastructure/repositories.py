@@ -1,4 +1,3 @@
-from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
 import json
 from uuid import UUID
 
@@ -6,6 +5,7 @@ from hexcore.domain.uow import IUnitOfWork
 from hexcore.infrastructure.repositories.implementations import (
     SQLAlchemyCommonImplementationsRepo,
 )
+from hexcore.infrastructure.repositories.utils import to_entity_from_model_or_document
 from hexcore.types import FieldResolversType, FieldSerializersType
 from sqlalchemy import select
 
@@ -16,7 +16,7 @@ from ..domain.value_objects import CoordenadasBBox, Hallazgo
 from .models import AnalisisModel
 
 
-async def _resolver_hallazgos(model: "AnalisisModel") -> list[Hallazgo]:
+async def _resolver_hallazgos(model: AnalisisModel) -> list[Hallazgo]:
     """Deserializa el JSON de hallazgos de vuelta a Value Objects."""
     raw: list[dict] = json.loads(model.hallazgos_json or "[]")
     return [
@@ -29,12 +29,13 @@ async def _resolver_hallazgos(model: "AnalisisModel") -> list[Hallazgo]:
                 x_max=h["x_max"],
                 y_max=h["y_max"],
             ),
+            image_index=h.get("image_index", 0),
         )
         for h in raw
     ]
 
 
-async def _resolver_estudio_id(model: "AnalisisModel") -> UUID:
+async def _resolver_estudio_id(model: AnalisisModel) -> UUID:
     return UUID(str(model.estudio_id))
 
 
@@ -77,6 +78,7 @@ class AnalisisRepositoryImpl(
                         "y_min": h.bbox.y_min,
                         "x_max": h.bbox.x_max,
                         "y_max": h.bbox.y_max,
+                        "image_index": h.image_index,
                     }
                     for h in (e.hallazgos or [])
                 ]
