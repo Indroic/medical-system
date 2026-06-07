@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -42,7 +43,20 @@ async def lifespan(app: FastAPI):
         async with shared_db.engine.begin() as conn:
             await conn.run_sync(BaseModel.metadata.create_all)
 
+    # -- Iniciar consumer_loop si el dispatcher lo soporta (Redis Stream) -------
+    consumer_task = None
+    if hasattr(dispatcher, "consumer_loop"):
+        consumer_task = asyncio.create_task(dispatcher.consumer_loop())
+
     yield
+
+    # -- Shutdown: cancelar loop y cerrar conexiones ---------------------------
+    if consumer_task:
+        consumer_task.cancel()
+        try:
+            await consumer_task
+        except asyncio.CancelledError:
+            pass
 
     # -- Shutdown: cerrar conexiones del engine -------------------------------
     await engine.dispose()
@@ -70,3 +84,6 @@ app.include_router(pacientes_router, prefix="/api/v1")
 app.include_router(estudios_router, prefix="/api/v1")
 app.include_router(analizador_router, prefix="/api/v1")
 app.include_router(reportes_router, prefix="/api/v1")
+
+from src.shared.infrastructure.api.stream_router import router as stream_router
+app.include_router(stream_router, prefix="/api/v1")

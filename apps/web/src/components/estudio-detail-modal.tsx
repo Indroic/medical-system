@@ -57,7 +57,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
 
     // Reemplazar polling por Server-Sent Events (SSE)
     const baseUrl = import.meta.env.VITE_SERVER_URL.replace(/\/$/, '');
-    const sseUrl = `${baseUrl}/api/events/${estudioId}`;
+    const sseUrl = `${baseUrl}/api/v1/events/${estudioId}`;
     const eventSource = new EventSource(sseUrl, { withCredentials: true });
 
     eventSource.addEventListener("ANALISIS_COMPLETADO", () => {

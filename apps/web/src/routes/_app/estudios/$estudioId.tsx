@@ -3,7 +3,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import EstadoBadge from "@/components/estado-badge";
-import EstadoBadge from "@/components/estado-badge";
 import PatientCard from "@/components/patient-card";
 import { useAuthStore } from "@/lib/auth-store";
 import { useImgproxyUrl } from "@/lib/imgproxy";

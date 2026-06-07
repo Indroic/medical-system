@@ -18,9 +18,7 @@ import { Route as AppReportesIndexRouteImport } from './routes/_app/reportes/ind
 import { Route as AppPacientesIndexRouteImport } from './routes/_app/pacientes/index'
 import { Route as AppEstudiosIndexRouteImport } from './routes/_app/estudios/index'
 import { Route as AppReportesEstudioIdRouteImport } from './routes/_app/reportes/$estudioId'
-import { Route as AppPacientesNuevoRouteImport } from './routes/_app/pacientes/nuevo'
 import { Route as AppPacientesPacienteIdRouteImport } from './routes/_app/pacientes/$pacienteId'
-import { Route as AppEstudiosNuevoRouteImport } from './routes/_app/estudios/nuevo'
 import { Route as AppEstudiosEstudioIdRouteImport } from './routes/_app/estudios/$estudioId'
 import { Route as AppAnalisisEstudioIdRouteImport } from './routes/_app/analisis/$estudioId'
 
@@ -68,19 +66,9 @@ const AppReportesEstudioIdRoute = AppReportesEstudioIdRouteImport.update({
   path: '/reportes/$estudioId',
   getParentRoute: () => AppRoute,
 } as any)
-const AppPacientesNuevoRoute = AppPacientesNuevoRouteImport.update({
-  id: '/pacientes/nuevo',
-  path: '/pacientes/nuevo',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppPacientesPacienteIdRoute = AppPacientesPacienteIdRouteImport.update({
   id: '/pacientes/$pacienteId',
   path: '/pacientes/$pacienteId',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppEstudiosNuevoRoute = AppEstudiosNuevoRouteImport.update({
-  id: '/estudios/nuevo',
-  path: '/estudios/nuevo',
   getParentRoute: () => AppRoute,
 } as any)
 const AppEstudiosEstudioIdRoute = AppEstudiosEstudioIdRouteImport.update({
@@ -101,9 +89,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
-  '/estudios/nuevo': typeof AppEstudiosNuevoRoute
   '/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
-  '/pacientes/nuevo': typeof AppPacientesNuevoRoute
   '/reportes/$estudioId': typeof AppReportesEstudioIdRoute
   '/estudios/': typeof AppEstudiosIndexRoute
   '/pacientes/': typeof AppPacientesIndexRoute
@@ -116,9 +102,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
-  '/estudios/nuevo': typeof AppEstudiosNuevoRoute
   '/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
-  '/pacientes/nuevo': typeof AppPacientesNuevoRoute
   '/reportes/$estudioId': typeof AppReportesEstudioIdRoute
   '/estudios': typeof AppEstudiosIndexRoute
   '/pacientes': typeof AppPacientesIndexRoute
@@ -133,9 +117,7 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/_app/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
-  '/_app/estudios/nuevo': typeof AppEstudiosNuevoRoute
   '/_app/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
-  '/_app/pacientes/nuevo': typeof AppPacientesNuevoRoute
   '/_app/reportes/$estudioId': typeof AppReportesEstudioIdRoute
   '/_app/estudios/': typeof AppEstudiosIndexRoute
   '/_app/pacientes/': typeof AppPacientesIndexRoute
@@ -150,9 +132,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/analisis/$estudioId'
     | '/estudios/$estudioId'
-    | '/estudios/nuevo'
     | '/pacientes/$pacienteId'
-    | '/pacientes/nuevo'
     | '/reportes/$estudioId'
     | '/estudios/'
     | '/pacientes/'
@@ -165,9 +145,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/analisis/$estudioId'
     | '/estudios/$estudioId'
-    | '/estudios/nuevo'
     | '/pacientes/$pacienteId'
-    | '/pacientes/nuevo'
     | '/reportes/$estudioId'
     | '/estudios'
     | '/pacientes'
@@ -181,9 +159,7 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/analisis/$estudioId'
     | '/_app/estudios/$estudioId'
-    | '/_app/estudios/nuevo'
     | '/_app/pacientes/$pacienteId'
-    | '/_app/pacientes/nuevo'
     | '/_app/reportes/$estudioId'
     | '/_app/estudios/'
     | '/_app/pacientes/'
@@ -262,25 +238,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReportesEstudioIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/pacientes/nuevo': {
-      id: '/_app/pacientes/nuevo'
-      path: '/pacientes/nuevo'
-      fullPath: '/pacientes/nuevo'
-      preLoaderRoute: typeof AppPacientesNuevoRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/pacientes/$pacienteId': {
       id: '/_app/pacientes/$pacienteId'
       path: '/pacientes/$pacienteId'
       fullPath: '/pacientes/$pacienteId'
       preLoaderRoute: typeof AppPacientesPacienteIdRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/estudios/nuevo': {
-      id: '/_app/estudios/nuevo'
-      path: '/estudios/nuevo'
-      fullPath: '/estudios/nuevo'
-      preLoaderRoute: typeof AppEstudiosNuevoRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/estudios/$estudioId': {
@@ -304,9 +266,7 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppAnalisisEstudioIdRoute: typeof AppAnalisisEstudioIdRoute
   AppEstudiosEstudioIdRoute: typeof AppEstudiosEstudioIdRoute
-  AppEstudiosNuevoRoute: typeof AppEstudiosNuevoRoute
   AppPacientesPacienteIdRoute: typeof AppPacientesPacienteIdRoute
-  AppPacientesNuevoRoute: typeof AppPacientesNuevoRoute
   AppReportesEstudioIdRoute: typeof AppReportesEstudioIdRoute
   AppEstudiosIndexRoute: typeof AppEstudiosIndexRoute
   AppPacientesIndexRoute: typeof AppPacientesIndexRoute
@@ -317,9 +277,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppAnalisisEstudioIdRoute: AppAnalisisEstudioIdRoute,
   AppEstudiosEstudioIdRoute: AppEstudiosEstudioIdRoute,
-  AppEstudiosNuevoRoute: AppEstudiosNuevoRoute,
   AppPacientesPacienteIdRoute: AppPacientesPacienteIdRoute,
-  AppPacientesNuevoRoute: AppPacientesNuevoRoute,
   AppReportesEstudioIdRoute: AppReportesEstudioIdRoute,
   AppEstudiosIndexRoute: AppEstudiosIndexRoute,
   AppPacientesIndexRoute: AppPacientesIndexRoute,

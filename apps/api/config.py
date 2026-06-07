@@ -21,7 +21,7 @@ from hexcore.config import ServerConfig
 from hexcore.domain.events import IEventDispatcher
 from hexcore.infrastructure.cache import ICache
 from hexcore.infrastructure.cache.cache_backends.memory import MemoryCache
-from hexcore.infrastructure.events.events_backends.memory import InMemoryEventDispatcher
+from src.shared.infrastructure.redis_event_dispatcher import RedisStreamEventDispatcher
 
 
 class ProjectConfig(ServerConfig):
@@ -79,7 +79,7 @@ class ProjectConfig(ServerConfig):
     s3_bucket: str = os.getenv("S3_BUCKET", "medical-system")
 
     cache_backend: ICache = MemoryCache()
-    event_dispatcher: IEventDispatcher = InMemoryEventDispatcher()
+    event_dispatcher: IEventDispatcher = RedisStreamEventDispatcher()
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 

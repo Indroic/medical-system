@@ -27,11 +27,6 @@ from celery.signals import worker_process_init
 
 @worker_process_init.connect
 def init_worker(**kwargs):
-    import config
-    from src.features.analizador.domain.events import AnalisisCompletadoEvent
-    from src.features.estudios.application.handlers import on_analisis_completado_update_estudio
-    from src.features.reportes.application.handlers import on_analisis_completado
-
-    dispatcher = config.config.event_dispatcher
-    dispatcher.register(AnalisisCompletadoEvent, on_analisis_completado)
-    dispatcher.register(AnalisisCompletadoEvent, on_analisis_completado_update_estudio)
+    # Ya no registramos handlers de eventos aquí.
+    # Celery solo publicará el evento al Redis Stream, y FastAPI lo consumirá.
+    pass
