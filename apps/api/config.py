@@ -47,7 +47,7 @@ class ProjectConfig(ServerConfig):
     
     # LLM (Google Gemini)
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
-    gemini_model_name: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    gemini_model_name: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
     gemini_prompt_template: str = os.getenv(
         "GEMINI_PROMPT_TEMPLATE",
         "Eres un oncólogo radiólogo de clase mundial. Recibirás una lista de datos crudos extraídos por un "
