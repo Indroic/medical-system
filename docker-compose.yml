@@ -72,6 +72,9 @@ services:
       - AWS_SECRET_ACCESS_KEY=seaweed
       - YOLO_CONFIG_DIR=/tmp/Ultralytics
       - C_FORCE_ROOT=true
+      - OLLAMA_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy

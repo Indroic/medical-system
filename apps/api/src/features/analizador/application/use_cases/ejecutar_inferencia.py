@@ -16,6 +16,14 @@ class EjecutarInferenciaUseCase(UseCase[EjecutarInferenciaCommand, AnalisisRespo
 
     async def execute(self, command: EjecutarInferenciaCommand) -> AnalisisResponse:
         async with self.uow:
+            # Marcar el estudio como EN_ANALISIS
+            from src.features.estudios.infrastructure.repositories import EstudioRepositoryImpl
+            estudio_repo = EstudioRepositoryImpl(self.uow)
+            estudio = await estudio_repo.get_by_id(command.estudio_id)
+            if estudio:
+                estudio.marcar_en_analisis()
+                await estudio_repo.save(estudio)
+
             analisis = await self.service.iniciar_inferencia(
                 estudio_id=command.estudio_id,
                 imagenes_paths=command.imagenes_paths,
