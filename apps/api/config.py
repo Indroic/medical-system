@@ -47,7 +47,7 @@ class ProjectConfig(ServerConfig):
     
     # LLM (Ollama)
     ollama_url: str = os.getenv("OLLAMA_URL", "http://ollama:11434")
-    ollama_model_name: str = os.getenv("OLLAMA_MODEL", "phi3")
+    ollama_model_name: str = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
     ollama_prompt_template: str = os.getenv(
         "OLLAMA_PROMPT_TEMPLATE",
         "Eres un oncólogo radiólogo de clase mundial. Recibirás una lista de datos crudos extraídos por un "
