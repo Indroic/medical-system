@@ -67,8 +67,10 @@ async def obtener_analisis(
                 x_max=h.bbox.x_max,
                 y_max=h.bbox.y_max,
                 es_critico=h.es_critico(),
+                image_index=h.image_index,
             )
             for h in analisis.hallazgos
         ],
         total_hallazgos=len(analisis.hallazgos),
+        informe_avanzado_ia=analisis.informe_avanzado_ia,
     )

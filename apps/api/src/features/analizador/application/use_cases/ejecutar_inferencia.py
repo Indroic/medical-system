@@ -18,13 +18,13 @@ class EjecutarInferenciaUseCase(UseCase[EjecutarInferenciaCommand, AnalisisRespo
         async with self.uow:
             analisis = await self.service.iniciar_inferencia(
                 estudio_id=command.estudio_id,
-                imagen_path=command.imagen_path,
+                imagenes_paths=command.imagenes_paths,
             )
             await self.uow.commit()
 
         # Encolar la tarea asíncrona
         from src.features.analizador.application.tasks import procesar_estudio_ia
-        procesar_estudio_ia.delay(str(command.estudio_id), command.imagen_path)
+        procesar_estudio_ia.delay(str(command.estudio_id), command.imagenes_paths)
 
         return AnalisisResponse(
             analisis_id=analisis.id,

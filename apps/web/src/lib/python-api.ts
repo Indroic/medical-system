@@ -166,10 +166,10 @@ export const estudiosApi = {
 // ─── Análisis ───────────────────────────────────────────────────────────────
 
 export const analisisApi = {
-  ejecutar: (token: string, estudio_id: string, imagen_path: string) =>
+  ejecutar: (token: string, estudio_id: string, imagenes_paths: string[]) =>
     request<AnalisisResponse>("/api/analisis", {
       method: "POST",
-      body: JSON.stringify({ estudio_id, imagen_path }),
+      body: JSON.stringify({ estudio_id, imagenes_paths }),
     }, token),
 
   obtener: (token: string, estudio_id: string) =>

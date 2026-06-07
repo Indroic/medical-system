@@ -24,7 +24,7 @@ function EstudioDetail() {
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
 
-  const proxySrc = useImgproxyUrl(estudio?.imagen_path, 1000, 1000);
+  const proxySrc = useImgproxyUrl(estudio?.imagenes_paths?.[0], 1000, 1000);
 
   useEffect(() => {
     if (!token) return;
@@ -85,7 +85,7 @@ function EstudioDetail() {
     setAnalyzing(true);
     try {
       
-      await analisisApi.ejecutar(token, estudio.id, estudio.imagen_path);
+      await analisisApi.ejecutar(token, estudio.id, estudio.imagenes_paths);
       navigate({ to: "/analisis/$estudioId", params: { estudioId } });
     } catch (err) {
       toast.danger(err instanceof ApiError ? err.message : "Error al iniciar análisis");
