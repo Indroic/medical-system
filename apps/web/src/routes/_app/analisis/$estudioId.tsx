@@ -81,7 +81,7 @@ function AnalisisDetail() {
               No se encontraron hallazgos patológicos en esta resonancia magnética.
             </div>
           ) : analisis.informe_avanzado_ia ? (
-            <div className="rounded-2xl border border-green/30 bg-obsidian p-6 shadow-lg">
+            <div className="rounded-2xl border border-green/30 bg-obsidian p-6 shadow-lg overflow-y-auto max-h-[calc(100vh-300px)] custom-scrollbar">
               <h3 className="text-[16px] text-green mb-4 flex items-center gap-2 font-medium">
                 <span className="w-2.5 h-2.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(62,207,142,0.6)]" />
                 Informe Clínico de IA
