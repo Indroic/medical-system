@@ -47,7 +47,7 @@ async def on_analisis_completado(event: AnalisisCompletadoEvent) -> None:
             )
 
             try:
-                pdf_path = await pdf_adapter.generar(reporte)
+                pdf_path = await pdf_adapter.generar(reporte, event.informe_avanzado_ia)
                 reporte.marcar_listo(pdf_path)
             except Exception as exc:
                 logger.exception("Fallo al generar PDF: %s", exc)

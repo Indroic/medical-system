@@ -10,3 +10,4 @@ class AnalisisCompletadoEvent(DomainEvent):
     estudio_id: UUID
     nivel_riesgo: str
     total_hallazgos: int
+    informe_avanzado_ia: str | None = None

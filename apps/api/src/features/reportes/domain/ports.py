@@ -13,6 +13,6 @@ class IReporteRepository(Protocol):
 class IGeneradorPDFAdapter(Protocol):
     """Puerto para el generador de PDF. Desacopla ReportLab/WeasyPrint del dominio."""
 
-    async def generar(self, reporte: Reporte) -> str:
+    async def generar(self, reporte: Reporte, informe_clinico: str | None = None) -> str:
         """Genera el PDF y retorna la ruta del archivo generado."""
         ...

@@ -61,5 +61,6 @@ class AnalisisResonancia(BaseEntity):
                 estudio_id=self.estudio_id,
                 nivel_riesgo=self.nivel_riesgo,
                 total_hallazgos=len(self.hallazgos),
+                informe_avanzado_ia=self.informe_avanzado_ia,
             )
         )
