@@ -59,7 +59,7 @@ function AnalisisDetail() {
   const criticos = analisis.hallazgos.filter((h) => h.es_critico);
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <PageHeader
         title="Resultados del análisis"
         action={
@@ -76,7 +76,7 @@ function AnalisisDetail() {
         }
       />
 
-      <div className="mt-6 grid grid-cols-3 gap-4">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-charcoal bg-ash p-5">
           <p className="text-[12px] text-smoke mb-2">Nivel de riesgo</p>
           <RiesgoBadge nivel={analisis.nivel_riesgo} />
@@ -121,7 +121,7 @@ function AnalisisDetail() {
           )}
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            {reporte?.estado === "LISTO" && paciente && estudio && analisis ? (
+            {paciente && estudio && analisis ? (
               <PDFDownloadLink
                 document={
                   <ReportePDFDocument
@@ -143,9 +143,7 @@ function AnalisisDetail() {
                 disabled
                 className="rounded-full border border-charcoal/50 px-5 py-2.5 text-[14px] text-smoke cursor-not-allowed transition-colors text-center w-full sm:w-auto"
               >
-                {reporte?.estado === "GENERANDO"
-                  ? "Generando reporte…"
-                  : "Reporte PDF no disponible"}
+                Cargando datos del PDF…
               </button>
             )}
           </div>

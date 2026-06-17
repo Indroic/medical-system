@@ -162,7 +162,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                       onSubmit={(e) => { e.preventDefault(); createPatientForm.handleSubmit(); }}
                       className="flex flex-col gap-4"
                     >
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <createPatientForm.Field name="nombre" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                           {(field) => (
                             <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
@@ -268,22 +268,24 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                 </div>
               )}
             </Modal.Body>
-          <Modal.Footer>
-            {step === "upload" && (
+          <Modal.Footer className="flex flex-col sm:flex-row gap-3 w-full justify-between items-center">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              {step === "upload" && (
+                <button
+                  type="button"
+                  onClick={() => { setStep("patient"); setPaciente(null); setFiles([]); }}
+                  className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors w-full sm:w-auto text-center"
+                >
+                  Cambiar paciente
+                </button>
+              )}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end">
               <button
                 type="button"
-                onClick={() => { setStep("patient"); setPaciente(null); setFiles([]); }}
-                className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors"
+                onClick={state.close}
+                className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors w-full sm:w-auto text-center"
               >
-                Cambiar paciente
-              </button>
-            )}
-            <div className="flex-1" />
-            <button
-              type="button"
-              onClick={state.close}
-              className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors"
-            >
                 Cerrar
               </button>
               {step === "upload" && (
@@ -291,11 +293,12 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                   type="submit"
                   form="nuevo-estudio-upload-form"
                   isDisabled={files.length === 0 || uploading}
-                  className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
+                  className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
                 >
                   {uploading ? "Subiendo…" : "Crear estudio"}
                 </Button>
               )}
+            </div>
           </Modal.Footer>
         </Modal.Dialog>
       </Modal.Container>

@@ -51,7 +51,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                 onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
                 className="flex flex-col gap-5 py-2"
               >
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <form.Field name="nombre" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                     {(field) => (
                       <TextField
@@ -123,25 +123,25 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                 </form.Field>
               </form>
           </Modal.Body>
-          <Modal.Footer>
+          <Modal.Footer className="flex flex-col sm:flex-row gap-3 w-full justify-end">
             <button
               type="button"
               onClick={state.close}
-              className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors"
+              className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors w-full sm:w-auto text-center"
             >
-                Cancelar
-              </button>
-              <form.Subscribe selector={(s) => s.isSubmitting}>
-                {(isSubmitting) => (
-                  <Button
-                    type="submit"
-                    form="nuevo-paciente-form"
-                    isDisabled={isSubmitting}
-                    className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
-                  >
-                    {isSubmitting ? "Guardando…" : "Crear paciente"}
-                  </Button>
-                )}
+              Cancelar
+            </button>
+            <form.Subscribe selector={(s) => s.isSubmitting}>
+              {(isSubmitting) => (
+                <Button
+                  type="submit"
+                  form="nuevo-paciente-form"
+                  isDisabled={isSubmitting}
+                  className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
+                >
+                  {isSubmitting ? "Guardando…" : "Crear paciente"}
+                </Button>
+              )}
             </form.Subscribe>
           </Modal.Footer>
         </Modal.Dialog>

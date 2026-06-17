@@ -130,8 +130,8 @@ function EstudioDetail() {
               </div>
             </div>
           </Modal.Header>
-          <Modal.Body className="p-8 overflow-y-auto custom-scrollbar">
-          <div className="grid grid-cols-[1fr_300px] gap-6">
+          <Modal.Body className="p-4 sm:p-8 overflow-y-auto custom-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6">
             {/* Left: image */}
             <div>
               <div className="rounded-2xl border border-charcoal overflow-hidden bg-ash flex items-center justify-center min-h-[320px]">
@@ -183,7 +183,7 @@ function EstudioDetail() {
                     }
                   </PDFDownloadLink>
                 ) : (
-                  reporte?.estado === "LISTO" && (
+                  hasAnalisis && (
                     <button
                       type="button"
                       disabled

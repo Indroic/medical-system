@@ -109,7 +109,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
       <Modal.Backdrop isOpen={state.isOpen} onOpenChange={state.setOpen}>
         <Modal.Container>
           <Modal.Dialog className="bg-obsidian border border-charcoal w-full h-full max-w-full m-0 rounded-none sm:rounded-none">
-            <Modal.Header className="flex flex-col gap-1 border-b border-charcoal text-snow px-8 py-6">
+            <Modal.Header className="flex flex-col gap-1 border-b border-charcoal text-snow px-4 sm:px-8 py-6">
               <div className="flex items-center justify-between w-full">
                 <Modal.Heading className="text-[20px] font-medium text-snow">Detalle de estudio</Modal.Heading>
                 <div className="flex items-center gap-6">
@@ -124,7 +124,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                 </div>
               </div>
             </Modal.Header>
-            <Modal.Body className="p-8 overflow-y-auto custom-scrollbar">
+            <Modal.Body className="p-4 sm:p-8 overflow-y-auto custom-scrollbar">
               {loading ? (
                 <div className="text-[13px] text-smoke">Cargando…</div>
               ) : !estudio ? (
@@ -168,7 +168,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           Ver resultados de análisis →
                         </button>
                       )}
-                      {reporte?.estado === "LISTO" && paciente && estudio && analisis ? (
+                      {paciente && estudio && analisis ? (
                         <PDFDownloadLink
                           document={
                             <ReportePDFDocument
@@ -185,7 +185,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           }
                         </PDFDownloadLink>
                       ) : (
-                        reporte?.estado === "LISTO" && (
+                        hasAnalisis && (
                           <button
                             type="button"
                             disabled
