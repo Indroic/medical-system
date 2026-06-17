@@ -32,6 +32,11 @@ async function request<T>(
 
   const res = await fetch(targetUrl, { ...options, headers, credentials: "include" });
   if (!res.ok) {
+    if (res.status === 401) {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("auth:unauthorized"));
+      }
+    }
     let message = res.statusText;
     try {
       const data = await res.json();

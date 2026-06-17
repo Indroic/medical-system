@@ -13,6 +13,7 @@ import { Route as SetupRouteImport } from './routes/setup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppUsuariosRouteImport } from './routes/_app.usuarios'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppReportesIndexRouteImport } from './routes/_app/reportes/index'
 import { Route as AppPacientesIndexRouteImport } from './routes/_app/pacientes/index'
@@ -40,6 +41,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppUsuariosRoute = AppUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/setup': typeof SetupRoute
   '/dashboard': typeof AppDashboardRoute
+  '/usuarios': typeof AppUsuariosRoute
   '/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
   '/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/setup': typeof SetupRoute
   '/dashboard': typeof AppDashboardRoute
+  '/usuarios': typeof AppUsuariosRoute
   '/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
   '/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/setup': typeof SetupRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/usuarios': typeof AppUsuariosRoute
   '/_app/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/_app/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
   '/_app/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/setup'
     | '/dashboard'
+    | '/usuarios'
     | '/analisis/$estudioId'
     | '/estudios/$estudioId'
     | '/pacientes/$pacienteId'
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/setup'
     | '/dashboard'
+    | '/usuarios'
     | '/analisis/$estudioId'
     | '/estudios/$estudioId'
     | '/pacientes/$pacienteId'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/setup'
     | '/_app/dashboard'
+    | '/_app/usuarios'
     | '/_app/analisis/$estudioId'
     | '/_app/estudios/$estudioId'
     | '/_app/pacientes/$pacienteId'
@@ -202,6 +214,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/usuarios': {
+      id: '/_app/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof AppUsuariosRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
       id: '/_app/dashboard'
@@ -264,6 +283,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppUsuariosRoute: typeof AppUsuariosRoute
   AppAnalisisEstudioIdRoute: typeof AppAnalisisEstudioIdRoute
   AppEstudiosEstudioIdRoute: typeof AppEstudiosEstudioIdRoute
   AppPacientesPacienteIdRoute: typeof AppPacientesPacienteIdRoute
@@ -275,6 +295,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppUsuariosRoute: AppUsuariosRoute,
   AppAnalisisEstudioIdRoute: AppAnalisisEstudioIdRoute,
   AppEstudiosEstudioIdRoute: AppEstudiosEstudioIdRoute,
   AppPacientesPacienteIdRoute: AppPacientesPacienteIdRoute,

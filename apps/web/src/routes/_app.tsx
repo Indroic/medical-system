@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { Outlet, createFileRoute, redirect, useLocation, useNavigate } from "@tanstack/react-router";
-import { BarChart2, FileText, Scan, Users } from "lucide-react";
+import { BarChart2, FileText, Scan, Users, UserCog } from "lucide-react";
 
 import { useAuthStore } from "@/lib/auth-store";
 
@@ -17,18 +18,38 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: BarChart2 },
   { to: "/pacientes", label: "Pacientes", icon: Users },
   { to: "/estudios", label: "Estudios", icon: Scan },
-  { to: "/reportes", label: "Reportes", icon: FileText },
+  { to: "/usuarios", label: "Usuarios", icon: UserCog, adminOnly: true },
 ];
 
 function AppLayout() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, token } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (!token) {
+      navigate({ to: "/login" });
+    }
+  }, [token, navigate]);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      logout();
+      navigate({ to: "/login" });
+    };
+
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, [logout, navigate]);
 
   const handleLogout = () => {
     logout();
     navigate({ to: "/login" });
   };
+
+  const visibleNavItems = NAV_ITEMS.filter(
+    (item) => !item.adminOnly || user?.rol === "admin"
+  );
 
   return (
     <div className="flex h-svh bg-obsidian font-sans">
@@ -46,7 +67,7 @@ function AppLayout() {
 
         {/* Nav */}
         <nav className="flex flex-col gap-0.5 p-2 flex-1">
-          {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+          {visibleNavItems.map(({ to, label, icon: Icon }) => {
             const active = location.pathname === to || location.pathname.startsWith(to + "/");
             return (
               <button

@@ -6,6 +6,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer } from "better-auth/plugins/bearer";
 import { jwt } from "better-auth/plugins/jwt";
 
+import { admin } from "better-auth/plugins/admin";
+
 export function createAuth() {
   const db = createDb();
 
@@ -43,6 +45,7 @@ export function createAuth() {
       },
     },
     plugins: [
+      admin(),
       bearer(),
       jwt(),
     ],
