@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Modal, toast } from "@heroui/react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useNavigate } from "@tanstack/react-router";
 
 import EstadoBadge from "@/components/estado-badge";
 import PatientCard from "@/components/patient-card";
+import { ReportePDFDocument } from "@/components/reporte-pdf";
 import { useAuthStore } from "@/lib/auth-store";
 import { useImgproxyUrl } from "@/lib/imgproxy";
 import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
-import type { EstudioResponse, PacienteResponse, ReporteResponse } from "@/lib/python-api";
+import type { EstudioResponse, PacienteResponse, ReporteResponse, AnalisisResponse } from "@/lib/python-api";
 
 interface EstudioDetailModalProps {
   state: any;
@@ -20,6 +22,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
   const [estudio, setEstudio] = useState<EstudioResponse | null>(null);
   const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
   const [reporte, setReporte] = useState<ReporteResponse | null>(null);
+  const [analisis, setAnalisis] = useState<AnalisisResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
 
@@ -38,13 +41,15 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
         const promises: Promise<any>[] = [pacientesApi.obtener(token, e.paciente_id)];
         if (e.estado === "COMPLETADO") {
           promises.push(reportesApi.obtener(token, estudioId));
-        } else {
-          promises.push(Promise.reject("Reporte no disponible aún"));
+          promises.push(analisisApi.obtener(token, estudioId));
         }
 
-        const [p, r] = await Promise.allSettled(promises);
-        if (p.status === "fulfilled") setPaciente(p.value);
-        if (r.status === "fulfilled") setReporte(r.value);
+        const results = await Promise.allSettled(promises);
+        if (results[0].status === "fulfilled") setPaciente(results[0].value);
+        if (e.estado === "COMPLETADO") {
+          if (results[1] && results[1].status === "fulfilled") setReporte(results[1].value);
+          if (results[2] && results[2].status === "fulfilled") setAnalisis(results[2].value);
+        }
       } catch (error) {
         console.error("Error al cargar datos del estudio", error);
         toast.danger("Error cargando detalles del estudio");
@@ -163,17 +168,35 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           Ver resultados de análisis →
                         </button>
                       )}
-                      {reporte?.estado === "LISTO" && (
-                        <a
-                          href={`${import.meta.env.VITE_PYTHON_API_URL}/api/v1/reportes/${estudioId}/descargar`}
-                          download
-                          className="rounded-full border border-charcoal px-6 py-2.5 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
+                      {reporte?.estado === "LISTO" && paciente && estudio && analisis ? (
+                        <PDFDownloadLink
+                          document={
+                            <ReportePDFDocument
+                              paciente={paciente}
+                              estudio={estudio}
+                              analisis={analisis}
+                            />
+                          }
+                          fileName={`reporte_${estudioId}.pdf`}
+                          className="rounded-full border border-charcoal px-6 py-2.5 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors text-center inline-block"
                         >
-                          Descargar reporte PDF
-                        </a>
+                          {({ loading: pdfLoading }) =>
+                            pdfLoading ? "Preparando PDF…" : "Descargar reporte PDF"
+                          }
+                        </PDFDownloadLink>
+                      ) : (
+                        reporte?.estado === "LISTO" && (
+                          <button
+                            type="button"
+                            disabled
+                            className="rounded-full border border-charcoal/50 px-6 py-2.5 text-[14px] text-smoke cursor-not-allowed transition-colors"
+                          >
+                            Cargando datos del PDF…
+                          </button>
+                        )
                       )}
-                    </div>
                   </div>
+                </div>
 
                   {/* Right: info panel */}
                   <div className="flex flex-col gap-6">

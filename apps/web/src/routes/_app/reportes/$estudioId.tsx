@@ -1,12 +1,14 @@
 import { toast } from "@heroui/react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
 import PageHeader from "@/components/page-header";
 import RiesgoBadge from "@/components/riesgo-badge";
+import { ReportePDFDocument } from "@/components/reporte-pdf";
 import { useAuthStore } from "@/lib/auth-store";
-import { ApiError, reportesApi } from "@/lib/python-api";
-import type { ReporteResponse } from "@/lib/python-api";
+import { ApiError, reportesApi, estudiosApi, pacientesApi, analisisApi } from "@/lib/python-api";
+import type { ReporteResponse, EstudioResponse, PacienteResponse, AnalisisResponse } from "@/lib/python-api";
 
 export const Route = createFileRoute("/_app/reportes/$estudioId")({
   component: ReportePage,
@@ -17,7 +19,11 @@ function ReportePage() {
   const { token } = useAuthStore();
   const navigate = useNavigate();
   const [reporte, setReporte] = useState<ReporteResponse | null>(null);
+  const [estudio, setEstudio] = useState<EstudioResponse | null>(null);
+  const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
+  const [analisis, setAnalisis] = useState<AnalisisResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pdfDataLoading, setPdfDataLoading] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchReporte = async () => {
@@ -25,8 +31,30 @@ function ReportePage() {
     try {
       const r = await reportesApi.obtener(token, estudioId);
       setReporte(r);
+      
       if (r.estado === "LISTO" || r.estado === "FALLIDO") {
         if (pollingRef.current) clearInterval(pollingRef.current);
+        
+        // Si el reporte está listo y aún no tenemos los datos detallados, los cargamos
+        if (r.estado === "LISTO" && !paciente) {
+          setPdfDataLoading(true);
+          try {
+            const [est, ana] = await Promise.all([
+              estudiosApi.obtener(token, estudioId),
+              analisisApi.obtener(token, estudioId),
+            ]);
+            setEstudio(est);
+            setAnalisis(ana);
+            
+            const pac = await pacientesApi.obtener(token, est.paciente_id);
+            setPaciente(pac);
+          } catch (err) {
+            console.error("Error al cargar datos adicionales del reporte", err);
+            toast.danger("Error al preparar los datos del reporte PDF");
+          } finally {
+            setPdfDataLoading(false);
+          }
+        }
       }
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) {
@@ -45,25 +73,6 @@ function ReportePage() {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, [token, estudioId]);
-
-  const handleDownload = async () => {
-    if (!token) return;
-    
-    try {
-      const url = reportesApi.urlDescarga(estudioId);
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) throw new Error("No se pudo descargar el PDF");
-      const blob = await res.blob();
-      const href = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = href;
-      a.download = `reporte_${estudioId}.pdf`;
-      a.click();
-      URL.revokeObjectURL(href);
-    } catch {
-      toast.danger("Error al descargar el reporte");
-    }
-  };
 
   return (
     <div className="p-8">
@@ -108,18 +117,37 @@ function ReportePage() {
               </dl>
             </div>
 
-            <button
-              type="button"
-              onClick={handleDownload}
-              disabled={reporte.estado !== "LISTO" || !reporte.pdf_disponible}
-              className="w-full rounded-full bg-green py-2.5 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-40 transition-colors"
-            >
-              {reporte.estado === "GENERANDO"
-                ? "Generando PDF…"
-                : reporte.estado === "FALLIDO"
-                ? "Error al generar"
-                : "Descargar reporte PDF"}
-            </button>
+            {reporte.estado === "LISTO" && paciente && estudio && analisis ? (
+              <PDFDownloadLink
+                document={
+                  <ReportePDFDocument
+                    paciente={paciente}
+                    estudio={estudio}
+                    analisis={analisis}
+                  />
+                }
+                fileName={`reporte_${estudioId}.pdf`}
+                className="w-full text-center block rounded-full bg-green py-2.5 text-[14px] font-medium text-obsidian hover:bg-green-deep transition-colors"
+              >
+                {({ loading: pdfLoading }) =>
+                  pdfLoading ? "Preparando PDF…" : "Descargar reporte PDF"
+                }
+              </PDFDownloadLink>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="w-full rounded-full bg-green py-2.5 text-[14px] font-medium text-obsidian disabled:opacity-40 transition-colors"
+              >
+                {reporte.estado === "GENERANDO"
+                  ? "Generando PDF…"
+                  : reporte.estado === "FALLIDO"
+                  ? "Error al generar"
+                  : pdfDataLoading
+                  ? "Cargando datos de reporte…"
+                  : "Descargar reporte PDF"}
+              </button>
+            )}
           </div>
         )}
       </div>

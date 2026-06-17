@@ -19,6 +19,7 @@
     "@imgproxy/imgproxy-js-core": "^1.8.0",
     "@medical-system/env": "workspace:*",
     "@medical-system/ui": "workspace:*",
+    "@react-pdf/renderer": "^4.5.1",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-form": "^1.28.0",
