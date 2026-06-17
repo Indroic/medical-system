@@ -145,13 +145,13 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                       )}
                     </div>
 
-                    <div className="mt-6 flex gap-4">
+                    <div className="mt-6 flex flex-col sm:flex-row gap-3">
                       {isPendiente && (
                         <button
                           type="button"
                           onClick={handleAnalizar}
                           disabled={analyzing}
-                          className="rounded-full bg-green px-6 py-2.5 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
+                          className="rounded-full bg-green px-6 py-2.5 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
                         >
                           {analyzing ? "Analizando…" : "Ejecutar análisis IA"}
                         </button>
@@ -163,7 +163,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                             state.close();
                             navigate({ to: "/analisis/$estudioId", params: { estudioId: estudio.id } });
                           }}
-                          className="rounded-full border border-charcoal px-6 py-2.5 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
+                          className="rounded-full border border-charcoal px-6 py-2.5 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors w-full sm:w-auto text-center"
                         >
                           Ver resultados de análisis →
                         </button>
@@ -178,7 +178,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                             />
                           }
                           fileName={`reporte_${estudioId}.pdf`}
-                          className="rounded-full border border-charcoal px-6 py-2.5 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors text-center inline-block"
+                          className="rounded-full border border-charcoal px-6 py-2.5 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors text-center inline-block w-full sm:w-auto"
                         >
                           {({ loading: pdfLoading }) =>
                             pdfLoading ? "Preparando PDF…" : "Descargar reporte PDF"
@@ -189,7 +189,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           <button
                             type="button"
                             disabled
-                            className="rounded-full border border-charcoal/50 px-6 py-2.5 text-[14px] text-smoke cursor-not-allowed transition-colors"
+                            className="rounded-full border border-charcoal/50 px-6 py-2.5 text-[14px] text-smoke cursor-not-allowed transition-colors w-full sm:w-auto text-center"
                           >
                             Cargando datos del PDF…
                           </button>

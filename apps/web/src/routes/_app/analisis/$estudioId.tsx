@@ -1,4 +1,5 @@
 import { toast } from "@heroui/react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -6,9 +7,10 @@ import ReactMarkdown from "react-markdown";
 import MriViewer from "@/components/mri-viewer";
 import PageHeader from "@/components/page-header";
 import RiesgoBadge from "@/components/riesgo-badge";
+import { ReportePDFDocument } from "@/components/reporte-pdf";
 import { useAuthStore } from "@/lib/auth-store";
-import { ApiError, analisisApi, estudiosApi } from "@/lib/python-api";
-import type { AnalisisResponse, EstudioResponse } from "@/lib/python-api";
+import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
+import type { AnalisisResponse, EstudioResponse, PacienteResponse, ReporteResponse } from "@/lib/python-api";
 
 export const Route = createFileRoute("/_app/analisis/$estudioId")({
   component: AnalisisDetail,
@@ -20,14 +22,35 @@ function AnalisisDetail() {
   const navigate = useNavigate();
   const [analisis, setAnalisis] = useState<AnalisisResponse | null>(null);
   const [estudio, setEstudio] = useState<EstudioResponse | null>(null);
+  const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
+  const [reporte, setReporte] = useState<ReporteResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
-    Promise.all([analisisApi.obtener(token, estudioId), estudiosApi.obtener(token, estudioId)])
-      .then(([a, e]) => { setAnalisis(a); setEstudio(e); })
-      .catch((err) => toast.danger("Error cargando análisis"))
-      .finally(() => setLoading(false));
+    setLoading(true);
+    const loadAll = async () => {
+      try {
+        const [a, e] = await Promise.all([
+          analisisApi.obtener(token, estudioId),
+          estudiosApi.obtener(token, estudioId)
+        ]);
+        setAnalisis(a);
+        setEstudio(e);
+        
+        const [p, r] = await Promise.allSettled([
+          pacientesApi.obtener(token, e.paciente_id),
+          reportesApi.obtener(token, estudioId)
+        ]);
+        if (p.status === "fulfilled") setPaciente(p.value);
+        if (r.status === "fulfilled") setReporte(r.value);
+      } catch (err) {
+        toast.danger("Error cargando análisis");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadAll();
   }, [token, estudioId]);
 
   if (loading) return <div className="p-8 text-[13px] text-smoke">Cargando análisis…</div>;
@@ -97,14 +120,34 @@ function AnalisisDetail() {
             </div>
           )}
 
-          <div className="mt-6 flex gap-4">
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/reportes" })}
-              className="rounded-full border border-charcoal px-5 py-2 text-[13px] text-snow hover:bg-ash hover:border-slate transition-colors"
-            >
-              Ver reportes PDF →
-            </button>
+          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            {reporte?.estado === "LISTO" && paciente && estudio && analisis ? (
+              <PDFDownloadLink
+                document={
+                  <ReportePDFDocument
+                    paciente={paciente}
+                    estudio={estudio}
+                    analisis={analisis}
+                  />
+                }
+                fileName={`reporte_${estudioId}.pdf`}
+                className="rounded-full bg-green px-5 py-2.5 text-[14px] font-medium text-obsidian hover:bg-green-deep transition-colors text-center w-full sm:w-auto inline-block"
+              >
+                {({ loading: pdfLoading }) =>
+                  pdfLoading ? "Preparando PDF…" : "Descargar reporte PDF"
+                }
+              </PDFDownloadLink>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="rounded-full border border-charcoal/50 px-5 py-2.5 text-[14px] text-smoke cursor-not-allowed transition-colors text-center w-full sm:w-auto"
+              >
+                {reporte?.estado === "GENERANDO"
+                  ? "Generando reporte…"
+                  : "Reporte PDF no disponible"}
+              </button>
+            )}
           </div>
         </div>
       </div>

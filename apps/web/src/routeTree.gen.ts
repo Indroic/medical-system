@@ -15,10 +15,8 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppUsuariosRouteImport } from './routes/_app.usuarios'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
-import { Route as AppReportesIndexRouteImport } from './routes/_app/reportes/index'
 import { Route as AppPacientesIndexRouteImport } from './routes/_app/pacientes/index'
 import { Route as AppEstudiosIndexRouteImport } from './routes/_app/estudios/index'
-import { Route as AppReportesEstudioIdRouteImport } from './routes/_app/reportes/$estudioId'
 import { Route as AppPacientesPacienteIdRouteImport } from './routes/_app/pacientes/$pacienteId'
 import { Route as AppEstudiosEstudioIdRouteImport } from './routes/_app/estudios/$estudioId'
 import { Route as AppAnalisisEstudioIdRouteImport } from './routes/_app/analisis/$estudioId'
@@ -52,11 +50,6 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
-const AppReportesIndexRoute = AppReportesIndexRouteImport.update({
-  id: '/reportes/',
-  path: '/reportes/',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppPacientesIndexRoute = AppPacientesIndexRouteImport.update({
   id: '/pacientes/',
   path: '/pacientes/',
@@ -65,11 +58,6 @@ const AppPacientesIndexRoute = AppPacientesIndexRouteImport.update({
 const AppEstudiosIndexRoute = AppEstudiosIndexRouteImport.update({
   id: '/estudios/',
   path: '/estudios/',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppReportesEstudioIdRoute = AppReportesEstudioIdRouteImport.update({
-  id: '/reportes/$estudioId',
-  path: '/reportes/$estudioId',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPacientesPacienteIdRoute = AppPacientesPacienteIdRouteImport.update({
@@ -97,10 +85,8 @@ export interface FileRoutesByFullPath {
   '/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
   '/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
-  '/reportes/$estudioId': typeof AppReportesEstudioIdRoute
   '/estudios/': typeof AppEstudiosIndexRoute
   '/pacientes/': typeof AppPacientesIndexRoute
-  '/reportes/': typeof AppReportesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -111,10 +97,8 @@ export interface FileRoutesByTo {
   '/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
   '/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
-  '/reportes/$estudioId': typeof AppReportesEstudioIdRoute
   '/estudios': typeof AppEstudiosIndexRoute
   '/pacientes': typeof AppPacientesIndexRoute
-  '/reportes': typeof AppReportesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -127,10 +111,8 @@ export interface FileRoutesById {
   '/_app/analisis/$estudioId': typeof AppAnalisisEstudioIdRoute
   '/_app/estudios/$estudioId': typeof AppEstudiosEstudioIdRoute
   '/_app/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
-  '/_app/reportes/$estudioId': typeof AppReportesEstudioIdRoute
   '/_app/estudios/': typeof AppEstudiosIndexRoute
   '/_app/pacientes/': typeof AppPacientesIndexRoute
-  '/_app/reportes/': typeof AppReportesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -143,10 +125,8 @@ export interface FileRouteTypes {
     | '/analisis/$estudioId'
     | '/estudios/$estudioId'
     | '/pacientes/$pacienteId'
-    | '/reportes/$estudioId'
     | '/estudios/'
     | '/pacientes/'
-    | '/reportes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -157,10 +137,8 @@ export interface FileRouteTypes {
     | '/analisis/$estudioId'
     | '/estudios/$estudioId'
     | '/pacientes/$pacienteId'
-    | '/reportes/$estudioId'
     | '/estudios'
     | '/pacientes'
-    | '/reportes'
   id:
     | '__root__'
     | '/'
@@ -172,10 +150,8 @@ export interface FileRouteTypes {
     | '/_app/analisis/$estudioId'
     | '/_app/estudios/$estudioId'
     | '/_app/pacientes/$pacienteId'
-    | '/_app/reportes/$estudioId'
     | '/_app/estudios/'
     | '/_app/pacientes/'
-    | '/_app/reportes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -229,13 +205,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/reportes/': {
-      id: '/_app/reportes/'
-      path: '/reportes'
-      fullPath: '/reportes/'
-      preLoaderRoute: typeof AppReportesIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/pacientes/': {
       id: '/_app/pacientes/'
       path: '/pacientes'
@@ -248,13 +217,6 @@ declare module '@tanstack/react-router' {
       path: '/estudios'
       fullPath: '/estudios/'
       preLoaderRoute: typeof AppEstudiosIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/reportes/$estudioId': {
-      id: '/_app/reportes/$estudioId'
-      path: '/reportes/$estudioId'
-      fullPath: '/reportes/$estudioId'
-      preLoaderRoute: typeof AppReportesEstudioIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/pacientes/$pacienteId': {
@@ -287,10 +249,8 @@ interface AppRouteChildren {
   AppAnalisisEstudioIdRoute: typeof AppAnalisisEstudioIdRoute
   AppEstudiosEstudioIdRoute: typeof AppEstudiosEstudioIdRoute
   AppPacientesPacienteIdRoute: typeof AppPacientesPacienteIdRoute
-  AppReportesEstudioIdRoute: typeof AppReportesEstudioIdRoute
   AppEstudiosIndexRoute: typeof AppEstudiosIndexRoute
   AppPacientesIndexRoute: typeof AppPacientesIndexRoute
-  AppReportesIndexRoute: typeof AppReportesIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -299,10 +259,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppAnalisisEstudioIdRoute: AppAnalisisEstudioIdRoute,
   AppEstudiosEstudioIdRoute: AppEstudiosEstudioIdRoute,
   AppPacientesPacienteIdRoute: AppPacientesPacienteIdRoute,
-  AppReportesEstudioIdRoute: AppReportesEstudioIdRoute,
   AppEstudiosIndexRoute: AppEstudiosIndexRoute,
   AppPacientesIndexRoute: AppPacientesIndexRoute,
-  AppReportesIndexRoute: AppReportesIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

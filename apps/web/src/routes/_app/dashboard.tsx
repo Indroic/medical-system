@@ -58,7 +58,7 @@ function Dashboard() {
         }
       />
 
-      <div className="mt-8 grid grid-cols-3 gap-4">
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard label="Estudios totales" value={estudios.length} loading={loading} />
         <StatCard label="Pendientes" value={pendientes} loading={loading} />
         <StatCard label="Completados" value={completados} loading={loading} />
@@ -92,8 +92,8 @@ function Dashboard() {
             </button>
           </div>
         ) : (
-          <div className="rounded-2xl border border-charcoal overflow-hidden">
-            <table className="w-full text-[13px]">
+          <div className="rounded-2xl border border-charcoal overflow-hidden overflow-x-auto">
+            <table className="w-full text-[13px] min-w-[500px]">
               <thead>
                 <tr className="border-b border-charcoal bg-ash">
                   <th className="px-4 py-3 text-left text-smoke font-normal">Estudio ID</th>
@@ -127,18 +127,18 @@ function Dashboard() {
         )}
       </div>
 
-      <div className="mt-10 flex gap-3">
+      <div className="mt-10 flex flex-col sm:flex-row gap-3">
         <button
           type="button"
           onClick={() => navigate({ to: "/estudios/nuevo", search: { pacienteId: undefined } })}
-          className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep transition-colors"
+          className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep transition-colors text-center w-full sm:w-auto"
         >
           Nuevo estudio
         </button>
         <button
           type="button"
           onClick={() => navigate({ to: "/pacientes/nuevo" })}
-          className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
+          className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors text-center w-full sm:w-auto"
         >
           Nuevo paciente
         </button>

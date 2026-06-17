@@ -1,13 +1,15 @@
 import { Modal, toast } from "@heroui/react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import EstadoBadge from "@/components/estado-badge";
 import PatientCard from "@/components/patient-card";
+import { ReportePDFDocument } from "@/components/reporte-pdf";
 import { useAuthStore } from "@/lib/auth-store";
 import { useImgproxyUrl } from "@/lib/imgproxy";
 import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
-import type { EstudioResponse, PacienteResponse, ReporteResponse } from "@/lib/python-api";
+import type { EstudioResponse, PacienteResponse, ReporteResponse, AnalisisResponse } from "@/lib/python-api";
 
 export const Route = createFileRoute("/_app/estudios/$estudioId")({
   component: EstudioDetail,
@@ -20,6 +22,7 @@ function EstudioDetail() {
   const [estudio, setEstudio] = useState<EstudioResponse | null>(null);
   const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
   const [reporte, setReporte] = useState<ReporteResponse | null>(null);
+  const [analisis, setAnalisis] = useState<AnalisisResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
 
@@ -35,17 +38,20 @@ function EstudioDetail() {
         const e = await estudiosApi.obtener(token, estudioId);
         setEstudio(e);
 
-        // Solo pedimos el reporte si el estudio ya no está en estado "PENDIENTE"
+        // Solo pedimos el reporte y análisis si el estudio ya no está en estado "PENDIENTE"
         const promises: Promise<any>[] = [pacientesApi.obtener(token, e.paciente_id)];
         if (e.estado === "COMPLETADO") {
           promises.push(reportesApi.obtener(token, estudioId));
+          promises.push(analisisApi.obtener(token, estudioId));
         } else {
           promises.push(Promise.reject("Reporte no disponible aún"));
+          promises.push(Promise.reject("Análisis no disponible aún"));
         }
 
-        const [p, r] = await Promise.allSettled(promises);
+        const [p, r, a] = await Promise.allSettled(promises);
         if (p.status === "fulfilled") setPaciente(p.value);
         if (r.status === "fulfilled") setReporte(r.value);
+        if (a && a.status === "fulfilled") setAnalisis(a.value);
       } catch (error) {
         console.error("Error al cargar datos del estudio", error);
       } finally {
@@ -140,13 +146,13 @@ function EstudioDetail() {
                 )}
               </div>
 
-              <div className="mt-4 flex gap-3">
+              <div className="mt-4 flex flex-col sm:flex-row gap-3">
                 {isPendiente && (
                   <button
                     type="button"
                     onClick={handleAnalizar}
                     disabled={analyzing}
-                    className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
+                    className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
                   >
                     {analyzing ? "Analizando…" : "Ejecutar análisis IA"}
                   </button>
@@ -155,19 +161,37 @@ function EstudioDetail() {
                   <button
                     type="button"
                     onClick={() => navigate({ to: "/analisis/$estudioId", params: { estudioId } })}
-                    className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
+                    className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors w-full sm:w-auto text-center"
                   >
                     Ver análisis →
                   </button>
                 )}
-                {reporte?.estado === "LISTO" && (
-                  <a
-                    href={`${import.meta.env.VITE_PYTHON_API_URL}/api/v1/reportes/${estudioId}/descargar`}
-                    download
-                    className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors"
+                { paciente && estudio && analisis ? (
+                  <PDFDownloadLink
+                    document={
+                      <ReportePDFDocument
+                        paciente={paciente}
+                        estudio={estudio}
+                        analisis={analisis}
+                      />
+                    }
+                    fileName={`reporte_${estudioId}.pdf`}
+                    className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors text-center inline-block w-full sm:w-auto"
                   >
-                    Descargar PDF
-                  </a>
+                    {({ loading: pdfLoading }) =>
+                      pdfLoading ? "Preparando PDF…" : "Descargar PDF"
+                    }
+                  </PDFDownloadLink>
+                ) : (
+                  reporte?.estado === "LISTO" && (
+                    <button
+                      type="button"
+                      disabled
+                      className="rounded-full border border-charcoal/50 px-5 py-2 text-[14px] text-smoke cursor-not-allowed transition-colors w-full sm:w-auto text-center"
+                    >
+                      Cargando datos del PDF…
+                    </button>
+                  )
                 )}
               </div>
             </div>

@@ -79,8 +79,8 @@ function EstudiosList() {
             </button>
           </div>
         ) : (
-          <div className="rounded-2xl border border-charcoal overflow-hidden">
-            <table className="w-full text-[13px]">
+          <div className="rounded-2xl border border-charcoal overflow-hidden overflow-x-auto">
+            <table className="w-full text-[13px] min-w-[600px]">
               <thead>
                 <tr className="border-b border-charcoal bg-ash">
                   <th className="px-4 py-3 text-left text-smoke font-normal">ID</th>
