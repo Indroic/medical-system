@@ -9,6 +9,9 @@ import type { EstudioResponse, EstudioListResponse } from "@/lib/api-client";
 import EstadoBadge from "@/components/estado-badge";
 import PageHeader from "@/components/page-header";
 import StatCard from "@/components/stat-card";
+import { useOverlayState } from "@heroui/react";
+import NuevoPacienteModal from "@/components/nuevo-paciente-modal";
+import NuevoEstudioModal from "@/components/nuevo-estudio-modal";
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: Dashboard,
@@ -17,6 +20,8 @@ export const Route = createFileRoute("/_app/dashboard")({
 function Dashboard() {
   const { user, token } = useAuthStore();
   const navigate = useNavigate();
+  const nuevoEstudioState = useOverlayState({ defaultOpen: false });
+  const nuevoPacienteState = useOverlayState({ defaultOpen: false });
   const { data, isLoading: loading, error } = useQuery({
     queryKey: ["estudios"],
     queryFn: async () => {
@@ -85,7 +90,7 @@ function Dashboard() {
             No hay estudios aún.{" "}
             <button
               type="button"
-              onClick={() => navigate({ to: "/estudios/nuevo", search: { pacienteId: undefined } })}
+              onClick={nuevoEstudioState.open}
               className="text-green font-medium hover:underline"
             >
               Crear el primero
@@ -130,19 +135,22 @@ function Dashboard() {
       <div className="mt-10 flex flex-col sm:flex-row gap-3">
         <button
           type="button"
-          onClick={() => navigate({ to: "/estudios/nuevo", search: { pacienteId: undefined } })}
+          onClick={nuevoEstudioState.open}
           className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep transition-colors text-center w-full sm:w-auto"
         >
           Nuevo estudio
         </button>
         <button
           type="button"
-          onClick={() => navigate({ to: "/pacientes/nuevo" })}
+          onClick={nuevoPacienteState.open}
           className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors text-center w-full sm:w-auto"
         >
           Nuevo paciente
         </button>
       </div>
+
+      <NuevoEstudioModal state={nuevoEstudioState} />
+      <NuevoPacienteModal state={nuevoPacienteState} />
     </div>
   );
 }
