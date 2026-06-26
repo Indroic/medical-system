@@ -1,0 +1,58 @@
+---
+title: Diagrama de Casos de Uso - Sistema de Análisis de Resonancias
+---
+flowchart LR
+    %% ===================== Actores =====================
+    Medico(["fa:fa-user-md Médico"])
+    Admin(["fa:fa-user-shield Administrador"])
+    Gemini[["☁️ Gemini API"]]
+    Worker[["⚙️ Worker IA (sistema)"]]
+
+    %% ===================== Sistema =====================
+    subgraph SYS["Sistema de Análisis de Resonancias"]
+        direction TB
+        UC1(["Iniciar sesión"])
+        UC2(["Consultar perfil (me)"])
+        UC3(["Registrar paciente"])
+        UC4(["Listar / consultar pacientes"])
+        UC5(["Cargar estudio<br/>(subir imágenes)"])
+        UC6(["Listar / consultar estudios"])
+        UC7(["Ejecutar análisis IA"])
+        UC8(["Detectar hallazgos (YOLO)"])
+        UC9(["Generar informe clínico"])
+        UC10(["Evaluar nivel de riesgo"])
+        UC11(["Recibir notificación<br/>en tiempo real (SSE)"])
+        UC12(["Consultar reporte"])
+        UC13(["Descargar PDF"])
+        UC14(["Gestionar usuarios<br/>(crear/editar/eliminar)"])
+    end
+
+    %% ===================== Asociaciones Médico =====================
+    Medico --- UC1
+    Medico --- UC2
+    Medico --- UC3
+    Medico --- UC4
+    Medico --- UC5
+    Medico --- UC6
+    Medico --- UC7
+    Medico --- UC11
+    Medico --- UC12
+    Medico --- UC13
+
+    %% ===================== Admin =====================
+    Admin --- UC1
+    Admin --- UC14
+
+    %% ===================== include / extend =====================
+    UC5 -. include .-> UC4
+    UC7 -. include .-> UC8
+    UC7 -. include .-> UC9
+    UC7 -. include .-> UC10
+    UC9 -. include .-> UC12
+    UC12 -. extend .-> UC13
+    UC7 -. extend .-> UC11
+
+    %% ===================== Actores sistema =====================
+    UC8 --- Worker
+    UC9 --- Worker
+    UC9 --- Gemini

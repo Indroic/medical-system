@@ -79,16 +79,20 @@ class RedisStreamEventDispatcher(IEventDispatcher):
                         if event_name in self._handlers:
                             event_cls = self._event_classes[event_name]
                             try:
-                                # Reconstruct the event object
                                 event_obj = event_cls.model_validate_json(payload_json)
-                                # Execute all registered handlers sequentially
                                 for handler in self._handlers[event_name]:
                                     await handler(event_obj)
+                                # Solo ack si todos los handlers completaron correctamente
+                                await r.xack(STREAM_NAME, GROUP_NAME, message_id)
                             except Exception as e:
-                                logger.error(f"Error processing handler for {event_name}: {e}")
-                                
-                        # Always Acknowledge the message so it's not re-processed
-                        await r.xack(STREAM_NAME, GROUP_NAME, message_id)
+                                logger.error(
+                                    f"Error processing handler for {event_name}: {e}",
+                                    exc_info=True,
+                                )
+                                # No se hace xack: el mensaje queda pendiente y puede reintentarse
+                        else:
+                            # Evento sin handler registrado, se descarta
+                            await r.xack(STREAM_NAME, GROUP_NAME, message_id)
                         
             except asyncio.CancelledError:
                 logger.info("Consumer loop cancelled")

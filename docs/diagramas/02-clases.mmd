@@ -1,0 +1,172 @@
+---
+title: Diagrama de Clases - Dominio API (Hexagonal / DDD)
+---
+classDiagram
+    direction LR
+
+    %% ===================== USUARIOS =====================
+    class User {
+        +UUID id
+        +str email
+        +str hashed_password
+        +str nombre
+        +str rol
+        +bool is_active
+        +registrar() UserRegistradoEvent
+    }
+    class AuthService {
+        +registrar_usuario(email, password, nombre, rol) User
+        +autenticar(email, password) User
+        -_hash_password(pwd)
+        -_verify_password(pwd, hash)
+    }
+    class IUserRepository {
+        <<interface>>
+        +get_by_email(email) User
+        +save(user)
+    }
+    AuthService ..> IUserRepository : usa
+    AuthService ..> User : crea
+
+    %% ===================== PACIENTES =====================
+    class Paciente {
+        +UUID id
+        +str nombre
+        +str apellido
+        +str fecha_nacimiento
+        +str documento_identidad
+    }
+    class PacienteService {
+        +obtener_paciente(id) Paciente
+    }
+    class IPacienteRepository {
+        <<interface>>
+        +get_by_id(id)
+        +list()
+        +save(paciente)
+    }
+    PacienteService ..> IPacienteRepository : usa
+    PacienteService ..> Paciente : gestiona
+
+    %% ===================== ESTUDIOS =====================
+    class Estudio {
+        +UUID id
+        +UUID paciente_id
+        +list~str~ imagenes_paths
+        +str mime_type
+        +str medico_id
+        +str estado
+        +registrar_recepcion() EstudioRecibidoEvent
+        +marcar_en_analisis()
+        +marcar_completado()
+    }
+    class EstudioService {
+        +recepcionar_estudio(paciente_id, archivos, medico_id) Estudio
+        +marcar_completado(estudio_id) Estudio
+    }
+    class IArchivoStorageAdapter {
+        <<interface>>
+        +guardar(nombre, contenido) str
+        +download_file(key) bytes
+        +exists(key) bool
+    }
+    class S3StorageAdapter
+    class LocalStorageAdapter
+    EstudioService ..> Estudio : crea
+    EstudioService ..> IArchivoStorageAdapter : usa
+    IArchivoStorageAdapter <|.. S3StorageAdapter
+    IArchivoStorageAdapter <|.. LocalStorageAdapter
+    Estudio "1" --> "1" Paciente : referencia
+    Estudio "1" --> "1" User : medico_id
+
+    %% ===================== ANALIZADOR =====================
+    class AnalisisResonancia {
+        +UUID id
+        +UUID estudio_id
+        +list~str~ imagenes_paths
+        +str estado
+        +list~Hallazgo~ hallazgos
+        +str nivel_riesgo
+        +str informe_avanzado_ia
+        +marcar_procesando()
+        +registrar_resultados(hallazgos) AnalisisCompletadoEvent
+        +marcar_fallido()
+        -_evaluar_severidad_riesgo()
+    }
+    class Hallazgo {
+        <<value object>>
+        +str etiqueta
+        +float confianza
+        +CoordenadasBBox bbox
+        +int image_index
+        +es_critico() bool
+    }
+    class CoordenadasBBox {
+        <<value object>>
+        +float x_min
+        +float y_min
+        +float x_max
+        +float y_max
+        +area() float
+    }
+    class AnalizadorDomainService {
+        +iniciar_inferencia(estudio_id, paths) AnalisisResonancia
+        +ejecutar_inferencia(estudio_id, paths) AnalisisResonancia
+    }
+    class IModeloInferenciaAdapter {
+        <<interface>>
+        +inferir(path, image_index) list~Hallazgo~
+    }
+    class ILLMAdapter {
+        <<interface>>
+        +generar_reporte_clinico(hallazgos) str
+    }
+    class YoloInferenciaAdapter
+    class GeminiAdapter
+    AnalisisResonancia "1" *-- "0..*" Hallazgo
+    Hallazgo "1" *-- "1" CoordenadasBBox
+    AnalizadorDomainService ..> AnalisisResonancia : crea
+    AnalizadorDomainService ..> IModeloInferenciaAdapter : usa
+    AnalizadorDomainService ..> ILLMAdapter : usa
+    IModeloInferenciaAdapter <|.. YoloInferenciaAdapter
+    ILLMAdapter <|.. GeminiAdapter
+    AnalisisResonancia "1" --> "1" Estudio : estudio_id
+
+    %% ===================== REPORTES =====================
+    class Reporte {
+        +UUID id
+        +UUID estudio_id
+        +UUID analisis_id
+        +str nivel_riesgo
+        +int total_hallazgos
+        +str pdf_path
+        +str estado
+        +marcar_listo(pdf_path)
+        +marcar_fallido()
+    }
+    class IGeneradorPDFAdapter {
+        <<interface>>
+        +generar(reporte, informe_clinico) str
+    }
+    class ReportLabPDFAdapter
+    Reporte ..> IGeneradorPDFAdapter : generado por
+    IGeneradorPDFAdapter <|.. ReportLabPDFAdapter
+    Reporte "1" --> "1" AnalisisResonancia : analisis_id
+
+    %% ===================== EVENTOS / INFRA =====================
+    class IEventDispatcher {
+        <<interface>>
+        +register(event_type, handler)
+        +dispatch(event)
+        +consumer_loop()
+    }
+    class RedisStreamEventDispatcher
+    class AnalisisCompletadoEvent {
+        +UUID estudio_id
+        +str nivel_riesgo
+        +int total_hallazgos
+        +str informe_avanzado_ia
+    }
+    IEventDispatcher <|.. RedisStreamEventDispatcher
+    AnalisisResonancia ..> AnalisisCompletadoEvent : emite
+    RedisStreamEventDispatcher ..> AnalisisCompletadoEvent : transporta

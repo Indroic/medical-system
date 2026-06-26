@@ -1,0 +1,80 @@
+---
+title: Diagrama de Despliegue - Sistema de Análisis de Resonancias
+---
+flowchart TB
+    %% ============ Actores externos ============
+    Usuario(["fa:fa-user-md Médico / Navegador"])
+    Gemini[["☁️ Google Gemini API<br/>(LLM clínico)"]]
+
+    %% ============ Nodo: Servidor de aplicación (Docker Host / Dokploy) ============
+    subgraph HOST["🖥️ Servidor de Aplicación — Docker / Dokploy"]
+        direction TB
+
+        subgraph WEBC["Contenedor: web (Nginx)"]
+            WEB["SPA React + Vite<br/>:80 → :8080"]
+        end
+
+        subgraph SRVC["Contenedor: server"]
+            SERVER["Hono + Better Auth<br/>Node.js :3000"]
+        end
+
+        subgraph APIC["Contenedor: api"]
+            API["FastAPI (Uvicorn)<br/>:8000 (interno)"]
+        end
+
+        subgraph WORKC["Contenedor: api-worker"]
+            WORKER["Celery Worker<br/>YOLO + Gemini"]
+        end
+
+        subgraph MIGC["Contenedor: api-migrator"]
+            MIG["Alembic upgrade head<br/>(run-once)"]
+        end
+
+        subgraph IMGC["Contenedor: imgproxy"]
+            IMG["imgproxy<br/>firma HMAC + S3"]
+        end
+
+        subgraph SWFC["Contenedor: seaweedfs"]
+            S3["SeaweedFS (S3 API)<br/>:8333<br/>bucket: medical-system"]
+        end
+
+        subgraph REDISC["Contenedor: redis"]
+            REDIS[("Redis :6379<br/>Broker Celery + Stream/PubSub")]
+        end
+
+        subgraph DBC["Contenedor: db (PostgreSQL 16)"]
+            DBSERVER[("server_db<br/>user/session/jwks")]
+            DBAPI[("api_db<br/>pacientes/estudios/<br/>analisis/reportes")]
+        end
+
+        subgraph PGAC["Contenedor: pgadmin"]
+            PGADMIN["pgAdmin 4 :5050"]
+        end
+    end
+
+    %% ============ Conexiones de red ============
+    Usuario -- "HTTPS :8080" --> WEB
+    Usuario -- "imágenes firmadas" --> IMG
+
+    WEB -- "REST + cookie sesión<br/>(VITE_SERVER_URL)" --> SERVER
+    WEB -- "URL firmada HMAC" --> IMG
+
+    SERVER -- "JWT Bearer<br/>proxy REST (PYTHON_API_URL)" --> API
+    SERVER -- "SQL (auth)" --> DBSERVER
+    SERVER -- "SUBSCRIBE estudios_updates<br/>(SSE bridge)" --> REDIS
+
+    API -- "asyncpg (api_db)" --> DBAPI
+    API -- "enqueue task" --> REDIS
+    API -- "PUBLISH / XADD eventos" --> REDIS
+    API -- "S3 (aioboto3)" --> S3
+
+    WORKER -- "consume task" --> REDIS
+    WORKER -- "descarga imágenes (S3)" --> S3
+    WORKER -- "asyncpg (api_db)" --> DBAPI
+    WORKER -- "genera reporte clínico" --> Gemini
+    WORKER -- "PUBLISH ANALISIS_COMPLETADO" --> REDIS
+
+    MIG -- "migra esquema" --> DBAPI
+    IMG -- "lee objetos" --> S3
+    PGADMIN -- "admin SQL" --> DBSERVER
+    PGADMIN -- "admin SQL" --> DBAPI

@@ -1,0 +1,102 @@
+---
+title: Diagrama de Componentes - Sistema de Análisis de Resonancias
+---
+flowchart TB
+    Usuario(["fa:fa-user-md Médico"])
+
+    %% ===================== FRONTEND =====================
+    subgraph WEB["💻 Web SPA (React + Vite)"]
+        direction TB
+        UI["Vistas / Rutas<br/>TanStack Router"]
+        APICLIENT["api-client.ts<br/>(cliente REST tipado)"]
+        AUTHCLIENT["auth-client.ts<br/>(Better Auth client)"]
+        IMGUTIL["imgproxy.ts<br/>(firma HMAC)"]
+        UI --> APICLIENT
+        UI --> AUTHCLIENT
+        UI --> IMGUTIL
+    end
+
+    %% ===================== SERVER (BFF) =====================
+    subgraph SERVER["🟢 Server — Hono (BFF / Proxy)"]
+        direction TB
+        AUTHMW["Middleware de sesión<br/>(Better Auth)"]
+        BAUTH["Better Auth<br/>admin + bearer + jwt"]
+        subgraph ROUTES["Rutas (proxy → API)"]
+            R_PAC["/api/pacientes"]
+            R_EST["/api/estudios"]
+            R_ANA["/api/analisis"]
+            R_REP["/api/reportes"]
+            R_USR["/api/usuarios"]
+        end
+        SSE["/api/events/:id<br/>(SSE bridge)"]
+    end
+
+    %% ===================== PYTHON API =====================
+    subgraph API["🐍 API — FastAPI (Hexagonal / DDD)"]
+        direction TB
+        subgraph SLICES["Feature Slices"]
+            US["usuarios<br/>router · usecases · service"]
+            PA["pacientes<br/>router · usecases · service"]
+            ES["estudios<br/>router · usecase · service"]
+            AN["analizador<br/>router · usecase · service"]
+            RE["reportes<br/>router · handler"]
+        end
+        STREAM["stream_router<br/>(SSE /events)"]
+        DISPATCH["RedisStreamEventDispatcher<br/>+ handlers inter-slice"]
+        REPOS["Repositorios SQLAlchemy<br/>(UnitOfWork)"]
+    end
+
+    %% ===================== WORKER =====================
+    subgraph WORKER["⚙️ Celery Worker"]
+        TASK["procesar_estudio_ia"]
+        YOLO["YoloInferenciaAdapter"]
+        GEM["GeminiAdapter"]
+        PDF["ReportLabPDFAdapter"]
+        TASK --> YOLO
+        TASK --> GEM
+        TASK --> PDF
+    end
+
+    %% ===================== INFRA =====================
+    REDIS[("Redis<br/>Broker + Stream/PubSub")]
+    DBSERVER[("PostgreSQL<br/>server_db")]
+    DBAPI[("PostgreSQL<br/>api_db")]
+    S3[("SeaweedFS / S3<br/>bucket medical-system")]
+    IMGPROXY["imgproxy"]
+    GEMINI[["☁️ Google Gemini API"]]
+
+    %% ===================== Relaciones =====================
+    Usuario --> UI
+    APICLIENT -- "REST + cookie" --> AUTHMW
+    AUTHCLIENT -- "/api/auth/*" --> BAUTH
+    IMGUTIL -- "URL firmada" --> IMGPROXY
+
+    AUTHMW --> ROUTES
+    AUTHMW --> SSE
+    BAUTH --> DBSERVER
+
+    R_PAC -- "JWT Bearer" --> PA
+    R_EST -- "JWT Bearer" --> ES
+    R_ANA -- "JWT Bearer" --> AN
+    R_REP -- "JWT Bearer" --> RE
+    R_USR -- "JWT Bearer" --> US
+    SSE -- "SUBSCRIBE estudios_updates" --> REDIS
+
+    AN -- "enqueue task" --> REDIS
+    ES --> REPOS
+    PA --> REPOS
+    US --> REPOS
+    AN --> REPOS
+    RE --> REPOS
+    REPOS --> DBAPI
+    ES -- "guardar imágenes" --> S3
+    DISPATCH --> REDIS
+
+    REDIS -- "consume task" --> TASK
+    YOLO -- "download_file" --> S3
+    GEM --> GEMINI
+    TASK --> REPOS
+    TASK -- "PUBLISH ANALISIS_COMPLETADO" --> REDIS
+    DISPATCH -- "on_analisis_completado" --> RE
+    DISPATCH -- "update_estudio" --> ES
+    IMGPROXY --> S3

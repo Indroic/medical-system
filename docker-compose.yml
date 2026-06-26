@@ -4,13 +4,11 @@ services:
     image: postgres:16-alpine
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      # Esta DB principal sirve para la inicialización.
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: medical_system
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # Script de inicialización para crear las bases separadas (api_db y server_db)
       - ./init-dbs.sql:/docker-entrypoint-initdb.d/init-dbs.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -26,8 +24,8 @@ services:
     command: ["uv", "run", "alembic", "upgrade", "head"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL_SYNC=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
+      - DATABASE_URL_SYNC=postgresql://postgres:postgres@db:5432/medical_api_db
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/medical_api_db
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       db:
@@ -40,7 +38,7 @@ services:
     restart: always
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/medical_api_db
       - SERVER_URL=http://server:3000
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
@@ -48,7 +46,6 @@ services:
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-    # Puertos ocultos: Solo accesibles internamente vía Nginx
     depends_on:
       db:
         condition: service_healthy
@@ -65,7 +62,7 @@ services:
     command: ["uv", "run", "celery", "-A", "src.worker", "worker", "--loglevel=info", "-c", "1"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/api_db
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/medical_api_db
       - SERVER_URL=http://server:3000
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
@@ -99,16 +96,11 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      # La URL usará la base de datos server_db (para Better Auth, Hono, etc)
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/server_db
-      # URL que Better-Auth usa para generar links y validar requests.
-      # En Dokploy debe ser la URL pública del servidor: https://tu-dominio.com/server
-      # En dev local: http://localhost:3000
-      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://server:3000}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-super-secret-key-replace-me}
-      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:8080}
-      - PYTHON_API_URL=${PYTHON_API_URL:-http://api:8000}
-    # Exponer puerto 3000 en caso de no usar proxy externo
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/medical_server_db
+      - BETTER_AUTH_URL=http://server:3000
+      - BETTER_AUTH_SECRET=super-secret-key-replace-me
+      - CORS_ORIGIN=http://localhost:8080
+      - PYTHON_API_URL=http://api:8000
     ports:
       - "3000:3000"
     depends_on:
@@ -119,7 +111,7 @@ services:
     image: chrislusf/seaweedfs:latest
     restart: always
     ports:
-      - "8333:8333" # S3 API
+      - "8333:8333"
     command: "server -s3"
     environment:
       - WEED_S3_ALLOW_EMPTY_FOLDER=true
@@ -133,14 +125,12 @@ services:
     environment:
       - IMGPROXY_USE_S3=true
       - IMGPROXY_S3_ENDPOINT=http://seaweedfs:8333
-      # Para usar seaweedfs sin certificados SSL
       - IMGPROXY_S3_USE_HTTP=true
-      # Credenciales fake/internas de S3 para SeaweedFS (por defecto acepta cualquiera si no configuras identity)
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
       - AWS_REGION=us-east-1
-      - IMGPROXY_KEY=${IMGPROXY_KEY:-73757065722d7365637265742d6b6579}
-      - IMGPROXY_SALT=${IMGPROXY_SALT:-73757065722d7365637265742d73616c74}
+      - IMGPROXY_KEY=73757065722d7365637265742d6b6579
+      - IMGPROXY_SALT=73757065722d7365637265742d73616c74
       - IMGPROXY_ENFORCE_SIGNATURE=true
     depends_on:
       - seaweedfs
@@ -150,13 +140,11 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        # VITE_SERVER_URL debe ser provisto en Dokploy. Default para dev local:
-        VITE_SERVER_URL: ${VITE_SERVER_URL:-http://localhost:3000}
-        VITE_PYTHON_API_URL: ${VITE_PYTHON_API_URL:-/api}
-        # Aseguramos que vite conozca el proxy de las imgs (Dokploy Nginx expondrá esto)
-        VITE_IMGPROXY_URL: ${VITE_IMGPROXY_URL:-/imgproxy}
-        VITE_IMGPROXY_KEY: ${VITE_IMGPROXY_KEY:-73757065722d7365637265742d6b6579}
-        VITE_IMGPROXY_SALT: ${VITE_IMGPROXY_SALT:-73757065722d7365637265742d73616c74}
+        VITE_SERVER_URL: http://localhost:3000
+        VITE_PYTHON_API_URL: /api
+        VITE_IMGPROXY_URL: /imgproxy
+        VITE_IMGPROXY_KEY: 73757065722d7365637265742d6b6579
+        VITE_IMGPROXY_SALT: 73757065722d7365637265742d73616c74
     restart: always
     ports:
       - "8080:80"
@@ -164,12 +152,13 @@ services:
       - api
       - server
       - imgproxy
+
   pgadmin:
     image: dpage/pgadmin4:8.4
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@indroic.dev}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: admin@indroic.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
     depends_on:

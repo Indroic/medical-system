@@ -3,6 +3,7 @@ import { Outlet, createFileRoute, redirect, useLocation, useNavigate } from "@ta
 import { BarChart2, FileText, Scan, Users, UserCog, Menu, X } from "lucide-react";
 
 import { useAuthStore } from "@/lib/auth-store";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: ({ context: _ctx }) => {
@@ -190,6 +191,7 @@ function AppLayout() {
 
         {/* User + logout */}
         <div className="border-t border-charcoal p-2">
+          <ModeToggle />
           {user && (
             <div className="mb-1 px-3 py-2">
               <p className="text-[13px] font-medium text-snow truncate">{user.nombre}</p>

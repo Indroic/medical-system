@@ -1,0 +1,74 @@
+---
+title: Diagrama de Comunicación - Flujo de Análisis de un Estudio
+---
+sequenceDiagram
+    autonumber
+    actor Medico as Médico (Web)
+    participant Web as Web SPA
+    participant Srv as Server (Hono)
+    participant Auth as Better Auth
+    participant API as API (FastAPI)
+    participant S3 as SeaweedFS (S3)
+    participant Redis as Redis
+    participant Wrk as Celery Worker
+    participant YOLO as YOLO
+    participant Gem as Gemini
+    participant DB as PostgreSQL (api_db)
+
+    %% ---- Autenticación ----
+    Medico->>Web: Inicia sesión
+    Web->>Srv: POST /api/auth/sign-in
+    Srv->>Auth: valida credenciales
+    Auth->>DB: lee/crea sesión (server_db)
+    Auth-->>Web: cookie de sesión
+
+    %% ---- Subida de estudio ----
+    Medico->>Web: Sube imágenes del estudio
+    Web->>Srv: POST /api/estudios (FormData + cookie)
+    Srv->>Auth: getSession() → genera JWT
+    Srv->>API: POST /api/v1/estudios (Bearer JWT)
+    API->>S3: guardar(imágenes)
+    S3-->>API: imagenes_paths
+    API->>DB: persiste Estudio (PENDIENTE) + EstudioRecibidoEvent
+    API-->>Web: 201 EstudioResponse
+
+    %% ---- Disparo de análisis (asíncrono) ----
+    Medico->>Web: Ejecuta análisis
+    Web->>Srv: POST /api/analisis
+    Srv->>API: POST /api/v1/analisis (Bearer JWT)
+    API->>DB: Estudio.marcar_en_analisis() + Analisis (PROCESANDO)
+    API->>Redis: enqueue procesar_estudio_ia
+    API-->>Web: 201 AnalisisResponse (sin hallazgos aún)
+
+    %% ---- Suscripción a eventos en tiempo real ----
+    Web->>Srv: GET /api/events/:estudio_id (SSE)
+    Srv->>Redis: SUBSCRIBE estudios_updates
+
+    %% ---- Procesamiento en el worker ----
+    Redis->>Wrk: entrega tarea
+    loop por cada imagen
+        Wrk->>S3: download_file(path)
+        S3-->>Wrk: bytes (DICOM/PNG/JPEG)
+        Wrk->>YOLO: inferir() → Hallazgos
+    end
+    Wrk->>Gem: generar_reporte_clinico(hallazgos)
+    Gem-->>Wrk: informe clínico (Markdown)
+    Wrk->>DB: registrar_resultados() (COMPLETADO + nivel_riesgo)
+    Wrk->>Redis: PUBLISH ANALISIS_COMPLETADO
+
+    %% ---- Handlers inter-slice (vía dispatcher) ----
+    Redis->>API: consumer_loop() entrega evento
+    API->>DB: on_analisis_completado → crea Reporte
+    API->>API: ReportLabPDFAdapter.generar() → pdf_path
+    API->>DB: Reporte.marcar_listo() + Estudio.marcar_completado()
+
+    %% ---- Notificación al cliente ----
+    Redis-->>Srv: estudios_updates
+    Srv-->>Web: SSE: análisis completado
+    Web-->>Medico: Actualiza UI (resultados + PDF disponible)
+
+    %% ---- Descarga del reporte ----
+    Medico->>Web: Descarga PDF
+    Web->>Srv: GET /api/reportes/:id/descargar
+    Srv->>API: GET /api/v1/reportes/:id/descargar
+    API-->>Web: FileResponse (PDF)

@@ -17,6 +17,7 @@ function PacientesList() {
   const navigate = useNavigate();
   const [pacientes, setPacientes] = useState<PacienteResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const state = useOverlayState({ defaultOpen: false });
 
   useEffect(() => {
@@ -24,9 +25,19 @@ function PacientesList() {
     pacientesApi
       .listar(token)
       .then((res) => setPacientes(res.items))
-      .catch((err) => toast.danger("Error cargando pacientes"))
+      .catch(() => toast.danger("Error cargando pacientes"))
       .finally(() => setLoading(false));
   }, [token]);
+
+  const filtered = pacientes.filter((p) => {
+    const q = search.toLowerCase().trim();
+    if (!q) return true;
+    return (
+      p.nombre.toLowerCase().includes(q) ||
+      p.apellido.toLowerCase().includes(q) ||
+      p.documento_identidad.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="p-8">
@@ -43,7 +54,17 @@ function PacientesList() {
         }
       />
 
-      <div className="mt-8">
+      <div className="mt-6">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por nombre, apellido o documento…"
+          className="w-full rounded-xl border border-charcoal bg-ash px-4 py-2.5 text-[13px] text-snow placeholder:text-smoke outline-none focus:border-slate transition-colors"
+        />
+      </div>
+
+      <div className="mt-4">
         {loading ? (
           <div className="rounded-2xl border border-charcoal p-8 text-center text-[13px] text-smoke">
             Cargando…
@@ -62,6 +83,10 @@ function PacientesList() {
               Crear paciente
             </button>
           </div>
+        ) : filtered.length === 0 ? (
+          <div className="rounded-2xl border border-charcoal p-8 text-center text-[13px] text-smoke">
+            Sin resultados para "{search}"
+          </div>
         ) : (
           <div className="rounded-2xl border border-charcoal overflow-hidden">
             <table className="w-full text-[13px]">
@@ -74,8 +99,8 @@ function PacientesList() {
                 </tr>
               </thead>
               <tbody>
-                {pacientes.map((p, i) => (
-                  <tr key={p.id} className={i < pacientes.length - 1 ? "border-b border-charcoal" : ""}>
+                {filtered.map((p, i) => (
+                  <tr key={p.id} className={i < filtered.length - 1 ? "border-b border-charcoal" : ""}>
                     <td className="px-4 py-3 text-snow">{p.nombre} {p.apellido}</td>
                     <td className="px-4 py-3 font-mono text-smoke">{p.documento_identidad}</td>
                     <td className="px-4 py-3 text-smoke">{p.fecha_nacimiento}</td>
