@@ -129,8 +129,8 @@ services:
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
       - AWS_REGION=us-east-1
-      - IMGPROXY_KEY=73757065722d7365637265742d6b6579
-      - IMGPROXY_SALT=73757065722d7365637265742d73616c74
+      - IMGPROXY_KEY=${IMGPROXY_KEY:?IMGPROXY_KEY must be set}
+      - IMGPROXY_SALT=${IMGPROXY_SALT:?IMGPROXY_SALT must be set}
       - IMGPROXY_ENFORCE_SIGNATURE=true
     depends_on:
       - seaweedfs

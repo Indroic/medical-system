@@ -15,6 +15,13 @@ database_url = my_project_config.config.sql_database_url
 if database_url:
     config.set_main_option("sqlalchemy.url", database_url)
 
+# Log explícito para verificar que no se usa SQLite en producción
+import sys
+_driver = database_url.split("://")[0] if "://" in database_url else "unknown"
+print(f"[Alembic] DB driver: {_driver} | URL (parcial): {database_url[:60]}...", file=sys.stderr)
+if database_url.startswith("sqlite"):
+    print("[Alembic] ADVERTENCIA: usando SQLite — en producción debe ser PostgreSQL", file=sys.stderr)
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
