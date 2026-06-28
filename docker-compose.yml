@@ -22,6 +22,7 @@ services:
       - ENVIRONMENT=production
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
       - SERVER_URL=http://server:3000
+      - BETTER_AUTH_URL=${APP_URL:?APP_URL must be set}
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
       - S3_ENDPOINT=http://seaweedfs:8333

@@ -47,7 +47,14 @@ export function createAuth() {
     plugins: [
       admin(),
       bearer(),
-      jwt(),
+      jwt({
+        jwt: {
+          // El issuer del token debe coincidir con BETTER_AUTH_URL
+          // (lo que el Python API valida en audience/issuer)
+          issuer: env.BETTER_AUTH_URL,
+          audience: env.BETTER_AUTH_URL,
+        },
+      }),
     ],
   });
 }

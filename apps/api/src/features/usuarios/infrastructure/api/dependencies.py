@@ -1,4 +1,5 @@
 import asyncio
+import os
 from collections.abc import AsyncGenerator
 
 import jwt
@@ -9,6 +10,9 @@ from jwt import PyJWKClient
 
 import src.shared.infrastructure.database as shared_db
 from config import config
+
+# Issuer/audience del JWT: debe coincidir con BETTER_AUTH_URL del server Node
+_JWT_ISSUER = os.getenv("BETTER_AUTH_URL", "http://server:3000")
 
 from ...application.dtos import UserResponse
 from ...application.use_cases.autenticar_usuario import AutenticarUsuarioUseCase
@@ -73,8 +77,8 @@ async def get_current_user(
             token,
             signing_key.key,
             algorithms=["EdDSA", "ES256", "RS256"],
-            audience="https://medicalserver.indroic.dev",
-            issuer="https://medicalserver.indroic.dev",
+            audience=_JWT_ISSUER,
+            issuer=_JWT_ISSUER,
         )
     except jwt.ExpiredSignatureError:
         raise HTTPException(
