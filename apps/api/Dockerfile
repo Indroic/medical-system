@@ -29,6 +29,10 @@ COPY apps/api/ .
 # Instalar el paquete en sí
 RUN uv sync --frozen --no-dev
 
+# Copiar scripts auxiliares (migrate.sh, etc.)
+COPY apps/api/scripts/ ./scripts/
+RUN chmod +x ./scripts/*.sh
+
 EXPOSE 8000
 
 # Ejecutar el servidor FastAPI
