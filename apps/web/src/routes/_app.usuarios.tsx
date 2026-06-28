@@ -65,13 +65,13 @@ function UsuariosView() {
           return;
         }
       } else {
-        // Create User
-        const res = await authClient.signUp.email({
+        // Create User — usar admin.createUser para poder asignar rol
+        const res = await authClient.admin.createUser({
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: formData.role
-        } as any);
+          role: formData.role as any,
+        });
 
         if (res.error) {
           setError(res.error.message || "Error al crear usuario");

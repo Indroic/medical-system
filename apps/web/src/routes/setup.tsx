@@ -30,20 +30,29 @@ function SetupPage() {
     defaultValues: { nombre: "", email: "", password: "" },
     onSubmit: async ({ value }) => {
       try {
-        const { error: signUpError } = await authClient.signUp.email({
+        // 1. Crear usuario (sin role — Better Auth no lo permite en signUp público)
+        const { data: signUpData, error: signUpError } = await authClient.signUp.email({
           name: value.nombre,
           email: value.email,
           password: value.password,
-          role: "admin",
-        } as any);
-        if (signUpError) throw new Error(signUpError.message ?? "Error al crear el administrador");
+        });
+        if (signUpError || !signUpData) throw new Error(signUpError?.message ?? "Error al crear el administrador");
 
+        // 2. Iniciar sesión para obtener sesión activa
         const { data, error: signInError } = await authClient.signIn.email({
           email: value.email,
           password: value.password,
         });
         if (signInError || !data) throw new Error(signInError?.message ?? "Error al iniciar sesión");
 
+        // 3. Asignar rol admin usando la sesión activa (adminClient)
+        const { error: roleError } = await authClient.admin.setRole({
+          userId: signUpData.user.id,
+          role: "admin",
+        });
+        if (roleError) throw new Error(roleError.message ?? "Error al asignar rol de administrador");
+
+        // 4. Obtener token JWT del backend
         const tokenRes = await fetch(`${env.VITE_SERVER_URL}/api/auth/token`, {
           headers: { Authorization: `Bearer ${data.token}` },
         });
