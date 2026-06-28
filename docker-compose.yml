@@ -11,7 +11,7 @@ services:
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     networks:
-      - medical_net
+      - dokploy-network
 
   api:
     build:
@@ -34,7 +34,7 @@ services:
       api-migrator:
         condition: service_completed_successfully
     networks:
-      - medical_net
+      - dokploy-network
 
   api-worker:
     build:
@@ -60,7 +60,7 @@ services:
       api-migrator:
         condition: service_completed_successfully
     networks:
-      - medical_net
+      - dokploy-network
 
   redis:
     image: redis:7-alpine
@@ -71,7 +71,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - medical_net
+      - dokploy-network
 
   server:
     build:
@@ -87,7 +87,8 @@ services:
       - PYTHON_API_URL=http://api:8000
     # Servicio interno: lo publica 'web' (proxy) bajo el dominio único. Sin red pública ni puertos.
     networks:
-      - medical_net
+      - dokploy-network
+
 
   seaweedfs:
     image: chrislusf/seaweedfs:latest
@@ -101,7 +102,7 @@ services:
     volumes:
       - seaweedfs_data:/data
     networks:
-      - medical_net
+      - dokploy-network
 
   imgproxy:
     image: darthsim/imgproxy:latest
@@ -119,7 +120,7 @@ services:
     depends_on:
       - seaweedfs
     networks:
-      - medical_net
+      - dokploy-network
 
   web:
     build:
@@ -133,15 +134,9 @@ services:
       - server
       - imgproxy
     networks:
-      - medical_net
       - dokploy-network
 
 networks:
-  # Red interna privada: comunicación servicio-a-servicio (DNS por nombre).
-  # Nombre explícito para evitar colisión con otros proyectos de Dokploy.
-  medical_net:
-    driver: bridge
-    name: medical_system_net
   # Red compartida de Dokploy (la crea Dokploy). Solo para el ingress de Traefik
   # del único servicio público: 'web'.
   dokploy-network:
