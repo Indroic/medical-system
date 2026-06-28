@@ -6,7 +6,7 @@ echo "  API Migrator — inicio"
 echo "============================================="
 echo "DATABASE_URL raw: ${DATABASE_URL:-<no definida>}"
 
-# Abortar si DATABASE_URL no está definida o apunta a SQLite (error de config)
+# Abortar si DATABASE_URL no está definida o apunta a SQLite
 if [ -z "$DATABASE_URL" ]; then
   echo "ERROR: DATABASE_URL no está definida. Abortando." >&2
   exit 1
@@ -15,47 +15,71 @@ fi
 case "$DATABASE_URL" in
   sqlite*)
     echo "ERROR: DATABASE_URL apunta a SQLite. En producción debe ser PostgreSQL." >&2
-    echo "       Verifica que Dokploy está pasando la variable correctamente." >&2
     exit 1
     ;;
 esac
 
-# Normalizar a driver sync psycopg2 (quitar +asyncpg u otro driver async)
+# Normalizar a driver sync psycopg2
 DB_SYNC_URL=$(echo "$DATABASE_URL" | sed 's|postgresql+[^:]*://|postgresql://|')
 echo "DATABASE_URL normalizada (sync): $DB_SYNC_URL"
 echo "---------------------------------------------"
 
-# Verificar si las tablas de negocio existen realmente en Postgres.
-# Si no existen pero alembic_version sí, el estado está corrompido
-# (deploy anterior fallido) → stamp base para forzar re-aplicación.
-echo "Verificando existencia de tabla 'pacientes' en la DB..."
-
-TABLES_EXIST=$(uv run python - <<EOF
+# Función para listar tablas actuales en la DB
+list_tables() {
+  uv run python - <<EOF
 import sys
 try:
+    import sqlalchemy, re
+    url = re.sub(r"postgresql\+\w+://", "postgresql://", "$DB_SYNC_URL")
+    e = sqlalchemy.create_engine(url)
+    with e.connect() as conn:
+        rows = conn.execute(sqlalchemy.text(
+            "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename"
+        ))
+        tables = [r[0] for r in rows]
+        print("  Tablas en public: " + str(tables))
+        print("  Total: " + str(len(tables)))
+except Exception as ex:
+    print(f"  ERROR al listar tablas: {ex}", file=sys.stderr)
+EOF
+}
+
+echo "Estado ANTES de migrar:"
+list_tables
+echo "---------------------------------------------"
+
+# Si las tablas de negocio no existen, hacer stamp base para forzar re-migración
+TABLES_EXIST=$(uv run python - <<EOF
+import sys, re
+try:
     import sqlalchemy
-    e = sqlalchemy.create_engine("${DB_SYNC_URL}")
+    url = re.sub(r"postgresql\+\w+://", "postgresql://", "$DB_SYNC_URL")
+    e = sqlalchemy.create_engine(url)
     with e.connect() as conn:
         r = conn.execute(sqlalchemy.text("SELECT to_regclass('public.pacientes')"))
-        val = r.scalar()
-        print("yes" if val else "no")
+        print("yes" if r.scalar() else "no")
 except Exception as ex:
-    print(f"ERROR al conectar: {ex}", file=sys.stderr)
+    print(f"ERROR: {ex}", file=sys.stderr)
     print("no")
 EOF
 )
 
 echo "Tabla 'pacientes' existe: $TABLES_EXIST"
-echo "---------------------------------------------"
 
 if [ "$TABLES_EXIST" = "no" ]; then
-  echo "Tablas ausentes — reseteando alembic_version a 'base' para forzar migración completa..."
+  echo "Tablas ausentes — reseteando alembic_version a 'base'..."
   uv run alembic stamp base || true
   echo "stamp base completado."
 fi
 
-echo "Aplicando: alembic upgrade head ..."
-uv run alembic upgrade head
 echo "============================================="
-echo "  Migraciones completadas con éxito"
+echo "Aplicando: alembic upgrade head ..."
+echo "============================================="
+uv run alembic upgrade head
+
+echo "============================================="
+echo "Estado DESPUÉS de migrar:"
+list_tables
+echo "============================================="
+echo "  Migraciones completadas"
 echo "============================================="
