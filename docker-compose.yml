@@ -85,6 +85,10 @@ services:
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}
       - CORS_ORIGIN=${APP_URL:?APP_URL must be set}
       - PYTHON_API_URL=http://api:8000
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
     # Servicio interno: lo publica 'web' (proxy) bajo el dominio único. Sin red pública ni puertos.
     networks:
       - dokploy-network
