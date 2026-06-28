@@ -83,17 +83,13 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+    """Run migrations in 'online' mode con commit garantizado (SQLAlchemy 2.x)."""
+    import sqlalchemy as sa
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    # Crear engine directamente desde la URL ya configurada para evitar
+    # problemas con engine_from_config en SQLAlchemy 2.x.
+    url = config.get_main_option("sqlalchemy.url")
+    connectable = sa.create_engine(url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
         context.configure(
@@ -104,6 +100,11 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
+
+        # Commit explícito para garantizar que el DDL se persiste.
+        # En PostgreSQL con transactional DDL, sin commit el CREATE TABLE
+        # queda pendiente y se pierde al cerrar la conexión.
+        connection.commit()
 
 
 if context.is_offline_mode():
