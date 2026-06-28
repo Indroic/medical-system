@@ -256,7 +256,7 @@ requires-dist = [
     { name = "celery", specifier = ">=5.6.3" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.0" },
     { name = "google-genai", specifier = ">=0.3.0" },
-    { name = "hexcore", specifier = ">=2.0.1" },
+    { name = "hexcore", specifier = "==2.0.3" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.27.0" },
     { name = "opencv-python", marker = "extra == 'ia'", specifier = ">=4.10.0" },
     { name = "opencv-python-headless", specifier = ">=4.13.0.92" },
@@ -1075,7 +1075,7 @@ wheels = [
 
 [[package]]
 name = "hexcore"
-version = "2.0.5"
+version = "2.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiosqlite" },
@@ -1091,9 +1091,9 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/63/01/61f506c2e02af01fb825856608fc7ac906b14d8a8ec72b4911c2895f214c/hexcore-2.0.5.tar.gz", hash = "sha256:984389b5c1c72feb035cc78d446958e9f1f2d94254f197afe104930bc2863f0a", size = 45752, upload-time = "2026-05-19T23:21:08.242Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a5/f8/43daad21c999ca454f76f9c95dcd48c3d0e9815f9c4adf54c5bb80223956/hexcore-2.0.3.tar.gz", hash = "sha256:22db2a7c622e7a69e486a4556a965c2a60e9640b460d14236659644d8f4a2e2c", size = 45721, upload-time = "2026-04-08T11:00:49.243Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/4e/0edde6916d6536ee09f07064dfaf42db88ca18184ed22832ec2c7072ef9b/hexcore-2.0.5-py3-none-any.whl", hash = "sha256:83f19c9596ad5f1deb2eaf20251e2c95fc57790efaa06f3afa94c42b4da4659a", size = 59846, upload-time = "2026-05-19T23:21:07.096Z" },
+    { url = "https://files.pythonhosted.org/packages/17/05/a77da31b24db87d8a2231d01d0027fc7e72f0c6d0068ad837ef9adbac29d/hexcore-2.0.3-py3-none-any.whl", hash = "sha256:5e6bfecad30a3acafc39aed8d9bd0470c046de956bf908d89880fd72a33bb804", size = 59840, upload-time = "2026-04-08T11:00:48.048Z" },
 ]
 
 [[package]]
