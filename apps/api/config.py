@@ -71,7 +71,7 @@ class ProjectConfig(ServerConfig):
     access_token_expire_minutes: int = 30
 
     # Auth server (Node/Better-Auth) — usado para validar sesiones
-    server_url: str = "http://server:3000"
+    server_url: str = "http://medical-server:3000"
 
     # YOLO / IA
     yolo_model_path: str = "models/yolo_resonancia.pt"

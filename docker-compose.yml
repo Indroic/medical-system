@@ -1,6 +1,5 @@
-
 services:
-  api-migrator:
+  medical-api-migrator:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -11,9 +10,10 @@ services:
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     networks:
+      - medical-network
       - dokploy-network
 
-  api:
+  medical-api:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -22,11 +22,11 @@ services:
       - ENVIRONMENT=production
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
       - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL:?ASYNC_DATABASE_URL must be set}
-      - SERVER_URL=http://server:3000
+      - SERVER_URL=http://medical-server:3000
       - BETTER_AUTH_URL=${APP_URL:?APP_URL must be set}
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - REDIS_URL=redis://redis:6379/0
-      - S3_ENDPOINT=http://seaweedfs:8333
+      - CELERY_BROKER_URL=redis://medical-redis:6379/0
+      - REDIS_URL=redis://medical-redis:6379/0
+      - S3_ENDPOINT=http://medical-seaweedfs:8333
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
       - GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -37,14 +37,15 @@ services:
       retries: 5
       start_period: 30s
     depends_on:
-      redis:
+      medical-redis:
         condition: service_healthy
-      api-migrator:
+      medical-api-migrator:
         condition: service_completed_successfully
     networks:
+      - medical-network
       - dokploy-network
 
-  api-worker:
+  medical-api-worker:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -54,24 +55,25 @@ services:
       - ENVIRONMENT=production
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
       - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL:?ASYNC_DATABASE_URL must be set}
-      - SERVER_URL=http://server:3000
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - REDIS_URL=redis://redis:6379/0
-      - S3_ENDPOINT=http://seaweedfs:8333
+      - SERVER_URL=http://medical-server:3000
+      - CELERY_BROKER_URL=redis://medical-redis:6379/0
+      - REDIS_URL=redis://medical-redis:6379/0
+      - S3_ENDPOINT=http://medical-seaweedfs:8333
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
       - YOLO_CONFIG_DIR=/tmp/Ultralytics
       - C_FORCE_ROOT=true
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
-      redis:
+      medical-redis:
         condition: service_healthy
-      api-migrator:
+      medical-api-migrator:
         condition: service_completed_successfully
     networks:
+      - medical-network
       - dokploy-network
 
-  redis:
+  medical-redis:
     image: redis:7-alpine
     restart: always
     healthcheck:
@@ -80,9 +82,9 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - dokploy-network
+      - medical-network
 
-  server:
+  medical-server:
     build:
       context: .
       dockerfile: apps/server/Dockerfile
@@ -93,19 +95,18 @@ services:
       - BETTER_AUTH_URL=${APP_URL:?APP_URL must be set}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}
       - CORS_ORIGIN=${APP_URL:?APP_URL must be set}
-      - PYTHON_API_URL=http://api:8000
-      - REDIS_URL=redis://redis:6379/0
+      - PYTHON_API_URL=http://medical-api:8000
+      - REDIS_URL=redis://medical-redis:6379/0
     depends_on:
-      redis:
+      medical-redis:
         condition: service_healthy
-      api:
+      medical-api:
         condition: service_healthy
-    # Servicio interno: lo publica 'web' (proxy) bajo el dominio único. Sin red pública ni puertos.
     networks:
+      - medical-network
       - dokploy-network
 
-
-  seaweedfs:
+  medical-seaweedfs:
     image: chrislusf/seaweedfs:latest
     restart: always
     ports:
@@ -117,14 +118,14 @@ services:
     volumes:
       - seaweedfs_data:/data
     networks:
-      - dokploy-network
+      - medical-network
 
-  imgproxy:
+  medical-imgproxy:
     image: darthsim/imgproxy:latest
     restart: always
     environment:
       - IMGPROXY_USE_S3=true
-      - IMGPROXY_S3_ENDPOINT=http://seaweedfs:8333
+      - IMGPROXY_S3_ENDPOINT=http://medical-seaweedfs:8333
       - IMGPROXY_S3_USE_HTTP=true
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
@@ -133,27 +134,26 @@ services:
       - IMGPROXY_SALT=${IMGPROXY_SALT:?IMGPROXY_SALT must be set}
       - IMGPROXY_ENFORCE_SIGNATURE=true
     depends_on:
-      - seaweedfs
+      - medical-seaweedfs
     networks:
-      - dokploy-network
+      - medical-network
 
-  web:
+  medical-web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
     restart: always
-    # ÚNICO servicio público: Dokploy le asigna el dominio (APP_URL) vía Traefik sobre dokploy-network.
-    # Actúa como proxy de mismo origen: /api -> server, /imgproxy -> imgproxy.
     depends_on:
-      - api
-      - server
-      - imgproxy
+      - medical-api
+      - medical-server
+      - medical-imgproxy
     networks:
+      - medical-network
       - dokploy-network
 
 networks:
-  # Red compartida de Dokploy (la crea Dokploy). Solo para el ingress de Traefik
-  # del único servicio público: 'web'.
+  medical-network:
+    driver: bridge
   dokploy-network:
     external: true
 
