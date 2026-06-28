@@ -87,6 +87,10 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     except Exception as e:
+        # Si falla la obtención de JWKS (server aún no listo), resetear el
+        # singleton para que el próximo request lo reconstruya y reintente.
+        global _jwks_client
+        _jwks_client = None
         print(f"Error decodificando JWT: {repr(e)}", flush=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

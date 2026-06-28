@@ -87,3 +87,11 @@ app.include_router(reportes_router, prefix="/api/v1")
 
 from src.shared.infrastructure.api.stream_router import router as stream_router
 app.include_router(stream_router, prefix="/api/v1")
+
+
+# -- Health check (requerido por Docker healthcheck) --------------------------
+from fastapi.responses import JSONResponse
+
+@app.get("/health", include_in_schema=False)
+async def health_check():
+    return JSONResponse({"status": "ok"})
