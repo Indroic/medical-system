@@ -1,6 +1,4 @@
 import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
 import { env } from "@medical-system/env/server";
 import { getAuthToken } from "../utils";
 

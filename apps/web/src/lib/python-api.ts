@@ -1,6 +1,13 @@
 import { authClient } from "@/lib/auth-client";
+import { env } from "@medical-system/env/web";
 
-const BASE = "https://medicalserver.indroic.dev";
+// Por defecto, mismo origen: el nginx de 'web' proxyea /api -> server Node.
+// En dev, VITE_SERVER_URL=http://localhost:3000 apunta directo al server.
+const BASE = env.VITE_SERVER_URL.startsWith("http")
+  ? env.VITE_SERVER_URL.replace(/\/+$/, "")
+  : typeof window !== "undefined"
+    ? window.location.origin
+    : "";
 
 export class ApiError extends Error {
   constructor(

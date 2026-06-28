@@ -1,7 +1,6 @@
 import { auth } from "@medical-system/auth";
 import { db } from "@medical-system/db";
 import { user } from "@medical-system/db/schema/auth";
-import { env } from "@medical-system/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";

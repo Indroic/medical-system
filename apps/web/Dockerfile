@@ -20,10 +20,19 @@ WORKDIR /app/apps/web
 
 # Vite hornea las variables VITE_* en el bundle estático durante el build.
 # Se reciben como ARG y se exportan como ENV para que el proceso de build las vea.
-ARG VITE_SERVER_URL=/server
-ARG VITE_PYTHON_API_URL=/api
+# Dominio único: por defecto el frontend usa rutas relativas al mismo origen
+# (el nginx de 'web' proxyea /api -> server e /imgproxy -> imgproxy). Deja
+# VITE_SERVER_URL vacío en producción; en dev local pasa http://localhost:3000.
+ARG VITE_SERVER_URL=
+ARG VITE_PYTHON_API_URL=
+ARG VITE_IMGPROXY_URL=/imgproxy
+ARG VITE_IMGPROXY_KEY=73757065722d7365637265742d6b6579
+ARG VITE_IMGPROXY_SALT=73757065722d7365637265742d73616c74
 ENV VITE_SERVER_URL=$VITE_SERVER_URL
 ENV VITE_PYTHON_API_URL=$VITE_PYTHON_API_URL
+ENV VITE_IMGPROXY_URL=$VITE_IMGPROXY_URL
+ENV VITE_IMGPROXY_KEY=$VITE_IMGPROXY_KEY
+ENV VITE_IMGPROXY_SALT=$VITE_IMGPROXY_SALT
 
 RUN pnpm run build
 

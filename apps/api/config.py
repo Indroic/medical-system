@@ -24,15 +24,44 @@ from hexcore.infrastructure.cache.cache_backends.memory import MemoryCache
 from src.shared.infrastructure.redis_event_dispatcher import RedisStreamEventDispatcher
 
 
+def _derive_database_urls(base_url: str) -> tuple[str, str]:
+    """Deriva las URLs sync y async a partir de una única DATABASE_URL base.
+
+    Acepta una URL base de Postgres (``postgresql://...``) o SQLite (dev) y
+    devuelve la tupla ``(sync_url, async_url)`` con el driver adecuado:
+      - sync  -> psycopg2  (``postgresql://``)        / ``sqlite://``
+      - async -> asyncpg   (``postgresql+asyncpg://``) / ``sqlite+aiosqlite://``
+
+    Cualquier driver ya presente en la URL base se normaliza al correcto.
+    """
+    url = base_url.strip()
+
+    # SQLite (desarrollo)
+    if url.startswith("sqlite"):
+        sync_url = url.replace("+aiosqlite", "")
+        async_url = url if "+aiosqlite" in url else url.replace("sqlite:", "sqlite+aiosqlite:", 1)
+        return sync_url, async_url
+
+    # Postgres: separar el esquema (con o sin driver) del resto de la URL
+    rest = url.split("://", 1)[1] if "://" in url else url
+    return f"postgresql://{rest}", f"postgresql+asyncpg://{rest}"
+
+
+# Una única DATABASE_URL base; las variantes sync/async se derivan de ella.
+_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./db.sqlite3")
+_SYNC_DATABASE_URL, _ASYNC_DATABASE_URL = _derive_database_urls(_DATABASE_URL)
+
+
 class ProjectConfig(ServerConfig):
     base_dir: Path = Path(".")
     host: str = "0.0.0.0"
     port: int = 8000
     debug: bool = os.getenv("ENVIRONMENT") != "production"
 
-    # Base de datos SQL (SQLite para dev, Postgres para prod)
-    sql_database_url: str = os.getenv("DATABASE_URL_SYNC", "sqlite:///./db.sqlite3")
-    async_sql_database_url: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./db.sqlite3")
+    # Base de datos SQL — derivadas de la DATABASE_URL base (ver _derive_database_urls).
+    # DATABASE_URL_SYNC queda como override opcional del driver sync.
+    sql_database_url: str = os.getenv("DATABASE_URL_SYNC", _SYNC_DATABASE_URL)
+    async_sql_database_url: str = _ASYNC_DATABASE_URL
 
     # Seguridad
     secret_key: str = "dev-secret-change-in-production"

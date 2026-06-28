@@ -62,7 +62,7 @@ function EstudioDetail() {
     loadData();
 
     // Reemplazar polling por Server-Sent Events (SSE)
-    const baseUrl = import.meta.env.VITE_SERVER_URL.replace(/\/$/, '');
+    const baseUrl = (import.meta.env.VITE_SERVER_URL || "").replace(/\/$/, '');
     const sseUrl = `${baseUrl}/api/events/${estudioId}`;
     const eventSource = new EventSource(sseUrl, { withCredentials: true });
 

@@ -1,21 +1,5 @@
 
 services:
-  db:
-    image: postgres:16-alpine
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: medical_system
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-dbs.sql:/docker-entrypoint-initdb.d/init-dbs.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   api-migrator:
     build:
       context: .
@@ -24,12 +8,10 @@ services:
     command: ["uv", "run", "alembic", "upgrade", "head"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL_SYNC=postgresql://postgres:postgres@db:5432/medical_api_db
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/medical_api_db
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-    depends_on:
-      db:
-        condition: service_healthy
+    networks:
+      - medical_net
 
   api:
     build:
@@ -38,7 +20,7 @@ services:
     restart: always
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/medical_api_db
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
       - SERVER_URL=http://server:3000
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
@@ -47,12 +29,12 @@ services:
       - AWS_SECRET_ACCESS_KEY=seaweed
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
       api-migrator:
         condition: service_completed_successfully
+    networks:
+      - medical_net
 
   api-worker:
     build:
@@ -62,7 +44,7 @@ services:
     command: ["uv", "run", "celery", "-A", "src.worker", "worker", "--loglevel=info", "-c", "1"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/medical_api_db
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
       - SERVER_URL=http://server:3000
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
@@ -73,12 +55,12 @@ services:
       - C_FORCE_ROOT=true
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
       api-migrator:
         condition: service_completed_successfully
+    networks:
+      - medical_net
 
   redis:
     image: redis:7-alpine
@@ -88,6 +70,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - medical_net
 
   server:
     build:
@@ -96,16 +80,14 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/medical_server_db
-      - BETTER_AUTH_URL=http://server:3000
-      - BETTER_AUTH_SECRET=super-secret-key-replace-me
-      - CORS_ORIGIN=http://localhost:8080
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
+      - BETTER_AUTH_URL=${APP_URL:?APP_URL must be set}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}
+      - CORS_ORIGIN=${APP_URL:?APP_URL must be set}
       - PYTHON_API_URL=http://api:8000
-    ports:
-      - "3000:3000"
-    depends_on:
-      db:
-        condition: service_healthy
+    # Servicio interno: lo publica 'web' (proxy) bajo el dominio único. Sin red pública ni puertos.
+    networks:
+      - medical_net
 
   seaweedfs:
     image: chrislusf/seaweedfs:latest
@@ -118,6 +100,8 @@ services:
       - WEED_S3_ALLOW_DELETE_BUCKET_NOT_EMPTY=true
     volumes:
       - seaweedfs_data:/data
+    networks:
+      - medical_net
 
   imgproxy:
     image: darthsim/imgproxy:latest
@@ -134,37 +118,34 @@ services:
       - IMGPROXY_ENFORCE_SIGNATURE=true
     depends_on:
       - seaweedfs
+    networks:
+      - medical_net
 
   web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-      args:
-        VITE_SERVER_URL: http://localhost:3000
-        VITE_PYTHON_API_URL: /api
-        VITE_IMGPROXY_URL: /imgproxy
-        VITE_IMGPROXY_KEY: 73757065722d7365637265742d6b6579
-        VITE_IMGPROXY_SALT: 73757065722d7365637265742d73616c74
     restart: always
-    ports:
-      - "8080:80"
+    # ÚNICO servicio público: Dokploy le asigna el dominio (APP_URL) vía Traefik sobre dokploy-network.
+    # Actúa como proxy de mismo origen: /api -> server, /imgproxy -> imgproxy.
     depends_on:
       - api
       - server
       - imgproxy
+    networks:
+      - medical_net
+      - dokploy-network
 
-  pgadmin:
-    image: dpage/pgadmin4:8.4
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@indroic.dev
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "5050:80"
-    depends_on:
-      db:
-        condition: service_healthy
+networks:
+  # Red interna privada: comunicación servicio-a-servicio (DNS por nombre).
+  # Nombre explícito para evitar colisión con otros proyectos de Dokploy.
+  medical_net:
+    driver: bridge
+    name: medical_system_net
+  # Red compartida de Dokploy (la crea Dokploy). Solo para el ingress de Traefik
+  # del único servicio público: 'web'.
+  dokploy-network:
+    external: true
 
 volumes:
-  postgres_data:
   seaweedfs_data:

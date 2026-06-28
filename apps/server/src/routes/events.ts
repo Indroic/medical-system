@@ -18,7 +18,6 @@ subscriber.on("message", (channel, message) => {
   if (channel === "estudios_updates") {
     try {
       const data = JSON.parse(message);
-      const event = data.event;
       const estudioId = data.payload.estudio_id;
       
       const callbacks = listeners.get(estudioId);

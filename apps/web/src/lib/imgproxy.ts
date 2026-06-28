@@ -4,7 +4,8 @@ import { generateUrl } from "@imgproxy/imgproxy-js-core";
 // Deben estar configuradas en Dokploy y en el frontend (.env)
 const KEY = import.meta.env.VITE_IMGPROXY_KEY || "73757065722d7365637265742d6b6579";
 const SALT = import.meta.env.VITE_IMGPROXY_SALT || "73757065722d7365637265742d73616c74";
-const IMGPROXY_URL = import.meta.env.VITE_IMGPROXY_URL || "https://medicalimages.indroic.dev";
+// Mismo origen por defecto: el nginx de 'web' proxyea /imgproxy -> imgproxy.
+const IMGPROXY_URL = import.meta.env.VITE_IMGPROXY_URL || "/imgproxy";
 
 async function signUrl(path: string): Promise<string> {
   if (!KEY || !SALT) {

@@ -4,8 +4,9 @@ import { z } from "zod";
 export const env = createEnv({
   clientPrefix: "VITE_",
   client: {
-    VITE_SERVER_URL: z.string().min(1),
-    VITE_PYTHON_API_URL: z.string().min(1),
+    // Vacío = mismo origen (el nginx de 'web' proxyea /api). En dev usa http://localhost:3000.
+    VITE_SERVER_URL: z.string().default(""),
+    VITE_PYTHON_API_URL: z.string().default(""),
   },
   runtimeEnv: (import.meta as any).env,
   emptyStringAsUndefined: true,

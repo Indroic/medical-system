@@ -29,6 +29,21 @@ from src.features.pacientes.infrastructure.models import PacienteModel
 
 target_metadata = Base.metadata
 
+
+def include_object(object, name, type_, reflected, compare_to):
+    """Restringe autogenerate a las tablas propias de la API.
+
+    Si la base de datos llegara a compartirse con otro servicio (p.ej. las
+    tablas de Better-Auth: user/session/account/verification/jwks gestionadas
+    por Drizzle en `apps/server`), Alembic vería esas tablas como "no presentes
+    en los modelos" y propondría eliminarlas. Ignorando cualquier tabla reflejada
+    que no esté en `Base.metadata`, autogenerate nunca tocará tablas ajenas.
+    """
+    if type_ == "table" and reflected and name not in target_metadata.tables:
+        return False
+    return True
+
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -53,6 +68,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -73,7 +89,11 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            include_object=include_object,
+        )
 
         with context.begin_transaction():
             context.run_migrations()
