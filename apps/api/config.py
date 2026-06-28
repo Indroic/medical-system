@@ -47,9 +47,10 @@ def _derive_database_urls(base_url: str) -> tuple[str, str]:
     return f"postgresql://{rest}", f"postgresql+asyncpg://{rest}"
 
 
-# Una única DATABASE_URL base; las variantes sync/async se derivan de ella.
+# DATABASE_URL = URL sync (psycopg2) — usada por Alembic y conexiones síncronas.
+# ASYNC_DATABASE_URL = URL async (asyncpg) — si no se define, se deriva de DATABASE_URL.
 _DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./db.sqlite3")
-_SYNC_DATABASE_URL, _ASYNC_DATABASE_URL = _derive_database_urls(_DATABASE_URL)
+_SYNC_DATABASE_URL, _DERIVED_ASYNC_URL = _derive_database_urls(_DATABASE_URL)
 
 
 class ProjectConfig(ServerConfig):
@@ -58,10 +59,11 @@ class ProjectConfig(ServerConfig):
     port: int = 8000
     debug: bool = os.getenv("ENVIRONMENT") != "production"
 
-    # Base de datos SQL — derivadas de la DATABASE_URL base (ver _derive_database_urls).
-    # DATABASE_URL_SYNC queda como override opcional del driver sync.
-    sql_database_url: str = os.getenv("DATABASE_URL_SYNC", _SYNC_DATABASE_URL)
-    async_sql_database_url: str = _ASYNC_DATABASE_URL
+    # DATABASE_URL  → sync  (psycopg2) — usado por Alembic.
+    # ASYNC_DATABASE_URL → async (asyncpg) — si está definida, se usa directamente;
+    # si no, se deriva automáticamente de DATABASE_URL.
+    sql_database_url: str = os.getenv("DATABASE_URL", _SYNC_DATABASE_URL)
+    async_sql_database_url: str = os.getenv("ASYNC_DATABASE_URL", _DERIVED_ASYNC_URL)
 
     # Seguridad
     secret_key: str = "dev-secret-change-in-production"

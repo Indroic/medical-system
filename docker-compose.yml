@@ -5,7 +5,37 @@ services:
       context: .
       dockerfile: apps/api/Dockerfile
     restart: "no"
-    command: ["uv", "run", "alembic", "upgrade", "head"]
+    command:
+      - "sh"
+      - "-c"
+      - |
+        set -e
+        echo "=== Verificando estado de migraciones ==="
+        # Si la tabla 'pacientes' no existe, alembic_version puede estar
+        # corrompida (de un deploy anterior fallido). Hacemos stamp base
+        # para forzar la re-aplicación completa desde cero.
+        TABLES_EXIST=$(uv run python -c "
+import os, re
+url = os.environ['DATABASE_URL']
+# Normalizar a driver sync (psycopg2)
+url = re.sub(r'postgresql\+\w+://', 'postgresql://', url)
+import sqlalchemy
+e = sqlalchemy.create_engine(url)
+try:
+    with e.connect() as conn:
+        r = conn.execute(sqlalchemy.text(\"SELECT to_regclass('public.pacientes')\"))
+        print('yes' if r.scalar() else 'no')
+except Exception:
+    print('no')
+" 2>/dev/null || echo "no")
+        echo "Tablas de negocio existen: $TABLES_EXIST"
+        if [ "$TABLES_EXIST" = "no" ]; then
+          echo "=== Tablas ausentes: reseteando alembic_version a base ==="
+          uv run alembic stamp base || true
+        fi
+        echo "=== Aplicando migraciones ==="
+        uv run alembic upgrade head
+        echo "=== Migraciones completadas ==="
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
@@ -21,6 +51,7 @@ services:
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
+      - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL:?ASYNC_DATABASE_URL must be set}
       - SERVER_URL=http://server:3000
       - BETTER_AUTH_URL=${APP_URL:?APP_URL must be set}
       - CELERY_BROKER_URL=redis://redis:6379/0
@@ -52,6 +83,7 @@ services:
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
+      - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL:?ASYNC_DATABASE_URL must be set}
       - SERVER_URL=http://server:3000
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
