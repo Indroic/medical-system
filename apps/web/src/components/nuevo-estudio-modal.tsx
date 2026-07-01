@@ -92,9 +92,9 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
     <Modal>
       <Modal.Backdrop isOpen={state.isOpen} onOpenChange={state.setOpen}>
       <Modal.Container>
-        <Modal.Dialog className="bg-ash border border-charcoal sm:max-w-2xl w-full">
+        <Modal.Dialog className="bg-surface border border-border sm:max-w-2xl w-full">
           <Modal.CloseTrigger />
-          <Modal.Header className="flex flex-col gap-1 text-snow">
+          <Modal.Header className="flex flex-col gap-1 text-foreground">
             <Modal.Heading>Nuevo estudio</Modal.Heading>
             <div className="mt-2 flex items-center gap-3">
                 {["Paciente", "Imagen"].map((label, idx) => {
@@ -104,17 +104,17 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                     <div key={label} className="flex items-center gap-2">
                       <span
                         className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-medium ${
-                          done ? "bg-green text-obsidian"
-                          : active ? "border border-green text-green"
-                          : "border border-charcoal text-smoke"
+                          done ? "bg-accent text-accent-foreground"
+                          : active ? "border border-accent text-accent"
+                          : "border border-border text-muted"
                         }`}
                       >
                         {idx + 1}
                       </span>
-                      <span className={`text-[13px] ${active ? "font-medium text-snow" : "text-smoke"}`}>
+                      <span className={`text-[13px] ${active ? "font-medium text-foreground" : "text-muted"}`}>
                         {label}
                       </span>
-                      {idx === 0 && <span className="text-charcoal mx-1">—</span>}
+                      {idx === 0 && <span className="text-border mx-1">—</span>}
                     </div>
                   );
                 })}
@@ -123,34 +123,34 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
           <Modal.Body className="pb-6">
               {/* Step 1: Patient */}
               {step === "patient" && (
-                <div className="rounded-2xl border border-charcoal bg-obsidian p-6 mt-2">
-                  <h2 className="text-[14px] text-snow mb-4">Seleccionar paciente</h2>
+                <div className="rounded-2xl border border-border bg-background p-6 mt-2">
+                  <h2 className="text-[14px] text-foreground mb-4">Seleccionar paciente</h2>
                   {!createMode ? (
                     <form onSubmit={handleFindPatient} className="flex flex-col gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[13px] text-silver">Buscar por documento de identidad</label>
+                        <label className="text-[13px] text-ash">Buscar por documento de identidad</label>
                         <div className="flex gap-2">
                           <input
                             type="text"
                             value={findDocumento}
                             onChange={(e) => setFindDocumento(e.target.value)}
                             placeholder="12345678"
-                            className="flex-1 rounded-lg border border-slate bg-ash px-3 py-2 text-[14px] text-snow placeholder:text-smoke focus:outline-none focus:border-green transition-colors"
+                            className="flex-1 rounded-lg border border-field-border bg-surface px-3 py-2 text-[14px] text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
                           />
                           <button
                             type="submit"
-                            className="rounded-full border border-charcoal px-4 text-[13px] text-snow hover:bg-ash hover:border-slate transition-colors whitespace-nowrap"
+                            className="rounded-full border border-border px-4 text-[13px] text-foreground hover:bg-surface-hover hover:border-field-border transition-colors whitespace-nowrap"
                           >
                             Buscar
                           </button>
                         </div>
                       </div>
-                      <p className="text-[12px] text-smoke">
+                      <p className="text-[12px] text-muted">
                         ¿Paciente nuevo?{" "}
                         <button
                           type="button"
                           onClick={() => setCreateMode(true)}
-                          className="text-green font-medium hover:underline"
+                          className="text-link font-medium hover:underline"
                         >
                           Crear paciente
                         </button>
@@ -166,8 +166,8 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                         <createPatientForm.Field name="nombre" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                           {(field) => (
                             <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
-                              <Label className="text-[13px] text-silver mb-1.5">Nombre</Label>
-                              <Input placeholder="María" className="bg-ash border-slate" />
+                              <Label className="text-[13px] text-ash mb-1.5">Nombre</Label>
+                              <Input placeholder="María" className="bg-surface border-field-border" />
                               <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                             </TextField>
                           )}
@@ -175,8 +175,8 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                         <createPatientForm.Field name="apellido" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                           {(field) => (
                             <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
-                              <Label className="text-[13px] text-silver mb-1.5">Apellido</Label>
-                              <Input placeholder="García" className="bg-ash border-slate" />
+                              <Label className="text-[13px] text-ash mb-1.5">Apellido</Label>
+                              <Input placeholder="García" className="bg-surface border-field-border" />
                               <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                             </TextField>
                           )}
@@ -185,8 +185,8 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                       <createPatientForm.Field name="fecha_nacimiento" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                         {(field) => (
                           <TextField name={field.name} type="date" value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
-                            <Label className="text-[13px] text-silver mb-1.5">Fecha de nacimiento</Label>
-                            <Input className="bg-ash border-slate" />
+                            <Label className="text-[13px] text-ash mb-1.5">Fecha de nacimiento</Label>
+                            <Input className="bg-surface border-field-border" />
                             <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                           </TextField>
                         )}
@@ -194,8 +194,8 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                       <createPatientForm.Field name="documento_identidad" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                         {(field) => (
                           <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
-                            <Label className="text-[13px] text-silver mb-1.5">Documento de identidad</Label>
-                            <Input placeholder="12345678" className="bg-ash border-slate" />
+                            <Label className="text-[13px] text-ash mb-1.5">Documento de identidad</Label>
+                            <Input placeholder="12345678" className="bg-surface border-field-border" />
                             <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                           </TextField>
                         )}
@@ -207,7 +207,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                             <Button
                               type="submit"
                               isDisabled={isSubmitting}
-                              className="rounded-full bg-green px-5 py-2 text-[13px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors"
+                              className="rounded-full bg-accent px-5 py-2 text-[13px] font-medium text-accent-foreground hover:bg-accent-hover disabled:opacity-50 transition-colors"
                             >
                               {isSubmitting ? "Guardando…" : "Crear y continuar"}
                             </Button>
@@ -216,7 +216,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                         <button
                           type="button"
                           onClick={() => setCreateMode(false)}
-                          className="text-[13px] text-smoke hover:text-silver transition-colors"
+                          className="text-[13px] text-muted hover:text-ash transition-colors"
                         >
                           Cancelar
                         </button>
@@ -231,8 +231,8 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                 <div className="flex flex-col gap-4 mt-2">
                   <PatientCard paciente={paciente} />
 
-                  <div className="rounded-2xl border border-charcoal bg-obsidian p-6">
-                    <h2 className="text-[14px] text-snow mb-4">Subir imagen CT</h2>
+                  <div className="rounded-2xl border border-border bg-background p-6">
+                    <h2 className="text-[14px] text-foreground mb-4">Subir imagen CT</h2>
                     <form id="nuevo-estudio-upload-form" onSubmit={handleUpload} className="flex flex-col gap-5">
                       <input
                         ref={fileRef}
@@ -245,21 +245,21 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                       <div
                         onClick={() => fileRef.current?.click()}
                         className={`flex flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 cursor-pointer transition-colors ${
-                          files.length > 0 ? "border-green/50 bg-green/5" : "border-charcoal hover:border-slate hover:bg-ash"
+                          files.length > 0 ? "border-accent/50 bg-accent/5" : "border-border hover:border-field-border hover:bg-surface"
                         }`}
                       >
                         {files.length > 0 ? (
                           <>
-                            <p className="text-[13px] font-medium text-snow">{files.length} archivo(s) seleccionado(s)</p>
-                            <p className="text-[12px] text-smoke mt-1 text-center">
+                            <p className="text-[13px] font-medium text-foreground">{files.length} archivo(s) seleccionado(s)</p>
+                            <p className="text-[12px] text-muted mt-1 text-center">
                               {files.map(f => f.name).join(", ").slice(0, 50)}
                               {files.join(", ").length > 50 ? "..." : ""}
                             </p>
                           </>
                         ) : (
                           <>
-                            <p className="text-[13px] text-silver">Seleccionar imágenes (Múltiples cortes)</p>
-                            <p className="text-[12px] text-smoke mt-1">Soporta PNG, JPEG o DICOM</p>
+                            <p className="text-[13px] text-ash">Seleccionar imágenes (Múltiples cortes)</p>
+                            <p className="text-[12px] text-muted mt-1">Soporta PNG, JPEG o DICOM</p>
                           </>
                         )}
                       </div>
@@ -274,7 +274,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                 <button
                   type="button"
                   onClick={() => { setStep("patient"); setPaciente(null); setFiles([]); }}
-                  className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors w-full sm:w-auto text-center"
+                  className="rounded-full border border-border px-5 py-2 text-[14px] text-foreground hover:bg-background hover:border-field-border transition-colors w-full sm:w-auto text-center"
                 >
                   Cambiar paciente
                 </button>
@@ -284,7 +284,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
               <button
                 type="button"
                 onClick={state.close}
-                className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors w-full sm:w-auto text-center"
+                className="rounded-full border border-border px-5 py-2 text-[14px] text-foreground hover:bg-background hover:border-field-border transition-colors w-full sm:w-auto text-center"
               >
                 Cerrar
               </button>
@@ -293,7 +293,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                   type="submit"
                   form="nuevo-estudio-upload-form"
                   isDisabled={files.length === 0 || uploading}
-                  className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
+                  className="rounded-full bg-accent px-5 py-2 text-[14px] font-medium text-accent-foreground hover:bg-accent-hover disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
                 >
                   {uploading ? "Subiendo…" : "Crear estudio"}
                 </Button>
