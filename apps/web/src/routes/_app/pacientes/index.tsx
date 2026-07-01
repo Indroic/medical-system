@@ -47,7 +47,7 @@ function PacientesList() {
           <button
             type="button"
             onClick={state.open}
-            className="rounded-full bg-green px-4 py-2 text-[13px] font-medium text-obsidian hover:bg-green-deep transition-colors"
+            className="rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-accent-foreground hover:bg-accent-hover transition-colors"
           >
             Nuevo paciente
           </button>
@@ -60,55 +60,55 @@ function PacientesList() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por nombre, apellido o documento…"
-          className="w-full rounded-xl border border-charcoal bg-ash px-4 py-2.5 text-[13px] text-snow placeholder:text-smoke outline-none focus:border-slate transition-colors"
+          className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-[13px] text-foreground placeholder:text-muted outline-none focus:border-field-border transition-colors"
         />
       </div>
 
       <div className="mt-4">
         {loading ? (
-          <div className="rounded-2xl border border-charcoal p-8 text-center text-[13px] text-smoke">
+          <div className="rounded-2xl border border-border p-8 text-center text-[13px] text-muted">
             Cargando…
           </div>
         ) : pacientes.length === 0 ? (
-          <div className="rounded-2xl border border-charcoal p-12 text-center">
-            <p className="text-[14px] text-snow mb-2">No hay pacientes registrados</p>
-            <p className="text-[13px] text-smoke mb-6">
+          <div className="rounded-2xl border border-border p-12 text-center">
+            <p className="text-[14px] text-foreground mb-2">No hay pacientes registrados</p>
+            <p className="text-[13px] text-muted mb-6">
               Crea el primer paciente para comenzar a subir estudios.
             </p>
             <button
               type="button"
               onClick={state.open}
-              className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep transition-colors"
+              className="rounded-full bg-accent px-5 py-2 text-[14px] font-medium text-accent-foreground hover:bg-accent-hover transition-colors"
             >
               Crear paciente
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-2xl border border-charcoal p-8 text-center text-[13px] text-smoke">
+          <div className="rounded-2xl border border-border p-8 text-center text-[13px] text-muted">
             Sin resultados para "{search}"
           </div>
         ) : (
-          <div className="rounded-2xl border border-charcoal overflow-hidden">
+          <div className="rounded-2xl border border-border overflow-hidden">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-charcoal bg-ash">
-                  <th className="px-4 py-3 text-left text-smoke font-normal">Nombre</th>
-                  <th className="px-4 py-3 text-left text-smoke font-normal">Documento</th>
-                  <th className="px-4 py-3 text-left text-smoke font-normal">Fecha nacimiento</th>
-                  <th className="px-4 py-3 text-right text-smoke font-normal">Acción</th>
+                <tr className="border-b border-border bg-surface">
+                  <th className="px-4 py-3 text-left text-muted font-normal">Nombre</th>
+                  <th className="px-4 py-3 text-left text-muted font-normal">Documento</th>
+                  <th className="px-4 py-3 text-left text-muted font-normal">Fecha nacimiento</th>
+                  <th className="px-4 py-3 text-right text-muted font-normal">Acción</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((p, i) => (
-                  <tr key={p.id} className={i < filtered.length - 1 ? "border-b border-charcoal" : ""}>
-                    <td className="px-4 py-3 text-snow">{p.nombre} {p.apellido}</td>
-                    <td className="px-4 py-3 font-mono text-smoke">{p.documento_identidad}</td>
-                    <td className="px-4 py-3 text-smoke">{p.fecha_nacimiento}</td>
+                  <tr key={p.id} className={i < filtered.length - 1 ? "border-b border-border" : ""}>
+                    <td className="px-4 py-3 text-foreground">{p.nombre} {p.apellido}</td>
+                    <td className="px-4 py-3 font-mono text-muted">{p.documento_identidad}</td>
+                    <td className="px-4 py-3 text-muted">{p.fecha_nacimiento}</td>
                     <td className="px-4 py-3 text-right">
                       <button
                         type="button"
                         onClick={() => navigate({ to: "/pacientes/$pacienteId", params: { pacienteId: p.id } })}
-                        className="text-green font-medium hover:underline"
+                        className="text-link font-medium hover:underline"
                       >
                         Ver →
                       </button>

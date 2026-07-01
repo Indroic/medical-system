@@ -38,8 +38,8 @@ function PacienteDetail() {
       .finally(() => setLoading(false));
   }, [token, pacienteId]);
 
-  if (loading) return <div className="p-8 text-[13px] text-smoke">Cargando…</div>;
-  if (!paciente) return <div className="p-8 text-[13px] text-smoke">Paciente no encontrado.</div>;
+  if (loading) return <div className="p-8 text-[13px] text-muted">Cargando…</div>;
+  if (!paciente) return <div className="p-8 text-[13px] text-muted">Paciente no encontrado.</div>;
 
   return (
     <div className="p-8">
@@ -50,14 +50,14 @@ function PacienteDetail() {
             <button
               type="button"
               onClick={state.open}
-              className="rounded-full bg-green px-4 py-2 text-[13px] font-medium text-obsidian hover:bg-green-deep transition-colors"
+              className="rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-accent-foreground hover:bg-accent-hover transition-colors"
             >
               Nuevo estudio
             </button>
             <button
               type="button"
               onClick={() => navigate({ to: "/pacientes" })}
-              className="text-[13px] text-smoke hover:text-silver transition-colors"
+              className="text-[13px] text-muted hover:text-ash transition-colors"
             >
               ← Volver
             </button>
@@ -70,29 +70,29 @@ function PacienteDetail() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-[14px] text-silver mb-4">Estudios ({estudios.length})</h2>
+        <h2 className="text-[14px] text-ash mb-4">Estudios ({estudios.length})</h2>
 
         {estudios.length === 0 ? (
-          <div className="rounded-2xl border border-charcoal p-8 text-center text-[13px] text-smoke">
+          <div className="rounded-2xl border border-border p-8 text-center text-[13px] text-muted">
             Este paciente no tiene estudios aún.
           </div>
         ) : (
-          <div className="rounded-2xl border border-charcoal overflow-hidden">
+          <div className="rounded-2xl border border-border overflow-hidden">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-charcoal bg-ash">
-                  <th className="px-4 py-3 text-left text-smoke font-normal">ID</th>
-                  <th className="px-4 py-3 text-left text-smoke font-normal">Estado</th>
-                  <th className="px-4 py-3 text-left text-smoke font-normal">Tipo</th>
-                  <th className="px-4 py-3 text-right text-smoke font-normal">Acción</th>
+                <tr className="border-b border-border bg-surface">
+                  <th className="px-4 py-3 text-left text-muted font-normal">ID</th>
+                  <th className="px-4 py-3 text-left text-muted font-normal">Estado</th>
+                  <th className="px-4 py-3 text-left text-muted font-normal">Tipo</th>
+                  <th className="px-4 py-3 text-right text-muted font-normal">Acción</th>
                 </tr>
               </thead>
               <tbody>
                 {estudios.map((e, i) => (
-                  <tr key={e.id} className={i < estudios.length - 1 ? "border-b border-charcoal" : ""}>
-                    <td className="px-4 py-3 font-mono text-smoke">{e.id.slice(0, 8)}…</td>
+                  <tr key={e.id} className={i < estudios.length - 1 ? "border-b border-border" : ""}>
+                    <td className="px-4 py-3 font-mono text-muted">{e.id.slice(0, 8)}…</td>
                     <td className="px-4 py-3"><EstadoBadge estado={e.estado} /></td>
-                    <td className="px-4 py-3 text-smoke">{e.mime_type}</td>
+                    <td className="px-4 py-3 text-muted">{e.mime_type}</td>
                     <td className="px-4 py-3 text-right">
                       <button
                         type="button"
@@ -100,7 +100,7 @@ function PacienteDetail() {
                           setSelectedEstudioId(e.id);
                           detailModalState.open();
                         }}
-                        className="text-green font-medium hover:underline"
+                        className="text-link font-medium hover:underline"
                       >
                         Ver →
                       </button>
