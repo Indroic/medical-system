@@ -1,3 +1,4 @@
+import logging
 from typing import Protocol
 from uuid import UUID
 
@@ -5,6 +6,8 @@ from hexcore.domain.services import BaseDomainService
 
 from .entities import Estudio
 from .repositories import IEstudioRepository
+
+logger = logging.getLogger(__name__)
 
 
 class IArchivoStorageAdapter(Protocol):
@@ -32,6 +35,10 @@ class EstudioService(BaseDomainService):
         mime_type: str,
         medico_id: str,
     ) -> Estudio:
+        logger.info(
+            "DEBUG recepcionar_estudio args paciente_id=%r (%s) medico_id=%r (%s)",
+            paciente_id, type(paciente_id), medico_id, type(medico_id),
+        )
         estudio = Estudio(
             paciente_id=paciente_id,
             imagenes_paths=imagenes_paths,
@@ -39,6 +46,10 @@ class EstudioService(BaseDomainService):
             medico_id=medico_id,
         )
         estudio.registrar_recepcion()
+        logger.info(
+            "DEBUG estudio antes de save: %r | model_dump=%r",
+            estudio, estudio.model_dump(),
+        )
         await self._repo.save(estudio)
         return estudio
 
