@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { Button, FieldError, Input, Label, Modal, TextField, toast } from "@heroui/react";
+import { Button, ComboBox, FieldError, Input, Label, ListBox, Modal, TextField, toast } from "@heroui/react";
 import { useNavigate } from "@tanstack/react-router";
 
 import PatientCard from "@/components/patient-card";
@@ -19,9 +19,11 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
 
   const [step, setStep] = useState<"patient" | "upload">("patient");
   const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
+  const [pacientes, setPacientes] = useState<PacienteResponse[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [findDocumento, setFindDocumento] = useState("");
+  const [loadingPacientes, setLoadingPacientes] = useState(false);
+  const [selectedPacienteId, setSelectedPacienteId] = useState<string | null>(null);
   const [createMode, setCreateMode] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -34,17 +36,42 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
         setStep("patient");
         setPaciente(null);
         setCreateMode(false);
-        setFindDocumento("");
+        setSelectedPacienteId(null);
       }
       setFiles([]);
+      setPacientes([]);
     }
   }, [state.isOpen, prefilledPacienteId]);
 
   useEffect(() => {
     if (state.isOpen && prefilledPacienteId && token) {
-      pacientesApi.obtener(token, prefilledPacienteId).then(setPaciente).catch(() => {});
+      pacientesApi.obtener(token, prefilledPacienteId).then(setPaciente).catch(() => { });
     }
   }, [state.isOpen, prefilledPacienteId, token]);
+
+  useEffect(() => {
+    if (!state.isOpen || !token || prefilledPacienteId) return;
+
+    let cancelled = false;
+    setLoadingPacientes(true);
+    pacientesApi
+      .listar(token)
+      .then(({ items }) => {
+        if (!cancelled) {
+          setPacientes(items);
+        }
+      })
+      .catch(() => { })
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingPacientes(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [state.isOpen, token, prefilledPacienteId]);
 
   const createPatientForm = useForm({
     defaultValues: {
@@ -58,7 +85,9 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
       try {
         const p = await pacientesApi.crear(token, value);
         setPaciente(p);
+        setSelectedPacienteId(p.id);
         setStep("upload");
+        setCreateMode(false);
         toast.success("Paciente creado correctamente");
       } catch (err) {
         toast.danger(err instanceof ApiError ? err.message : "Error al crear paciente");
@@ -66,10 +95,15 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
     },
   });
 
-  const handleFindPatient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setCreateMode(true);
-    createPatientForm.setFieldValue("documento_identidad", findDocumento);
+  const handleSelectPatient = (key: string | number | null) => {
+    if (!key) return;
+
+    const selected = pacientes.find((item) => item.id === String(key));
+    if (!selected) return;
+
+    setPaciente(selected);
+    setSelectedPacienteId(selected.id);
+    setStep("upload");
   };
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -91,23 +125,22 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
   return (
     <Modal>
       <Modal.Backdrop isOpen={state.isOpen} onOpenChange={state.setOpen}>
-      <Modal.Container>
-        <Modal.Dialog className="bg-surface border border-border sm:max-w-2xl w-full">
-          <Modal.CloseTrigger />
-          <Modal.Header className="flex flex-col gap-1 text-foreground">
-            <Modal.Heading>Nuevo estudio</Modal.Heading>
-            <div className="mt-2 flex items-center gap-3">
+        <Modal.Container>
+          <Modal.Dialog className="bg-surface border border-border sm:max-w-2xl w-full">
+            <Modal.CloseTrigger />
+            <Modal.Header className="flex flex-col gap-1 text-foreground">
+              <Modal.Heading>Nuevo estudio</Modal.Heading>
+              <div className="mt-2 flex items-center gap-3">
                 {["Paciente", "Imagen"].map((label, idx) => {
                   const active = (idx === 0 && step === "patient") || (idx === 1 && step === "upload");
                   const done = idx === 0 && step === "upload";
                   return (
                     <div key={label} className="flex items-center gap-2">
                       <span
-                        className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-medium ${
-                          done ? "bg-accent text-accent-foreground"
-                          : active ? "border border-accent text-accent"
-                          : "border border-border text-muted"
-                        }`}
+                        className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-medium ${done ? "bg-accent text-accent-foreground"
+                            : active ? "border border-accent text-accent"
+                              : "border border-border text-muted"
+                          }`}
                       >
                         {idx + 1}
                       </span>
@@ -119,31 +152,47 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                   );
                 })}
               </div>
-          </Modal.Header>
-          <Modal.Body className="pb-6">
+            </Modal.Header>
+            <Modal.Body className="pb-6">
               {/* Step 1: Patient */}
               {step === "patient" && (
                 <div className="rounded-2xl border border-border bg-background p-6 mt-2">
                   <h2 className="text-[14px] text-foreground mb-4">Seleccionar paciente</h2>
                   {!createMode ? (
-                    <form onSubmit={handleFindPatient} className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[13px] text-ash">Buscar por documento de identidad</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={findDocumento}
-                            onChange={(e) => setFindDocumento(e.target.value)}
-                            placeholder="12345678"
-                            className="flex-1 rounded-lg border border-field-border bg-surface px-3 py-2 text-[14px] text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
+                        <Label className="text-[13px] text-ash">Buscar paciente</Label>
+                        <ComboBox
+                          selectedKey={selectedPacienteId ?? undefined}
+                          onSelectionChange={handleSelectPatient}
+                          className="w-full"
+                        >
+                          <Input
+                            placeholder="Buscar por nombre, apellido o documento"
+                            className="bg-surface border-field-border"
                           />
-                          <button
-                            type="submit"
-                            className="rounded-full border border-border px-4 text-[13px] text-foreground hover:bg-surface-hover hover:border-field-border transition-colors whitespace-nowrap"
-                          >
-                            Buscar
-                          </button>
-                        </div>
+                          <ListBox>
+                            {pacientes.map((item) => (
+                              <ListBox.Item
+                                key={item.id}
+                                id={item.id}
+                                textValue={`${item.nombre} ${item.apellido} ${item.documento_identidad}`}
+                              >
+                                <div className="flex flex-col">
+                                  <span className="text-[14px] text-foreground">{item.nombre} {item.apellido}</span>
+                                  <span className="text-[12px] text-muted">{item.documento_identidad}</span>
+                                </div>
+                              </ListBox.Item>
+                            ))}
+                          </ListBox>
+                        </ComboBox>
+                        <p className="text-[12px] text-muted">
+                          {loadingPacientes
+                            ? "Cargando pacientes…"
+                            : pacientes.length === 0
+                              ? "No hay pacientes para seleccionar."
+                              : "Escribe para filtrar y elige un paciente existente."}
+                        </p>
                       </div>
                       <p className="text-[12px] text-muted">
                         ¿Paciente nuevo?{" "}
@@ -155,7 +204,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                           Crear paciente
                         </button>
                       </p>
-                    </form>
+                    </div>
                   ) : (
                     <form
                       id="nuevo-paciente-estudio-form"
@@ -244,9 +293,8 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                       />
                       <div
                         onClick={() => fileRef.current?.click()}
-                        className={`flex flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 cursor-pointer transition-colors ${
-                          files.length > 0 ? "border-accent/50 bg-accent/5" : "border-border hover:border-field-border hover:bg-surface"
-                        }`}
+                        className={`flex flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 cursor-pointer transition-colors ${files.length > 0 ? "border-accent/50 bg-accent/5" : "border-border hover:border-field-border hover:bg-surface"
+                          }`}
                       >
                         {files.length > 0 ? (
                           <>
@@ -268,40 +316,40 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                 </div>
               )}
             </Modal.Body>
-          <Modal.Footer className="flex flex-col sm:flex-row gap-3 w-full justify-between items-center">
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              {step === "upload" && (
+            <Modal.Footer className="flex flex-col sm:flex-row gap-3 w-full justify-between items-center">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                {step === "upload" && (
+                  <button
+                    type="button"
+                    onClick={() => { setStep("patient"); setPaciente(null); setFiles([]); }}
+                    className="rounded-full border border-border px-5 py-2 text-[14px] text-foreground hover:bg-background hover:border-field-border transition-colors w-full sm:w-auto text-center"
+                  >
+                    Cambiar paciente
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end">
                 <button
                   type="button"
-                  onClick={() => { setStep("patient"); setPaciente(null); setFiles([]); }}
+                  onClick={state.close}
                   className="rounded-full border border-border px-5 py-2 text-[14px] text-foreground hover:bg-background hover:border-field-border transition-colors w-full sm:w-auto text-center"
                 >
-                  Cambiar paciente
+                  Cerrar
                 </button>
-              )}
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end">
-              <button
-                type="button"
-                onClick={state.close}
-                className="rounded-full border border-border px-5 py-2 text-[14px] text-foreground hover:bg-background hover:border-field-border transition-colors w-full sm:w-auto text-center"
-              >
-                Cerrar
-              </button>
-              {step === "upload" && (
-                <Button
-                  type="submit"
-                  form="nuevo-estudio-upload-form"
-                  isDisabled={files.length === 0 || uploading}
-                  className="rounded-full bg-accent px-5 py-2 text-[14px] font-medium text-accent-foreground hover:bg-accent-hover disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
-                >
-                  {uploading ? "Subiendo…" : "Crear estudio"}
-                </Button>
-              )}
-            </div>
-          </Modal.Footer>
-        </Modal.Dialog>
-      </Modal.Container>
+                {step === "upload" && (
+                  <Button
+                    type="submit"
+                    form="nuevo-estudio-upload-form"
+                    isDisabled={files.length === 0 || uploading}
+                    className="rounded-full bg-accent px-5 py-2 text-[14px] font-medium text-accent-foreground hover:bg-accent-hover disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
+                  >
+                    {uploading ? "Subiendo…" : "Crear estudio"}
+                  </Button>
+                )}
+              </div>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
       </Modal.Backdrop>
     </Modal>
   );
