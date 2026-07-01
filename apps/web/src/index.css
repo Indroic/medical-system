@@ -2,180 +2,168 @@
 @import "@fontsource-variable/geist-mono";
 @import "@heroui/styles";
 
-/* ─── Tailwind v4 Design Tokens ──────────────────────────────────────────── */
-/* Palette retargeted to DESIGN.md "Doppler" system (violet-plum canvas, green
-   as the sole action color, lavender as the sole brand-voice color — the two
-   never overlap in role per DESIGN.md's "Color Rationing Philosophy"). */
 @theme {
-  /* Colors — named and valued per DESIGN.md "Doppler" system */
-  --color-midnight-plum: #1c1624;  /* Canvas — page background, full-bleed sections */
-  --color-shadow-plum: #2d2734;    /* Card Surface — cards, panels, product frames (Level 1) */
-  --color-elevated-panel: #3a3340; /* Elevated Panel — modals, popovers, tooltips (Level 2) */
-  --color-bone-white: #f1f0ec;     /* Bone White — primary text, icon strokes, button labels on dark */
-  --color-fog-line: #e5e7eb;       /* Fog Line — hairline borders/dividers (used at 10-15% alpha) */
-  --color-ash-veil: #d0c9c4;       /* Ash Veil — muted secondary text, disabled labels, ghost button text */
-  --color-mid-ash: #a5a2a5;        /* Mid Ash — muted helper/placeholder text, low-priority metadata */
-  --color-iron-edge: #55505b;      /* Iron Edge — resting input borders, subtle dividers */
-  --color-lavender-spark: #b997ff; /* Lavender Spark — brand-voice accent (wordmarks, headline emphasis, links) */
-  --color-signal-green: #00f575;   /* Signal Green — the sole action/CTA color, rationed to 1-2 per view */
-  --color-neon-violet: #6b13f5;    /* Neon Violet — decorative gradient anchor (hero aurora only) */
-  --color-ember-orange: #ff5632;   /* Ember Orange — decorative gradient terminus (hero aurora only) */
-  --color-plasma-pink: #ff9efa;    /* Plasma Pink — decorative gradient origin (hero aurora only) */
+   /* Astro palette */
+   --color-void-canvas: #1f232e;
+   --color-abyss: #0c0f19;
+   --color-singularity: #060913;
+   --color-carbon: #17191e;
+   --color-lunar-white: #f2f6fa;
+   --color-platinum: #e5e7eb;
+   --color-mist: #bfc1c9;
+   --color-steel: #858b98;
+   --color-gunmetal: #545864;
+   --color-nebula: #3245ff;
+   --color-plasma: #b845ed;
+   --color-aurora-mint: #4bf3c8;
+   --color-plasma-blue: #54b9ff;
+   --color-ultraviolet: #acafff;
+   --color-electric-cyan: #00daef;
+   --color-amber: #ffd493;
+   --color-signal-blue: #61dafb;
 
-  /* Back-compat aliases — kept only so existing component classNames
-     (text-ash, bg-bone, text-void, text-graphite) and the raw var(--color-*)
-     refs in mri-viewer.tsx's inline SVG keep resolving after this rename.
-     Each points at its correct Doppler-system equivalent, not a stale value;
-     a follow-up sweep to rename call sites directly to the new primitives
-     (ash-veil, bone-white, midnight-plum, mid-ash) is a reasonable next step. */
-  --color-ash: var(--color-ash-veil);
-  --color-bone: var(--color-bone-white);
-  --color-void: var(--color-midnight-plum);
-  --color-graphite: var(--color-mid-ash);
+   /* Back-compat aliases for existing utility classes */
+   --color-midnight-plum: var(--color-void-canvas);
+   --color-shadow-plum: var(--color-carbon);
+   --color-elevated-panel: var(--color-abyss);
+   --color-bone-white: var(--color-lunar-white);
+   --color-fog-line: var(--color-platinum);
+   --color-ash-veil: var(--color-mist);
+   --color-mid-ash: var(--color-steel);
+   --color-iron-edge: var(--color-gunmetal);
+   --color-lavender-spark: var(--color-ultraviolet);
+   --color-signal-green: var(--color-aurora-mint);
+   --color-neon-violet: var(--color-ultraviolet);
+   --color-ember-orange: #ff5632;
+   --color-plasma-pink: var(--color-plasma-blue);
 
-  /* Typography */
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
+   --color-ash: var(--color-steel);
+   --color-bone: var(--color-lunar-white);
+   --color-void: var(--color-void-canvas);
+   --color-graphite: var(--color-mist);
 
-  /* Type scale */
-  --text-caption: 12px;
-  --text-caption--line-height: 1.5;
-  --text-caption--letter-spacing: 0.03em;
-  --text-body-sm: 14px;
-  --text-body-sm--line-height: 1.5;
-  --text-body: 16px;
-  --text-body--line-height: 1.5;
-  --text-subheading: 18px;
-  --text-subheading--line-height: 1.4;
-  --text-subheading--letter-spacing: -0.01em;
-  --text-heading-sm: 24px;
-  --text-heading-sm--line-height: 1.2;
-  --text-heading-sm--letter-spacing: -0.01em;
-  --text-heading: 32px;
-  --text-heading--line-height: 1.15;
-  --text-heading--letter-spacing: -0.01em;
-  --text-heading-lg: 48px;
-  --text-heading-lg--line-height: 1.05;
-  --text-heading-lg--letter-spacing: -0.02em;
-  --text-display: 64px;
-  --text-display--line-height: 1.05;
-  --text-display--letter-spacing: -0.02em;
-  --text-display-xl: 96px;
-  --text-display-xl--line-height: 1;
-  --text-display-xl--letter-spacing: -0.02em;
+   /* Typography */
+   --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+   --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+   --font-ui-sans-serif: "ui-sans-serif", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+   --font-obviously: "Space Grotesk", "Inter Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+   --font-ui-monospace: "ui-monospace", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+   --font-mdio: "Space Mono", "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Radius — 20px cards / 12px buttons / 8px small elements per DESIGN.md.
-     Base --radius is set to 10px so HeroUI's computed 2x tier (rounded-2xl,
-     used on every card surface in this app) lands exactly on 20px; buttons
-     in this app already use rounded-full (pill) so they're unaffected. */
-  --radius-card: 1.25rem;   /* 20px */
-  --radius-button: 0.75rem; /* 12px */
-  --radius-small: 0.5rem;   /* 8px */
-  --radius-full: 9999px;
+   --text-caption: 12px;
+   --text-caption--line-height: 1.5;
+   --text-caption--letter-spacing: 0.3px;
+   --text-body-sm: 14px;
+   --text-body-sm--line-height: 1.65;
+   --text-body: 16px;
+   --text-body--line-height: 1.5;
+   --text-subheading: 20px;
+   --text-subheading--line-height: 1.4;
+   --text-heading-sm: 30px;
+   --text-heading-sm--line-height: 1.2;
+   --text-heading: 36px;
+   --text-heading--line-height: 1.11;
+   --text-display: 48px;
+   --text-display--line-height: 1.1;
+
+   /* Spacing and radius */
+   --spacing-4: 4px;
+   --spacing-8: 8px;
+   --spacing-12: 12px;
+   --spacing-16: 16px;
+   --spacing-20: 20px;
+   --spacing-24: 24px;
+   --spacing-32: 32px;
+   --spacing-40: 40px;
+   --spacing-48: 48px;
+   --spacing-68: 68px;
+   --spacing-80: 80px;
+   --spacing-144: 144px;
+   --spacing-160: 160px;
+   --spacing-224: 224px;
+   --radius-nav: 8px;
+   --radius-cards: 16px;
+   --radius-chips: 9999px;
+   --radius-images: 12px;
+   --radius-buttons: 9999px;
+   --radius-full: 9999px;
 }
 
 @plugin "@tailwindcss/typography";
 
-/* ─── HeroUI v3 Semantic Token Overrides — forced dark ───────────────────── */
 :root {
-  /* Accent → Signal Green. This is the ONLY chromatic action color in the
-     system (DESIGN.md: "green appears only where action is requested") —
-     text on it is pure black per the Primary Action Button spec, the one
-     documented exception to "never use pure white/black for text". */
-  --accent: var(--color-signal-green);
-  --accent-foreground: #000000;
-  --accent-hover: color-mix(in oklab, var(--color-signal-green) 85%, black 15%);
+   color-scheme: dark;
 
-  /* Canvas */
-  --background: var(--color-midnight-plum);
+   --accent: var(--color-lunar-white);
+   --accent-foreground: var(--color-void-canvas);
+   --accent-hover: color-mix(in oklab, var(--color-lunar-white) 88%, var(--color-platinum) 12%);
 
-  /* Surfaces — one visible step up from canvas per DESIGN.md's surface levels
-     (Level 1 = Card Surface), no box-shadow (spec: "surface color steps, not
-     elevation shadows"). */
-  --surface: var(--color-shadow-plum);
-  --surface-foreground: var(--color-bone-white);
-  --surface-secondary: color-mix(in oklab, var(--color-shadow-plum) 85%, var(--color-bone-white) 15%);
-  --surface-tertiary: var(--color-elevated-panel);
+   --background: var(--color-void-canvas);
+   --surface: var(--color-carbon);
+   --surface-foreground: var(--color-lunar-white);
+   --surface-secondary: var(--color-abyss);
+   --surface-tertiary: var(--color-singularity);
+   --overlay: var(--color-singularity);
+   --overlay-foreground: var(--color-lunar-white);
+   --default: var(--color-carbon);
+   --default-foreground: var(--color-lunar-white);
+   --foreground: var(--color-lunar-white);
+   --muted: var(--color-steel);
+   --border: color-mix(in oklab, var(--color-gunmetal) 82%, transparent);
+   --separator: var(--border);
 
-  /* Overlay (modals, dropdowns, tooltips) → Level 2 Elevated Panel */
-  --overlay: var(--color-elevated-panel);
-  --overlay-foreground: var(--color-bone-white);
+   --field-background: var(--color-abyss);
+   --field-foreground: var(--color-lunar-white);
+   --field-placeholder: var(--color-steel);
+   --field-border: var(--color-gunmetal);
+   --field-border-width: 1px;
 
-  /* Default component fill */
-  --default: var(--color-shadow-plum);
-  --default-foreground: var(--color-bone-white);
+   --focus: var(--color-ultraviolet);
+   --radius: 0.5rem;
+   --surface-shadow: none;
+   --overlay-shadow: none;
+   --field-shadow: none;
 
-  /* Foreground */
-  --foreground: var(--color-bone-white);
-  --muted: var(--color-mid-ash);
+   --segment: var(--color-carbon);
+   --segment-foreground: var(--color-lunar-white);
+   --link: var(--color-ultraviolet);
 
-  /* Borders — DESIGN.md: "#e5e7eb at 10-15% opacity" for hairlines */
-  --border: color-mix(in oklab, var(--color-fog-line) 12%, transparent);
-  --separator: var(--border);
-
-  /* Form fields — Iron Edge is the documented resting input-border color */
-  --field-background: var(--color-shadow-plum);
-  --field-foreground: var(--color-bone-white);
-  --field-placeholder: var(--color-mid-ash);
-  --field-border: var(--color-iron-edge);
-  --field-border-width: 1px;
-
-  /* Focus → Signal Green (no glow ring — just chromatic border) */
-  --focus: var(--color-signal-green);
-
-  /* Base radius: 10px, so HeroUI's computed 2x tier (rounded-2xl, used on
-     every card surface in this app) lands on the spec's 20px card radius. */
-  --radius: 0.625rem;
-
-  /* Flat design — no shadows, matches "surface color steps, not elevation" */
-  --surface-shadow: none;
-  --overlay-shadow: none;
-  --field-shadow: none;
-
-  /* Segment / tabs */
-  --segment: var(--color-shadow-plum);
-  --segment-foreground: var(--color-bone-white);
-
-  /* Link → Lavender Spark, the brand-voice color (DESIGN.md: Link/Inline CTA
-     accepts Bone White or Lavender; Lavender keeps it visually distinct from
-     body text and matches "violet carries brand voice"). */
-  --link: var(--color-lavender-spark);
-
-  /* Status colors. DESIGN.md defines no dedicated success/warning/error
-     swatches for app UI (Signal Green and Lavender are strictly action/brand
-     only) — success reuses Signal Green (a "confirmed/go" signal is exactly
-     what Signal Green denotes); warning reuses Ember Orange, the only warm
-     tone in the palette, as a functional stand-in; danger is kept as a
-     reasonable default. Confirm with design if dedicated status swatches are
-     wanted later. */
-  --success: var(--color-signal-green);
-  --success-foreground: #000000;
-  --warning: var(--color-ember-orange);
-  --warning-foreground: #000000;
-  --danger: oklch(0.65 0.2 30);
-  --danger-foreground: var(--color-bone-white);
+   --success: var(--color-aurora-mint);
+   --success-foreground: var(--color-void-canvas);
+   --warning: var(--color-amber);
+   --warning-foreground: var(--color-void-canvas);
+   --danger: #ff6b6b;
+   --danger-foreground: var(--color-lunar-white);
 }
 
-/* ─── Base ───────────────────────────────────────────────────────────────── */
 html,
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
+   min-height: 100%;
+   background-color: var(--background);
+   color: var(--foreground);
+   font-family: var(--font-sans);
+   font-feature-settings: "calt" 1, "zero" 1;
+   -webkit-font-smoothing: antialiased;
+   text-rendering: optimizeLegibility;
 }
 
-/* ─── Utilities ──────────────────────────────────────────────────────────── */
+body {
+   background-image: radial-gradient(circle at top center, color-mix(in oklab, var(--color-nebula) 16%, transparent), transparent 48%);
+}
+
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+   width: 6px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--color-iron-edge);
-  border-radius: 9999px;
+   background-color: var(--color-gunmetal);
+   border-radius: 9999px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-mid-ash);
+   background-color: var(--color-mist);
 }
