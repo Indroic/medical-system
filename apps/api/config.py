@@ -47,6 +47,11 @@ def _derive_database_urls(base_url: str) -> tuple[str, str]:
     return f"postgresql://{rest}", f"postgresql+asyncpg://{rest}"
 
 
+# DATABASE_URL = URL sync (psycopg2) — usada por Alembic y conexiones síncronas.
+# ASYNC_DATABASE_URL = URL async (asyncpg) — si no se define, se deriva de DATABASE_URL.
+_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./db.sqlite3")
+_SYNC_DATABASE_URL, _DERIVED_ASYNC_URL = _derive_database_urls(_DATABASE_URL)
+
 
 
 class ProjectConfig(ServerConfig):
@@ -58,8 +63,8 @@ class ProjectConfig(ServerConfig):
     # DATABASE_URL  → sync  (psycopg2) — usado por Alembic.
     # ASYNC_DATABASE_URL → async (asyncpg) — si está definida, se usa directamente;
     # si no, se deriva automáticamente de DATABASE_URL.
-    sql_database_url: str = "postgresql://indroic:vFwLIC3G4VaLWgyLmSw3@2.24.222.241:5432/medical_db"
-    async_sql_database_url: str = "postgresql+asyncpg://indroic:vFwLIC3G4VaLWgyLmSw3@2.24.222.241:5432/medical_db"
+    sql_database_url: str = os.getenv("DATABASE_URL", _SYNC_DATABASE_URL)
+    async_sql_database_url: str = os.getenv("ASYNC_DATABASE_URL", _DERIVED_ASYNC_URL)
 
     # Seguridad
     secret_key: str = "dev-secret-change-in-production"
@@ -109,6 +114,13 @@ class ProjectConfig(ServerConfig):
     event_dispatcher: IEventDispatcher = RedisStreamEventDispatcher()
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+
+if os.getenv("ENVIRONMENT") == "production" and os.getenv("DATABASE_URL") is None:
+    raise RuntimeError(
+        "ENVIRONMENT=production pero DATABASE_URL no llegó al proceso "
+        "(cayendo silenciosamente a SQLite). Revisa que la variable esté "
+        "definida en Dokploy y referenciada como '${DATABASE_URL}' en docker-compose.yml."
+    )
 
 config = ProjectConfig(
     repository_discovery_paths={

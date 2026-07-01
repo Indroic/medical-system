@@ -7,7 +7,7 @@ services:
     command: ["sh", "./scripts/migrate.sh"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
+      - DATABASE_URL=${DATABASE_URL}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     networks:
       - medical-network
@@ -20,10 +20,10 @@ services:
     restart: always
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
-      - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL:?ASYNC_DATABASE_URL must be set}
+      - DATABASE_URL=${DATABASE_URL}
+      - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL}
       - SERVER_URL=http://medical-server:3000
-      - BETTER_AUTH_URL=${APP_URL:?APP_URL must be set}
+      - BETTER_AUTH_URL=${APP_URL}
       - CELERY_BROKER_URL=redis://medical-redis:6379/0
       - REDIS_URL=redis://medical-redis:6379/0
       - S3_ENDPOINT=http://medical-seaweedfs:8333
@@ -53,8 +53,8 @@ services:
     command: ["uv", "run", "celery", "-A", "src.worker", "worker", "--loglevel=info", "-c", "1"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
-      - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL:?ASYNC_DATABASE_URL must be set}
+      - DATABASE_URL=${DATABASE_URL}
+      - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL}
       - SERVER_URL=http://medical-server:3000
       - CELERY_BROKER_URL=redis://medical-redis:6379/0
       - REDIS_URL=redis://medical-redis:6379/0
@@ -91,10 +91,10 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
-      - BETTER_AUTH_URL=${APP_URL:?APP_URL must be set}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}
-      - CORS_ORIGIN=${APP_URL:?APP_URL must be set}
+      - DATABASE_URL=${DATABASE_URL}
+      - BETTER_AUTH_URL=${APP_URL}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - CORS_ORIGIN=${APP_URL}
       - PYTHON_API_URL=http://medical-api:8000
       - REDIS_URL=redis://medical-redis:6379/0
     depends_on:
@@ -130,8 +130,8 @@ services:
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
       - AWS_REGION=us-east-1
-      - IMGPROXY_KEY=${IMGPROXY_KEY:?IMGPROXY_KEY must be set}
-      - IMGPROXY_SALT=${IMGPROXY_SALT:?IMGPROXY_SALT must be set}
+      - IMGPROXY_KEY=${IMGPROXY_KEY}
+      - IMGPROXY_SALT=${IMGPROXY_SALT}
       - IMGPROXY_ENFORCE_SIGNATURE=true
     depends_on:
       - medical-seaweedfs
