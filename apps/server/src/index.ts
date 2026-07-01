@@ -12,6 +12,8 @@ import { usuarios } from "./routes/usuarios";
 import { eventsRouter } from "./routes/events";
 import { trimTrailingSlash } from "hono/trailing-slash";
 
+const ADMIN_CREATION_KEY = "MEDICAL-ADMIN-USER-CREATION"
+
 const app = new Hono<{
   Variables: {
     user: typeof auth.$Infer.Session.user | null;
@@ -23,6 +25,7 @@ app.use(trimTrailingSlash());
 
 app.use(logger());
 app.use(
+  
   "/*",
   cors({
     origin: "https://medical.indroic.dev",
@@ -61,6 +64,50 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 app.get("/check-setup", async (c) => {
   const rows = await db.select({ id: user.id }).from(user).limit(1);
   return c.json({ setup_required: rows.length === 0 });
+});
+
+app.post("/create-admin", async (c) => {
+  let body: {
+    creation_key?: string;
+    name?: string;
+    email?: string;
+    password?: string;
+  };
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "Cuerpo JSON inválido" }, 400);
+  }
+
+  if (body.creation_key !== ADMIN_CREATION_KEY) {
+    return c.json({ error: "Clave de creación inválida" }, 403);
+  }
+  if (!body.email || !body.password || !body.name) {
+    return c.json({ error: "Faltan campos: name, email y password" }, 400);
+  }
+
+  try {
+    // createUser (plugin admin) crea el usuario con su rol en una sola llamada y
+    // NO pasa por `disableSignUp`. Llamado server-side sin headers, no exige una
+    // sesión de admin previa.
+    const result = await auth.api.createUser({
+      body: {
+        email: body.email,
+        password: body.password,
+        name: body.name,
+        role: "admin",
+      },
+    });
+    const userId = result?.user?.id;
+    if (!userId) {
+      return c.json({ error: "No se pudo crear el usuario" }, 500);
+    }
+    return c.json({ ok: true, userId });
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Error al crear el administrador";
+    return c.json({ error: message }, 400);
+  }
 });
 
 app.get("/", (c) => {

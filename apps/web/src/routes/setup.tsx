@@ -27,16 +27,22 @@ function SetupPage() {
   const { login } = useAuthStore();
 
   const form = useForm({
-    defaultValues: { nombre: "", email: "", password: "" },
+    defaultValues: { creationKey: "", nombre: "", email: "", password: "" },
     onSubmit: async ({ value }) => {
       try {
-        // 1. Crear usuario (sin role — Better Auth no lo permite en signUp público)
-        const { data: signUpData, error: signUpError } = await authClient.signUp.email({
-          name: value.nombre,
-          email: value.email,
-          password: value.password,
+        // 1. Crear el administrador vía endpoint dedicado (crea el usuario ya con role="admin")
+        const createRes = await fetch(`${env.VITE_SERVER_URL}/create-admin`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            creation_key: value.creationKey,
+            name: value.nombre,
+            email: value.email,
+            password: value.password,
+          }),
         });
-        if (signUpError || !signUpData) throw new Error(signUpError?.message ?? "Error al crear el administrador");
+        const createData = await createRes.json();
+        if (!createRes.ok) throw new Error(createData?.error ?? "Error al crear el administrador");
 
         // 2. Iniciar sesión para obtener sesión activa
         const { data, error: signInError } = await authClient.signIn.email({
@@ -45,14 +51,7 @@ function SetupPage() {
         });
         if (signInError || !data) throw new Error(signInError?.message ?? "Error al iniciar sesión");
 
-        // 3. Asignar rol admin usando la sesión activa (adminClient)
-        const { error: roleError } = await authClient.admin.setRole({
-          userId: signUpData.user.id,
-          role: "admin",
-        });
-        if (roleError) throw new Error(roleError.message ?? "Error al asignar rol de administrador");
-
-        // 4. Obtener token JWT del backend
+        // 3. Obtener token JWT del backend
         const tokenRes = await fetch(`${env.VITE_SERVER_URL}/api/auth/token`, {
           headers: { Authorization: `Bearer ${data.token}` },
         });
@@ -93,6 +92,23 @@ function SetupPage() {
             onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
             className="flex flex-col gap-5"
           >
+            <form.Field name="creationKey">
+              {(field) => (
+                <TextField
+                  name={field.name}
+                  type="password"
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  isRequired
+                  className="w-full"
+                >
+                  <Label className="text-[13px] text-ash mb-1.5">Clave de creación</Label>
+                  <Input placeholder="Clave provista por el sistema" />
+                  <FieldError />
+                </TextField>
+              )}
+            </form.Field>
+
             <form.Field name="nombre">
               {(field) => (
                 <TextField
