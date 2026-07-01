@@ -102,8 +102,6 @@ services:
         condition: service_healthy
       medical-api:
         condition: service_healthy
-      medical-auth-migrator:
-        condition: service_completed_successfully
     networks:
       - medical-network
       - dokploy-network
