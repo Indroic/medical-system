@@ -108,16 +108,16 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
     <Modal>
       <Modal.Backdrop isOpen={state.isOpen} onOpenChange={state.setOpen}>
         <Modal.Container>
-          <Modal.Dialog className="bg-obsidian border border-charcoal w-full h-full max-w-full m-0 rounded-none sm:rounded-none">
-            <Modal.Header className="flex flex-col gap-1 border-b border-charcoal text-snow px-4 sm:px-8 py-6">
+          <Modal.Dialog className="bg-background border border-border w-full h-full max-w-full m-0 rounded-none sm:rounded-none">
+            <Modal.Header className="flex flex-col gap-1 border-b border-border text-foreground px-4 sm:px-8 py-6">
               <div className="flex items-center justify-between w-full">
-                <Modal.Heading className="text-[20px] font-medium text-snow">Detalle de estudio</Modal.Heading>
+                <Modal.Heading className="text-[20px] font-medium text-foreground">Detalle de estudio</Modal.Heading>
                 <div className="flex items-center gap-6">
                   {estudio && <EstadoBadge estado={estudio.estado} />}
                   <button
                     type="button"
                     onClick={state.close}
-                    className="text-[13px] text-smoke hover:text-silver transition-colors"
+                    className="text-[13px] text-muted hover:text-ash transition-colors"
                   >
                     Cerrar
                   </button>
@@ -126,14 +126,14 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
             </Modal.Header>
             <Modal.Body className="p-4 sm:p-8 overflow-y-auto custom-scrollbar">
               {loading ? (
-                <div className="text-[13px] text-smoke">Cargando…</div>
+                <div className="text-[13px] text-muted">Cargando…</div>
               ) : !estudio ? (
-                <div className="text-[13px] text-smoke">Estudio no encontrado.</div>
+                <div className="text-[13px] text-muted">Estudio no encontrado.</div>
               ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-[1fr_350px] gap-8">
                   {/* Left: image */}
                   <div>
-                    <div className="rounded-2xl border border-charcoal overflow-hidden bg-ash flex items-center justify-center min-h-[400px]">
+                    <div className="rounded-2xl border border-border overflow-hidden bg-surface flex items-center justify-center min-h-[400px]">
                       {proxySrc ? (
                         <img
                           src={proxySrc}
@@ -141,7 +141,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           className="max-h-[60vh] w-auto object-contain"
                         />
                       ) : (
-                        <p className="text-[13px] text-smoke">Sin imagen disponible</p>
+                        <p className="text-[13px] text-muted">Sin imagen disponible</p>
                       )}
                     </div>
 
@@ -151,7 +151,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           type="button"
                           onClick={handleAnalizar}
                           disabled={analyzing}
-                          className="rounded-full bg-green px-6 py-2.5 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
+                          className="rounded-full bg-accent px-6 py-2.5 text-[14px] font-medium text-accent-foreground hover:bg-accent-hover disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
                         >
                           {analyzing ? "Analizando…" : "Ejecutar análisis IA"}
                         </button>
@@ -163,7 +163,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                             state.close();
                             navigate({ to: "/analisis/$estudioId", params: { estudioId: estudio.id } });
                           }}
-                          className="rounded-full border border-charcoal px-6 py-2.5 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors w-full sm:w-auto text-center"
+                          className="rounded-full border border-border px-6 py-2.5 text-[14px] text-foreground hover:bg-surface-hover hover:border-field-border transition-colors w-full sm:w-auto text-center"
                         >
                           Ver resultados de análisis →
                         </button>
@@ -178,7 +178,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                             />
                           }
                           fileName={`reporte_${estudioId}.pdf`}
-                          className="rounded-full border border-charcoal px-6 py-2.5 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors text-center inline-block w-full sm:w-auto"
+                          className="rounded-full border border-border px-6 py-2.5 text-[14px] text-foreground hover:bg-surface-hover hover:border-field-border transition-colors text-center inline-block w-full sm:w-auto"
                         >
                           {({ loading: pdfLoading }) =>
                             pdfLoading ? "Preparando PDF…" : "Descargar reporte PDF"
@@ -189,7 +189,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           <button
                             type="button"
                             disabled
-                            className="rounded-full border border-charcoal/50 px-6 py-2.5 text-[14px] text-smoke cursor-not-allowed transition-colors w-full sm:w-auto text-center"
+                            className="rounded-full border border-border/50 px-6 py-2.5 text-[14px] text-muted cursor-not-allowed transition-colors w-full sm:w-auto text-center"
                           >
                             Cargando datos del PDF…
                           </button>
@@ -202,8 +202,8 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                   <div className="flex flex-col gap-6">
                     {paciente && <PatientCard paciente={paciente} />}
 
-                    <div className="rounded-2xl border border-charcoal bg-ash p-5">
-                      <p className="text-[11px] font-medium text-smoke uppercase tracking-widest mb-4">
+                    <div className="rounded-2xl border border-border bg-surface p-5">
+                      <p className="text-[11px] font-medium text-muted uppercase tracking-widest mb-4">
                         Detalles del estudio
                       </p>
                       <dl className="flex flex-col gap-3">
@@ -214,7 +214,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           <Row
                             label="Reporte PDF"
                             value={
-                              reporte.estado === "LISTO" ? <span className="text-green">Disponible</span>
+                              reporte.estado === "LISTO" ? <span className="text-success">Disponible</span>
                               : reporte.estado === "GENERANDO" ? "Generando…"
                               : "Error"
                             }
@@ -236,8 +236,8 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
 function Row({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <dt className="text-[12px] text-smoke shrink-0">{label}</dt>
-      <dd className={`text-[13px] text-silver text-right ${mono ? "font-mono" : ""}`}>{value}</dd>
+      <dt className="text-[12px] text-muted shrink-0">{label}</dt>
+      <dd className={`text-[13px] text-ash text-right ${mono ? "font-mono" : ""}`}>{value}</dd>
     </div>
   );
 }
