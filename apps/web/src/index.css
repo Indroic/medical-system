@@ -1,108 +1,143 @@
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
 @import "@fontsource-variable/geist-mono";
 @import "@heroui/styles";
 
 /* ─── Tailwind v4 Design Tokens ──────────────────────────────────────────── */
+/* Palette retargeted to DESIGN.md "Dala" system (violet-on-void). Names kept
+   from the previous Supabase-green theme so existing usages don't break —
+   only the values changed, mapped by role to the new palette. */
 @theme {
-  /* Colors — Supabase dark system */
-  --color-obsidian: #121212;   /* page canvas */
-  --color-ash: #242424;        /* elevated cards */
-  --color-charcoal: #2e2e2e;   /* card borders */
-  --color-slate: #393939;      /* input borders */
-  --color-graphite: #4d4d4d;   /* icon / dividers */
-  --color-smoke: #898989;      /* captions / helper text */
-  --color-silver: #b4b4b4;     /* secondary text */
-  --color-snow: #fafafa;       /* primary text */
-  --color-green: #3ecf8e;      /* Phosphor Green — primary CTA */
-  --color-green-deep: #1f4b37; /* hover / pressed borders on green */
-  --color-green-mid: #00c573;  /* link / inline accent */
-  --color-green-midnight: #006239;
+  /* Colors — named and valued per DESIGN.md "Dala" system */
+  --color-void: #000000;          /* Void — page canvas, all surfaces (no nested tiers) */
+  --color-bone: #ffffff;          /* Bone — primary text, hairlines, inverted fills */
+  --color-ash: #bdbdbd;           /* Ash — secondary text */
+  --color-smoke: #9a9a9a;         /* Smoke — tertiary/caption text */
+  --color-plum-voltage: #8052ff;  /* Plum Voltage — primary CTA / accent */
+  --color-amber-spark: #ffb829;   /* Amber Spark — links / inline accent */
+  --color-lichen: #15846e;        /* Lichen — success status */
+  /* Graphite is a UI-only derived grey (not a DESIGN.md swatch) for de-emphasized
+     numerals/icon strokes — kept close to the old #4d4d4d but sourced from Bone/Void
+     so it can never drift from the two true primitives. */
+  --color-graphite: color-mix(in oklab, var(--color-bone) 30%, var(--color-void));
+  /* Slate — kept for backwards compatibility with scrollbar utilities.
+     Derived from Bone at 16% alpha over Void (input border weight). */
+  --color-slate: color-mix(in oklab, var(--color-bone) 16%, var(--color-void));
 
   /* Typography */
-  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "Geist Mono Variable", ui-monospace, monospace;
 
-  /* Radius */
-  --radius-input: 0.5rem;    /* 8px  — inputs */
-  --radius-card: 1rem;       /* 16px — cards */
-  --radius-full: 9999px;     /* pill — buttons / tags */
+  /* Type scale */
+  --text-caption: 12px;
+  --text-caption--line-height: 1.5;
+  --text-caption--letter-spacing: 0.05em;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.5;
+  --text-body-sm--letter-spacing: 0.05em;
+  --text-subheading: 18px;
+  --text-subheading--line-height: 1.5;
+  --text-subheading--letter-spacing: 0.025em;
+  --text-heading-sm: 24px;
+  --text-heading-sm--line-height: 1.3;
+  --text-heading-sm--letter-spacing: 0.021em;
+  --text-heading: 36px;
+  --text-heading--line-height: 1.2;
+  --text-heading--letter-spacing: 0.021em;
+  --text-heading-lg: 48px;
+  --text-heading-lg--line-height: 1.1;
+  --text-heading-lg--letter-spacing: -0.04em;
+  --text-display: 78px;
+  --text-display--line-height: 0.9;
+  --text-display--letter-spacing: -0.04em;
+  --text-hero: 113px;
+  --text-hero--line-height: 0.81;
+  --text-hero--letter-spacing: -0.04em;
+
+  /* Radius — every interactive surface uses 24px per DESIGN.md */
+  --radius-input: 1.5rem;
+  --radius-card: 1.5rem;
+  --radius-nav: 1.5rem;
+  --radius-full: 9999px;
 }
 
 @plugin "@tailwindcss/typography";
 
 /* ─── HeroUI v3 Semantic Token Overrides — forced dark ───────────────────── */
 :root {
-  /* Accent → Phosphor Green #3ecf8e */
-  --accent: oklch(0.742 0.155 155);
-  --accent-foreground: oklch(0.985 0 0);
-  --accent-hover: oklch(0.65 0.11 155);
-  --accent-soft: oklch(0.35 0.072 155);
-  --accent-soft-foreground: oklch(0.742 0.155 155);
+  /* Accent → Plum Voltage */
+  --accent: var(--color-plum-voltage);
+  --accent-foreground: var(--color-bone);
+  /* Darker-on-hover (not HeroUI's default lighten) to match this system's existing,
+     intentional "pressed" feel — derived from the accent itself, not a hand-picked hex. */
+  --accent-hover: color-mix(in oklab, var(--color-plum-voltage) 80%, black 20%);
 
   /* Canvas */
-  --background: oklch(0.102 0 0);
+  --background: var(--color-void);
 
-  /* Surfaces */
-  --surface: oklch(0.102 0 0);
-  --surface-foreground: oklch(0.985 0 0);
-  --surface-secondary: oklch(0.189 0 0);
-  --surface-tertiary: oklch(0.238 0 0);
+  /* Surfaces — flat, no elevation tier (spec: "no nested surface layers") */
+  --surface: var(--color-void);
+  --surface-foreground: var(--color-bone);
+  --surface-secondary: color-mix(in oklab, var(--color-bone) 4%, var(--color-void));
+  --surface-tertiary: color-mix(in oklab, var(--color-bone) 8%, var(--color-void));
 
   /* Overlay (modals, dropdowns) */
-  --overlay: oklch(0.189 0 0);
-  --overlay-foreground: oklch(0.985 0 0);
+  --overlay: var(--color-void);
+  --overlay-foreground: var(--color-bone);
 
   /* Default component fill */
-  --default: oklch(0.189 0 0);
-  --default-foreground: oklch(0.985 0 0);
-  --default-hover: oklch(0.238 0 0);
+  --default: var(--color-void);
+  --default-foreground: var(--color-bone);
 
   /* Foreground */
-  --foreground: oklch(0.985 0 0);
-  --muted: oklch(0.58 0 0);
+  --foreground: var(--color-bone);
+  --muted: var(--color-smoke);
 
-  /* Borders */
-  --border: oklch(0.238 0 0);
-  --separator: oklch(0.238 0 0);
+  /* Borders — DESIGN.md: "1px solid #ffffff at low alpha" (hairline), ~16% for fields */
+  --border: color-mix(in oklab, var(--color-bone) 10%, transparent);
+  --separator: var(--border);
 
   /* Form fields */
-  --field-background: oklch(0.102 0 0);
-  --field-foreground: oklch(0.985 0 0);
-  --field-placeholder: oklch(0.58 0 0);
-  --field-border: oklch(0.294 0 0);
+  --field-background: var(--color-void);
+  --field-foreground: var(--color-bone);
+  --field-placeholder: var(--color-smoke);
+  --field-border: color-mix(in oklab, var(--color-bone) 16%, transparent);
   --field-border-width: 1px;
 
-  /* Focus → Phosphor Green (no glow ring — just chromatic border) */
-  --focus: oklch(0.742 0.155 155);
+  /* Focus → Plum Voltage (no glow ring — just chromatic border) */
+  --focus: var(--color-plum-voltage);
 
-  /* Base radius → 8px (inputs) */
-  --radius: 0.5rem;
+  /* Base radius → 24px, matches every interactive surface per DESIGN.md */
+  --radius: 1.5rem;
 
   /* Flat design — no shadows */
   --surface-shadow: none;
+  --overlay-shadow: none;
+  --field-shadow: none;
 
   /* Segment / tabs */
-  --segment: oklch(0.189 0 0);
-  --segment-foreground: oklch(0.985 0 0);
+  --segment: var(--color-void);
+  --segment-foreground: var(--color-bone);
 
-  /* Link */
-  --link: oklch(0.699 0.194 151);
+  /* Link → Amber Spark */
+  --link: var(--color-amber-spark);
 
   /* Status colors */
-  --success: oklch(0.742 0.155 155);
-  --success-foreground: oklch(0.102 0 0);
-  --warning: oklch(0.82 0.165 80);
-  --warning-foreground: oklch(0.102 0 0);
+  --success: var(--color-lichen);
+  --success-foreground: var(--color-bone);
+  --warning: var(--color-amber-spark);
+  --warning-foreground: var(--color-void);
+  /* DESIGN.md defines no error red — kept as a reasonable functional default.
+     Confirm with design if an exact brand red is wanted. */
   --danger: oklch(0.65 0.2 30);
-  --danger-foreground: oklch(0.985 0 0);
+  --danger-foreground: var(--color-bone);
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
 html,
 body {
-  background-color: #121212;
-  color: #fafafa;
-  font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -114,9 +149,9 @@ body {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #393939;
+  background-color: var(--color-slate);
   border-radius: 9999px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #4d4d4d;
+  background-color: var(--color-graphite);
 }
