@@ -256,7 +256,7 @@ requires-dist = [
     { name = "celery", specifier = ">=5.6.3" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.0" },
     { name = "google-genai", specifier = ">=0.3.0" },
-    { name = "hexcore", specifier = "==2.0.3" },
+    { name = "hexcore", specifier = ">=2.0.6" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.27.0" },
     { name = "opencv-python", marker = "extra == 'ia'", specifier = ">=4.10.0" },
     { name = "opencv-python-headless", specifier = ">=4.13.0.92" },
@@ -1075,12 +1075,11 @@ wheels = [
 
 [[package]]
 name = "hexcore"
-version = "2.0.3"
+version = "2.0.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiosqlite" },
     { name = "alembic" },
-    { name = "async-typer" },
     { name = "asyncpg" },
     { name = "beanie" },
     { name = "fastapi" },
@@ -1091,9 +1090,9 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a5/f8/43daad21c999ca454f76f9c95dcd48c3d0e9815f9c4adf54c5bb80223956/hexcore-2.0.3.tar.gz", hash = "sha256:22db2a7c622e7a69e486a4556a965c2a60e9640b460d14236659644d8f4a2e2c", size = 45721, upload-time = "2026-04-08T11:00:49.243Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ba/44/5a56b0c541039319eda9db20d16f6276c21ea498fd9af821b80c89f95eb4/hexcore-2.0.6.tar.gz", hash = "sha256:5f88d360d87398f61be4f7c9156d3c11c3dff0c296c2f647087e47e68f9b54f2", size = 45681, upload-time = "2026-06-25T18:49:56.837Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/17/05/a77da31b24db87d8a2231d01d0027fc7e72f0c6d0068ad837ef9adbac29d/hexcore-2.0.3-py3-none-any.whl", hash = "sha256:5e6bfecad30a3acafc39aed8d9bd0470c046de956bf908d89880fd72a33bb804", size = 59840, upload-time = "2026-04-08T11:00:48.048Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/41/b1295638716ccf6d71854292b0144cfd72909a86a00c1a46a62baf23cfc5/hexcore-2.0.6-py3-none-any.whl", hash = "sha256:52cbbaf56a610aefa86b8c624d6c42752ffc70ed62fe213f91ca523fbbcae4b3", size = 59760, upload-time = "2026-06-25T18:49:55.748Z" },
 ]
 
 [[package]]
