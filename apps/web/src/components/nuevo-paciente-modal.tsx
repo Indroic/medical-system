@@ -43,11 +43,11 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
   return (
     <Modal.Backdrop isOpen={state.isOpen} onOpenChange={state.setOpen}>
       <Modal.Container>
-        <Modal.Dialog className="bg-ash border border-charcoal sm:max-w-2xl w-full">
+        <Modal.Dialog className="bg-surface border border-border sm:max-w-2xl w-full">
           <Modal.CloseTrigger />
-          <Modal.Header className="flex flex-col gap-1 text-snow">
+          <Modal.Header className="flex flex-col gap-1 text-foreground">
             <Modal.Heading>Nuevo paciente</Modal.Heading>
-            <p className="text-[13px] text-smoke font-normal mt-1">Registra los datos del paciente antes de subir el estudio.</p>
+            <p className="text-[13px] text-muted font-normal mt-1">Registra los datos del paciente antes de subir el estudio.</p>
           </Modal.Header>
           <Modal.Body>
               <form
@@ -66,8 +66,8 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                         isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                         className="w-full"
                       >
-                        <Label className="text-[13px] text-silver mb-1.5">Nombre</Label>
-                        <Input placeholder="María" className="bg-obsidian border-slate" />
+                        <Label className="text-[13px] text-ash mb-1.5">Nombre</Label>
+                        <Input placeholder="María" className="bg-background border-field-border" />
                         <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                       </TextField>
                     )}
@@ -83,8 +83,8 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                         isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                         className="w-full"
                       >
-                        <Label className="text-[13px] text-silver mb-1.5">Apellido</Label>
-                        <Input placeholder="García" className="bg-obsidian border-slate" />
+                        <Label className="text-[13px] text-ash mb-1.5">Apellido</Label>
+                        <Input placeholder="García" className="bg-background border-field-border" />
                         <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                       </TextField>
                     )}
@@ -102,15 +102,15 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                       isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                       className="w-full"
                     >
-                      <Label className="text-[13px] text-silver mb-1.5">Fecha de nacimiento</Label>
-                      <Input className="bg-obsidian border-slate" />
+                      <Label className="text-[13px] text-ash mb-1.5">Fecha de nacimiento</Label>
+                      <Input className="bg-background border-field-border" />
                       <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                     </TextField>
                   )}
                 </form.Field>
 
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[13px] text-silver">Documento de identidad</span>
+                  <span className="text-[13px] text-ash">Documento de identidad</span>
                   <div className="flex gap-2 items-start">
                     <form.Field name="tipo_documento">
                       {(field) => (
@@ -120,7 +120,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                           className="shrink-0 w-24"
                         >
                           <Label className="sr-only">Tipo</Label>
-                          <Select.Trigger className="bg-obsidian border-charcoal h-full">
+                          <Select.Trigger className="bg-background border-border h-full">
                             <Select.Value />
                             <Select.Indicator />
                           </Select.Trigger>
@@ -162,7 +162,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                           <Input
                             placeholder="12345678"
                             inputMode="numeric"
-                            className="bg-obsidian border-slate"
+                            className="bg-background border-field-border"
                           />
                           <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                         </TextField>
@@ -176,7 +176,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
               <button
                 type="button"
                 onClick={state.close}
-                className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-obsidian hover:border-slate transition-colors w-full sm:w-auto text-center"
+                className="rounded-full border border-border px-5 py-2 text-[14px] text-foreground hover:bg-background hover:border-field-border transition-colors w-full sm:w-auto text-center"
               >
                 Cancelar
               </button>
@@ -186,7 +186,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                     type="submit"
                     form="nuevo-paciente-form"
                     isDisabled={isSubmitting}
-                    className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
+                    className="rounded-full bg-accent px-5 py-2 text-[14px] font-medium text-accent-foreground hover:bg-accent-hover disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
                   >
                     {isSubmitting ? "Guardando…" : "Crear paciente"}
                   </Button>
