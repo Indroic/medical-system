@@ -13,21 +13,6 @@ services:
       - medical-network
       - dokploy-network
 
-  medical-auth-migrator:
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
-    restart: "no"
-    command: ["sh", "-c", "cd /app && ./node_modules/.bin/auth migrate --config /app/packages/auth/src/index.ts"]
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
-      - BETTER_AUTH_URL=${APP_URL}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-    networks:
-      - medical-network
-      - dokploy-network
-
   medical-api:
     build:
       context: .
