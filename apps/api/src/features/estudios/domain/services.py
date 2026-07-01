@@ -35,7 +35,7 @@ class EstudioService(BaseDomainService):
         mime_type: str,
         medico_id: str,
     ) -> Estudio:
-        logger.info(
+        logger.warning(
             "DEBUG recepcionar_estudio args paciente_id=%r (%s) medico_id=%r (%s)",
             paciente_id, type(paciente_id), medico_id, type(medico_id),
         )
@@ -46,11 +46,17 @@ class EstudioService(BaseDomainService):
             medico_id=medico_id,
         )
         estudio.registrar_recepcion()
-        logger.info(
-            "DEBUG estudio antes de save: %r | model_dump=%r",
-            estudio, estudio.model_dump(),
+        logger.warning(
+            "DEBUG estudio antes de save: paciente_id=%r (%s) medico_id=%r (%s) | model_dump=%r",
+            estudio.paciente_id, type(estudio.paciente_id),
+            estudio.medico_id, type(estudio.medico_id),
+            estudio.model_dump(),
         )
         await self._repo.save(estudio)
+        logger.warning(
+            "DEBUG estudio despues de save: paciente_id=%r medico_id=%r",
+            estudio.paciente_id, estudio.medico_id,
+        )
         return estudio
 
     async def marcar_completado(self, estudio_id: UUID) -> Estudio:
