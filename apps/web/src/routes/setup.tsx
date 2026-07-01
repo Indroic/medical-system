@@ -1,6 +1,7 @@
 import { createFileRoute, isRedirect, redirect, useNavigate } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { Button, FieldError, Input, Label, TextField, toast } from "@heroui/react";
+import { Scan } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { useAuthStore } from "@/lib/auth-store";
@@ -76,18 +77,21 @@ function SetupPage() {
     <div className="min-h-svh bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-90">
         <div className="mb-8">
-          <p className="text-[11px] font-medium text-muted uppercase tracking-widest mb-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-cards bg-accent mb-4">
+            <Scan size={18} className="text-accent-foreground" />
+          </div>
+          <p className="text-[11px] font-semibold text-accent uppercase tracking-widest mb-3">
             Medical Imaging System · Configuración inicial
           </p>
-          <h1 className="text-[22px] font-normal text-foreground leading-tight tracking-[-0.3px]">
+          <h1 className="text-[22px] font-semibold text-foreground leading-tight tracking-[-0.3px]">
             Crear administrador
           </h1>
-          <p className="mt-2 text-[13px] text-ash leading-relaxed">
+          <p className="mt-2 text-[13px] text-muted leading-relaxed">
             No existe ningún usuario. Crea la cuenta de administrador para continuar.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface p-6">
+        <div className="rounded-cards bg-surface shadow-surface p-6">
           <form
             onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
             className="flex flex-col gap-5"
@@ -102,7 +106,7 @@ function SetupPage() {
                   isRequired
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-ash mb-1.5">Clave de creación</Label>
+                  <Label className="text-[13px] text-muted mb-1.5">Clave de creación</Label>
                   <Input placeholder="Clave provista por el sistema" />
                   <FieldError />
                 </TextField>
@@ -118,7 +122,7 @@ function SetupPage() {
                   isRequired
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-ash mb-1.5">Nombre completo</Label>
+                  <Label className="text-[13px] text-muted mb-1.5">Nombre completo</Label>
                   <Input placeholder="Dr. Juan García" />
                   <FieldError />
                 </TextField>
@@ -135,7 +139,7 @@ function SetupPage() {
                   isRequired
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-ash mb-1.5">Correo electrónico</Label>
+                  <Label className="text-[13px] text-muted mb-1.5">Correo electrónico</Label>
                   <Input placeholder="admin@clinica.com" />
                   <FieldError />
                 </TextField>
@@ -156,7 +160,7 @@ function SetupPage() {
                   isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-ash mb-1.5">Contraseña</Label>
+                  <Label className="text-[13px] text-muted mb-1.5">Contraseña</Label>
                   <Input placeholder="Mínimo 8 caracteres" />
                   <FieldError>
                     {field.state.meta.isTouched && field.state.meta.errors[0]}

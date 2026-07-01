@@ -57,7 +57,7 @@ function PacienteDetail() {
             <button
               type="button"
               onClick={() => navigate({ to: "/pacientes" })}
-              className="text-[13px] text-muted hover:text-ash transition-colors"
+              className="text-[13px] text-muted hover:text-foreground transition-colors"
             >
               ← Volver
             </button>
@@ -70,17 +70,17 @@ function PacienteDetail() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-[14px] text-ash mb-4">Estudios ({estudios.length})</h2>
+        <h2 className="text-[14px] text-muted mb-4">Estudios ({estudios.length})</h2>
 
         {estudios.length === 0 ? (
-          <div className="rounded-2xl border border-border p-8 text-center text-[13px] text-muted">
+          <div className="rounded-cards bg-surface shadow-surface p-8 text-center text-[13px] text-muted">
             Este paciente no tiene estudios aún.
           </div>
         ) : (
-          <div className="rounded-2xl border border-border overflow-hidden">
+          <div className="rounded-cards bg-surface shadow-surface overflow-hidden">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-border bg-surface">
+                <tr className="border-b border-border bg-surface-secondary">
                   <th className="px-4 py-3 text-left text-muted font-normal">ID</th>
                   <th className="px-4 py-3 text-left text-muted font-normal">Estado</th>
                   <th className="px-4 py-3 text-left text-muted font-normal">Tipo</th>

@@ -61,11 +61,11 @@ function EstudiosList() {
 
       <div className="mt-8">
         {loading ? (
-          <div className="rounded-2xl border border-border p-8 text-center text-[13px] text-muted">
+          <div className="rounded-cards bg-surface shadow-surface p-8 text-center text-[13px] text-muted">
             Cargando…
           </div>
         ) : estudios.length === 0 ? (
-          <div className="rounded-2xl border border-border p-12 text-center">
+          <div className="rounded-cards bg-surface shadow-surface p-12 text-center">
             <p className="text-[14px] text-foreground mb-2">Sin estudios</p>
             <p className="text-[13px] text-muted mb-6">
               Sube el primer estudio de resonancia magnética (MRI) para comenzar el análisis.
@@ -79,10 +79,10 @@ function EstudiosList() {
             </button>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border overflow-hidden overflow-x-auto">
+          <div className="rounded-cards bg-surface shadow-surface overflow-hidden overflow-x-auto">
             <table className="w-full text-[13px] min-w-[600px]">
               <thead>
-                <tr className="border-b border-border bg-surface">
+                <tr className="border-b border-border bg-surface-secondary">
                   <th className="px-4 py-3 text-left text-muted font-normal">ID</th>
                   <th className="px-4 py-3 text-left text-muted font-normal">Paciente</th>
                   <th className="px-4 py-3 text-left text-muted font-normal">Estado</th>

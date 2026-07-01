@@ -178,12 +178,12 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
             <Modal.Body className="pb-6">
               {/* Step 1: Patient */}
               {step === "patient" && (
-                <div className="rounded-2xl border border-border bg-background p-6 mt-2">
+                <div className="rounded-cards border border-border bg-background p-6 mt-2">
                   <h2 className="text-[14px] text-foreground mb-4">Seleccionar paciente</h2>
                   {!createMode ? (
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <Label className="text-[13px] text-ash">Buscar paciente</Label>
+                        <Label className="text-[13px] text-muted">Buscar paciente</Label>
                         <Autocomplete
                           allowsEmptyCollection
                           className="w-full"
@@ -261,7 +261,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                         <createPatientForm.Field name="nombre" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                           {(field) => (
                             <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
-                              <Label className="text-[13px] text-ash mb-1.5">Nombre</Label>
+                              <Label className="text-[13px] text-muted mb-1.5">Nombre</Label>
                               <Input placeholder="María" className="bg-surface border-field-border" />
                               <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                             </TextField>
@@ -270,7 +270,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                         <createPatientForm.Field name="apellido" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                           {(field) => (
                             <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
-                              <Label className="text-[13px] text-ash mb-1.5">Apellido</Label>
+                              <Label className="text-[13px] text-muted mb-1.5">Apellido</Label>
                               <Input placeholder="García" className="bg-surface border-field-border" />
                               <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                             </TextField>
@@ -280,7 +280,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                       <createPatientForm.Field name="fecha_nacimiento" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                         {(field) => (
                           <TextField name={field.name} type="date" value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
-                            <Label className="text-[13px] text-ash mb-1.5">Fecha de nacimiento</Label>
+                            <Label className="text-[13px] text-muted mb-1.5">Fecha de nacimiento</Label>
                             <Input className="bg-surface border-field-border" />
                             <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                           </TextField>
@@ -289,7 +289,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                       <createPatientForm.Field name="documento_identidad" validators={{ onChange: ({ value }) => !value ? "Requerido" : undefined }}>
                         {(field) => (
                           <TextField name={field.name} value={field.state.value} onChange={field.handleChange} isRequired className="w-full">
-                            <Label className="text-[13px] text-ash mb-1.5">Documento de identidad</Label>
+                            <Label className="text-[13px] text-muted mb-1.5">Documento de identidad</Label>
                             <Input placeholder="12345678" className="bg-surface border-field-border" />
                             <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                           </TextField>
@@ -311,7 +311,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                         <button
                           type="button"
                           onClick={() => setCreateMode(false)}
-                          className="text-[13px] text-muted hover:text-ash transition-colors"
+                          className="text-[13px] text-muted hover:text-foreground transition-colors"
                         >
                           Cancelar
                         </button>
@@ -326,7 +326,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                 <div className="flex flex-col gap-4 mt-2">
                   <PatientCard paciente={paciente} />
 
-                  <div className="rounded-2xl border border-border bg-background p-6">
+                  <div className="rounded-cards border border-border bg-background p-6">
                     <h2 className="text-[14px] text-foreground mb-4">Subir imagen CT</h2>
                     <form id="nuevo-estudio-upload-form" onSubmit={handleUpload} className="flex flex-col gap-5">
                       <input
@@ -339,7 +339,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                       />
                       <div
                         onClick={() => fileRef.current?.click()}
-                        className={`flex flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 cursor-pointer transition-colors ${files.length > 0 ? "border-accent/50 bg-accent/5" : "border-border hover:border-field-border hover:bg-surface"
+                        className={`flex flex-col items-center justify-center rounded-cards border border-dashed px-6 py-10 cursor-pointer transition-colors ${files.length > 0 ? "border-accent/50 bg-accent/5" : "border-border hover:border-field-border hover:bg-surface"
                           }`}
                       >
                         {files.length > 0 ? (
@@ -352,7 +352,7 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                           </>
                         ) : (
                           <>
-                            <p className="text-[13px] text-ash">Seleccionar imágenes (Múltiples cortes)</p>
+                            <p className="text-[13px] text-muted">Seleccionar imágenes (Múltiples cortes)</p>
                             <p className="text-[12px] text-muted mt-1">Soporta PNG, JPEG o DICOM</p>
                           </>
                         )}

@@ -142,7 +142,7 @@ function UsuariosView() {
         </Button>
       </div>
 
-      <div className="border border-border rounded-2xl overflow-hidden">
+      <div className="rounded-cards bg-surface shadow-surface overflow-hidden">
         <Table aria-label="Tabla de usuarios">
           <Table.ScrollContainer>
             <Table.Content>
@@ -171,7 +171,11 @@ function UsuariosView() {
                       <Table.Cell>{userItem.name || userItem.nombre || "-"}</Table.Cell>
                       <Table.Cell>{userItem.email}</Table.Cell>
                       <Table.Cell>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-background border border-field-border text-foreground">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-badges text-xs font-medium ${
+                            userItem.role === "admin" ? "bg-accent-soft text-accent" : "bg-default text-muted"
+                          }`}
+                        >
                           {userItem.role || "Usuario"}
                         </span>
                       </Table.Cell>
@@ -221,7 +225,7 @@ function UsuariosView() {
             
             <form onSubmit={handleFormSubmit} className="p-6 flex flex-col gap-4">
               {error && (
-                <div className="bg-danger/20 border border-danger text-danger text-sm p-3 rounded-md">
+                <div className="bg-danger-soft border border-danger/30 text-danger-soft-foreground text-sm p-3 rounded-md">
                   {error}
                 </div>
               )}
@@ -325,7 +329,7 @@ function UsuariosView() {
             </Modal.Header>
             <Modal.Body className="p-6">
               {deleteError && (
-                <div className="bg-danger/20 border border-danger text-danger text-sm p-3 rounded-md mb-4">
+                <div className="bg-danger-soft border border-danger/30 text-danger-soft-foreground text-sm p-3 rounded-md mb-4">
                   {deleteError}
                 </div>
               )}

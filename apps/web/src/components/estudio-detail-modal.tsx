@@ -117,7 +117,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                   <button
                     type="button"
                     onClick={state.close}
-                    className="text-[13px] text-muted hover:text-ash transition-colors"
+                    className="text-[13px] text-muted hover:text-foreground transition-colors"
                   >
                     Cerrar
                   </button>
@@ -133,7 +133,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                 <div className="grid grid-cols-1 xl:grid-cols-[1fr_350px] gap-8">
                   {/* Left: image */}
                   <div>
-                    <div className="rounded-2xl border border-border overflow-hidden bg-surface flex items-center justify-center min-h-[400px]">
+                    <div className="rounded-cards border border-border overflow-hidden bg-surface flex items-center justify-center min-h-[400px]">
                       {proxySrc ? (
                         <img
                           src={proxySrc}
@@ -202,8 +202,8 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                   <div className="flex flex-col gap-6">
                     {paciente && <PatientCard paciente={paciente} />}
 
-                    <div className="rounded-2xl border border-border bg-surface p-5">
-                      <p className="text-[11px] font-medium text-muted uppercase tracking-widest mb-4">
+                    <div className="rounded-cards bg-surface shadow-surface p-5">
+                      <p className="text-[11px] font-medium text-accent uppercase tracking-widest mb-4">
                         Detalles del estudio
                       </p>
                       <dl className="flex flex-col gap-3">
@@ -237,7 +237,7 @@ function Row({ label, value, mono }: { label: string; value: React.ReactNode; mo
   return (
     <div className="flex items-start justify-between gap-4">
       <dt className="text-[12px] text-muted shrink-0">{label}</dt>
-      <dd className={`text-[13px] text-ash text-right ${mono ? "font-mono" : ""}`}>{value}</dd>
+      <dd className={`text-[13px] text-muted text-right ${mono ? "font-mono" : ""}`}>{value}</dd>
     </div>
   );
 }

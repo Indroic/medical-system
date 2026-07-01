@@ -66,7 +66,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                         isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                         className="w-full"
                       >
-                        <Label className="text-[13px] text-ash mb-1.5">Nombre</Label>
+                        <Label className="text-[13px] text-muted mb-1.5">Nombre</Label>
                         <Input placeholder="María" className="bg-background border-field-border" />
                         <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                       </TextField>
@@ -83,7 +83,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                         isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                         className="w-full"
                       >
-                        <Label className="text-[13px] text-ash mb-1.5">Apellido</Label>
+                        <Label className="text-[13px] text-muted mb-1.5">Apellido</Label>
                         <Input placeholder="García" className="bg-background border-field-border" />
                         <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                       </TextField>
@@ -102,7 +102,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                       isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                       className="w-full"
                     >
-                      <Label className="text-[13px] text-ash mb-1.5">Fecha de nacimiento</Label>
+                      <Label className="text-[13px] text-muted mb-1.5">Fecha de nacimiento</Label>
                       <Input className="bg-background border-field-border" />
                       <FieldError className="text-danger">{field.state.meta.isTouched && field.state.meta.errors[0]}</FieldError>
                     </TextField>
@@ -110,7 +110,7 @@ export default function NuevoPacienteModal({ state, onPacienteCreado }: NuevoPac
                 </form.Field>
 
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[13px] text-ash">Documento de identidad</span>
+                  <span className="text-[13px] text-muted">Documento de identidad</span>
                   <div className="flex gap-2 items-start">
                     <form.Field name="tipo_documento">
                       {(field) => (

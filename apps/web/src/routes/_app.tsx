@@ -121,10 +121,10 @@ function AppLayout() {
                     type="button"
                     onClick={() => navigate({ to })}
                     className={[
-                      "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors text-left w-full",
+                      "flex items-center gap-2.5 rounded-nav px-3 py-2 text-[13px] transition-colors text-left w-full",
                       active
-                        ? "bg-surface-hover text-foreground font-medium"
-                        : "text-muted hover:bg-surface-hover hover:text-ash",
+                        ? "bg-accent-soft text-accent font-medium"
+                        : "text-muted hover:bg-surface-hover hover:text-foreground",
                     ].join(" ")}
                   >
                     <Icon size={14} />
@@ -145,7 +145,7 @@ function AppLayout() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full rounded-lg px-3 py-2 text-[13px] text-muted hover:bg-surface-hover hover:text-ash text-left transition-colors"
+                className="w-full rounded-lg px-3 py-2 text-[13px] text-muted hover:bg-surface-hover hover:text-foreground text-left transition-colors"
               >
                 Cerrar sesión
               </button>
@@ -176,10 +176,10 @@ function AppLayout() {
                 type="button"
                 onClick={() => navigate({ to })}
                 className={[
-                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors text-left w-full",
+                  "flex items-center gap-2.5 rounded-nav px-3 py-2 text-[13px] transition-colors text-left w-full",
                   active
-                    ? "bg-surface-hover text-foreground font-medium"
-                    : "text-muted hover:bg-surface-hover hover:text-ash",
+                    ? "bg-accent-soft text-accent font-medium"
+                    : "text-muted hover:bg-surface-hover hover:text-foreground",
                 ].join(" ")}
               >
                 <Icon size={14} />
@@ -190,7 +190,8 @@ function AppLayout() {
         </nav>
 
         {/* User + logout */}
-        <div className="border-t border-border p-2">
+        <div className="border-t border-border p-2 flex items-center justify-between gap-2">
+          <span className="text-[11px] font-medium text-muted uppercase tracking-wide px-1">Tema</span>
           <ModeToggle />
           {user && (
             <div className="mb-1 px-3 py-2">
@@ -201,7 +202,7 @@ function AppLayout() {
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full rounded-lg px-3 py-2 text-[13px] text-muted hover:bg-surface-hover hover:text-ash text-left transition-colors"
+            className="w-full rounded-lg px-3 py-2 text-[13px] text-muted hover:bg-surface-hover hover:text-foreground text-left transition-colors"
           >
             Cerrar sesión
           </button>

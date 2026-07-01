@@ -1,29 +1,36 @@
-import { Button } from "@medical-system/ui/components/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@medical-system/ui/components/dropdown-menu";
+import { Button, Dropdown } from "@heroui/react";
 import { Moon, Sun } from "lucide-react";
 
 import { useTheme } from "@/components/theme-provider";
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" size="icon" />}>
-        <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-        <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-        <span className="sr-only">Toggle theme</span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Dropdown>
+      <Dropdown.Trigger>
+        <Button isIconOnly variant="ghost" aria-label="Cambiar tema" className="text-muted">
+          <Sun className="size-4 dark:hidden" />
+          <Moon className="hidden size-4 dark:block" />
+        </Button>
+      </Dropdown.Trigger>
+      <Dropdown.Popover placement="top start">
+        <Dropdown.Menu
+          selectionMode="single"
+          selectedKeys={theme ? [theme] : []}
+          onAction={(key) => setTheme(String(key))}
+        >
+          <Dropdown.Item id="light" textValue="Claro">
+            Claro
+          </Dropdown.Item>
+          <Dropdown.Item id="dark" textValue="Oscuro">
+            Oscuro
+          </Dropdown.Item>
+          <Dropdown.Item id="system" textValue="Sistema">
+            Sistema
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown.Popover>
+    </Dropdown>
   );
 }

@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { Button, FieldError, Input, Label, TextField, toast } from "@heroui/react";
+import { Scan } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { useAuthStore } from "@/lib/auth-store";
@@ -46,15 +47,18 @@ function LoginPage() {
     <div className="min-h-svh bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-90">
         <div className="mb-8">
-          <p className="text-[11px] font-medium text-muted uppercase tracking-widest mb-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-cards bg-accent mb-4">
+            <Scan size={18} className="text-accent-foreground" />
+          </div>
+          <p className="text-[11px] font-semibold text-accent uppercase tracking-widest mb-3">
             Medical Imaging System
           </p>
-          <h1 className="text-[22px] font-normal text-foreground leading-tight tracking-[-0.3px]">
+          <h1 className="text-[22px] font-semibold text-foreground leading-tight tracking-[-0.3px]">
             Acceder al sistema
           </h1>
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface p-6">
+        <div className="rounded-cards bg-surface shadow-surface p-6">
           <form
             onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
             className="flex flex-col gap-5"
@@ -69,7 +73,7 @@ function LoginPage() {
                   isRequired
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-ash mb-1.5">Correo electrónico</Label>
+                  <Label className="text-[13px] text-muted mb-1.5">Correo electrónico</Label>
                   <Input placeholder="doctor@clinica.com" />
                   <FieldError />
                 </TextField>
@@ -86,7 +90,7 @@ function LoginPage() {
                   isRequired
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-ash mb-1.5">Contraseña</Label>
+                  <Label className="text-[13px] text-muted mb-1.5">Contraseña</Label>
                   <Input placeholder="••••••••" />
                   <FieldError />
                 </TextField>

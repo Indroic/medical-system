@@ -32,7 +32,7 @@ export default function MriViewer({ imagePaths = [], hallazgos = [] }: MriViewer
   const hasPrev = currentIndex > 0;
 
   return (
-    <div className="relative inline-block border border-border rounded-2xl overflow-hidden bg-surface">
+    <div className="relative inline-block border border-border rounded-cards overflow-hidden bg-surface">
       <img
         key={currentImagePath}
         ref={imgRef}
@@ -53,12 +53,13 @@ export default function MriViewer({ imagePaths = [], hallazgos = [] }: MriViewer
             const y = h.y_min * scaleY;
             const w = (h.x_max - h.x_min) * scaleX;
             const ht = (h.y_max - h.y_min) * scaleY;
-            const stroke = h.es_critico ? "var(--color-bone)" : "var(--color-graphite)";
+            const stroke = h.es_critico ? "var(--danger)" : "var(--info)";
+            const labelText = h.es_critico ? "var(--danger-foreground)" : "var(--info-foreground)";
             return (
               <g key={i}>
-                <rect x={x} y={y} width={w} height={ht} fill="none" stroke={stroke} strokeWidth={1.5} />
+                <rect x={x} y={y} width={w} height={ht} fill="none" stroke={stroke} strokeWidth={2} />
                 <rect x={x} y={y - 16} width={Math.max(w, 60)} height={16} fill={stroke} />
-                <text x={x + 3} y={y - 4} fill={h.es_critico ? "var(--color-void)" : "var(--color-bone)"} fontSize={10} fontFamily="Geist Variable, monospace">
+                <text x={x + 3} y={y - 4} fill={labelText} fontSize={10} fontFamily="Geist Variable, monospace">
                   {h.etiqueta} {Math.round(h.confianza * 100)}%
                 </text>
               </g>
@@ -77,7 +78,7 @@ export default function MriViewer({ imagePaths = [], hallazgos = [] }: MriViewer
           >
             <ChevronLeft size={20} />
           </button>
-          <div className="text-[12px] font-medium text-ash tabular-nums tracking-widest">
+          <div className="text-[12px] font-medium text-muted tabular-nums tracking-widest">
             {currentIndex + 1} <span className="text-muted">/</span> {imagePaths.length}
           </div>
           <button

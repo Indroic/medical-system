@@ -57,7 +57,7 @@ function Dashboard() {
         title="Dashboard"
         subtitle={user ? `Bienvenido, ${user.nombre}` : undefined}
         action={
-          <span className="inline-flex items-center rounded-full bg-surface px-3 py-1 text-[12px] text-muted border border-border">
+          <span className="inline-flex items-center rounded-badges bg-accent-soft px-3 py-1 text-[12px] font-medium text-accent">
             {user?.rol === "admin" ? "Administrador" : "Médico"}
           </span>
         }
@@ -71,22 +71,22 @@ function Dashboard() {
 
       <div className="mt-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[14px] text-ash">Estudios recientes</h2>
+          <h2 className="text-[14px] text-muted">Estudios recientes</h2>
           <button
             type="button"
             onClick={() => navigate({ to: "/estudios" })}
-            className="text-[13px] text-muted hover:text-ash transition-colors"
+            className="text-[13px] text-muted hover:text-foreground transition-colors"
           >
             Ver todos →
           </button>
         </div>
 
         {loading ? (
-          <div className="rounded-2xl border border-border p-8 text-center text-[13px] text-muted">
+          <div className="rounded-cards bg-surface shadow-surface p-8 text-center text-[13px] text-muted">
             Cargando…
           </div>
         ) : recent.length === 0 ? (
-          <div className="rounded-2xl border border-border p-8 text-center text-[13px] text-muted">
+          <div className="rounded-cards bg-surface shadow-surface p-8 text-center text-[13px] text-muted">
             No hay estudios aún.{" "}
             <button
               type="button"
@@ -97,10 +97,10 @@ function Dashboard() {
             </button>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border overflow-hidden overflow-x-auto">
+          <div className="rounded-cards bg-surface shadow-surface overflow-hidden overflow-x-auto">
             <table className="w-full text-[13px] min-w-[500px]">
               <thead>
-                <tr className="border-b border-border bg-surface">
+                <tr className="border-b border-border bg-surface-secondary">
                   <th className="px-4 py-3 text-left text-muted font-normal">Estudio ID</th>
                   <th className="px-4 py-3 text-left text-muted font-normal">Estado</th>
                   <th className="px-4 py-3 text-left text-muted font-normal">Tipo</th>
@@ -110,7 +110,7 @@ function Dashboard() {
               <tbody>
                 {recent.map((estudio, i) => (
                   <tr key={estudio.id} className={i < recent.length - 1 ? "border-b border-border" : ""}>
-                    <td className="px-4 py-3 font-mono text-ash truncate max-w-[200px]">
+                    <td className="px-4 py-3 font-mono text-muted truncate max-w-[200px]">
                       {estudio.id.slice(0, 8)}…
                     </td>
                     <td className="px-4 py-3"><EstadoBadge estado={estudio.estado} /></td>
