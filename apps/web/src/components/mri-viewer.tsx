@@ -32,7 +32,7 @@ export default function MriViewer({ imagePaths = [], hallazgos = [] }: MriViewer
   const hasPrev = currentIndex > 0;
 
   return (
-    <div className="relative inline-block border border-charcoal rounded-2xl overflow-hidden bg-obsidian">
+    <div className="relative inline-block border border-border rounded-2xl overflow-hidden bg-surface">
       <img
         key={currentImagePath}
         ref={imgRef}
@@ -53,12 +53,12 @@ export default function MriViewer({ imagePaths = [], hallazgos = [] }: MriViewer
             const y = h.y_min * scaleY;
             const w = (h.x_max - h.x_min) * scaleX;
             const ht = (h.y_max - h.y_min) * scaleY;
-            const stroke = h.es_critico ? "#3ecf8e" : "#4d4d4d";
+            const stroke = h.es_critico ? "var(--color-bone)" : "var(--color-graphite)";
             return (
               <g key={i}>
                 <rect x={x} y={y} width={w} height={ht} fill="none" stroke={stroke} strokeWidth={1.5} />
                 <rect x={x} y={y - 16} width={Math.max(w, 60)} height={16} fill={stroke} />
-                <text x={x + 3} y={y - 4} fill={h.es_critico ? "#121212" : "#fafafa"} fontSize={10} fontFamily="Geist Variable, monospace">
+                <text x={x + 3} y={y - 4} fill={h.es_critico ? "var(--color-void)" : "var(--color-bone)"} fontSize={10} fontFamily="Geist Variable, monospace">
                   {h.etiqueta} {Math.round(h.confianza * 100)}%
                 </text>
               </g>
@@ -69,21 +69,21 @@ export default function MriViewer({ imagePaths = [], hallazgos = [] }: MriViewer
 
       {/* Controles de Navegación del Carrusel */}
       {imagePaths.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-obsidian/80 backdrop-blur-md px-4 py-2 rounded-full border border-charcoal">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-background/80 backdrop-blur-md px-4 py-2 rounded-full border border-border">
           <button
             onClick={() => setCurrentIndex(i => i - 1)}
             disabled={!hasPrev}
-            className="text-snow disabled:text-smoke hover:text-green transition-colors disabled:pointer-events-none p-1"
+            className="text-foreground disabled:text-muted hover:text-accent transition-colors disabled:pointer-events-none p-1"
           >
             <ChevronLeft size={20} />
           </button>
-          <div className="text-[12px] font-medium text-silver tabular-nums tracking-widest">
-            {currentIndex + 1} <span className="text-smoke">/</span> {imagePaths.length}
+          <div className="text-[12px] font-medium text-ash tabular-nums tracking-widest">
+            {currentIndex + 1} <span className="text-muted">/</span> {imagePaths.length}
           </div>
           <button
             onClick={() => setCurrentIndex(i => i + 1)}
             disabled={!hasNext}
-            className="text-snow disabled:text-smoke hover:text-green transition-colors disabled:pointer-events-none p-1"
+            className="text-foreground disabled:text-muted hover:text-accent transition-colors disabled:pointer-events-none p-1"
           >
             <ChevronRight size={20} />
           </button>
