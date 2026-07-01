@@ -126,9 +126,9 @@ function UsuariosView() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl tracking-tight font-medium mb-2">
-            Gestión de <span className="text-green">Usuarios</span>
+            Gestión de <span className="text-accent">Usuarios</span>
           </h1>
-          <p className="text-smoke text-base">
+          <p className="text-muted text-base">
             Administra el acceso y roles del personal médico del sistema.
           </p>
         </div>
@@ -142,7 +142,7 @@ function UsuariosView() {
         </Button>
       </div>
 
-      <div className="border border-charcoal rounded-2xl overflow-hidden">
+      <div className="border border-border rounded-2xl overflow-hidden">
         <Table aria-label="Tabla de usuarios">
           <Table.ScrollContainer>
             <Table.Content>
@@ -155,13 +155,13 @@ function UsuariosView() {
               <Table.Body>
                 {loading ? (
                   <Table.Row>
-                    <Table.Cell className="text-center text-smoke py-8" colSpan={4}>
+                    <Table.Cell className="text-center text-muted py-8" colSpan={4}>
                       Cargando usuarios...
                     </Table.Cell>
                   </Table.Row>
                 ) : users.length === 0 ? (
                   <Table.Row>
-                    <Table.Cell className="text-center text-smoke py-8" colSpan={4}>
+                    <Table.Cell className="text-center text-muted py-8" colSpan={4}>
                       No hay usuarios registrados.
                     </Table.Cell>
                   </Table.Row>
@@ -171,7 +171,7 @@ function UsuariosView() {
                       <Table.Cell>{userItem.name || userItem.nombre || "-"}</Table.Cell>
                       <Table.Cell>{userItem.email}</Table.Cell>
                       <Table.Cell>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-obsidian border border-slate text-snow">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-background border-field-border text-foreground">
                           {userItem.role || "Usuario"}
                         </span>
                       </Table.Cell>
@@ -294,15 +294,15 @@ function UsuariosView() {
                 </Select>
               </div>
 
-              <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-charcoal">
-                <Button 
+              <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-border">
+                <Button
                   variant="ghost"
                   onPress={() => setIsModalOpen(false)}
                   className="rounded-full cursor-pointer"
                 >
                   Cancelar
                 </Button>
-                <Button 
+                <Button
                   type="submit"
                   variant="primary"
                   className="rounded-full cursor-pointer"
@@ -329,12 +329,12 @@ function UsuariosView() {
                   {deleteError}
                 </div>
               )}
-              <p className="text-base text-smoke">
+              <p className="text-base text-muted">
                 ¿Estás seguro de que deseas eliminar permanentemente al usuario{" "}
-                <strong className="text-snow">{deletingUser?.name || deletingUser?.nombre}</strong>? Esta acción no se puede deshacer.
+                <strong className="text-foreground">{deletingUser?.name || deletingUser?.nombre}</strong>? Esta acción no se puede deshacer.
               </p>
             </Modal.Body>
-            <Modal.Footer className="flex justify-end gap-3 mt-4 pt-4 border-t border-charcoal">
+            <Modal.Footer className="flex justify-end gap-3 mt-4 pt-4 border-t border-border">
               <Button 
                 variant="ghost" 
                 onPress={() => setDeletingUser(null)} 
