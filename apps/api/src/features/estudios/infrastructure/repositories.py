@@ -33,21 +33,6 @@ class EstudioRepositoryImpl(
     def not_found_exception(self) -> type[Exception]:
         return EstudioNotFoundException
 
-    @property
-    def fields_resolvers(self) -> FieldResolversType | None:
-        async def resolve_paciente_id(m):
-            return UUID(m.paciente_id) if isinstance(m.paciente_id, str) else m.paciente_id
-        return {
-            "paciente_id": ("paciente_id", resolve_paciente_id),
-        }
-
-    @property
-    def fields_serializers(self) -> FieldSerializersType | None:
-        return {
-            "paciente_id": ("paciente_id", lambda e: str(e.paciente_id)),
-            "medico_id": ("medico_id", lambda e: str(e.medico_id))
-        }
-
     async def list_by_medico(self, medico_id: str) -> list[Estudio]:
         session = self.uow.session  # type: ignore[attr-defined]
         result = await session.execute(
