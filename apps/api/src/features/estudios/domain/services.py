@@ -4,7 +4,6 @@ from uuid import UUID
 from hexcore.domain.services import BaseDomainService
 
 from .entities import Estudio
-from .exceptions import TipoArchivoNoPermitidoException
 from .repositories import IEstudioRepository
 
 
@@ -22,32 +21,21 @@ class EstudioService(BaseDomainService):
     def __init__(
         self,
         estudio_repo: IEstudioRepository,
-        storage: IArchivoStorageAdapter,
     ) -> None:
         self._repo = estudio_repo
-        self._storage = storage
         super().__init__()
 
     async def recepcionar_estudio(
         self,
         paciente_id: UUID,
-        archivos: list[dict], # [{"nombre_archivo": str, "contenido": bytes, "mime_type": str}]
+        imagenes_paths: list[str],
+        mime_type: str,
         medico_id: str,
     ) -> Estudio:
-        imagenes_paths = []
-        mime_types_usados = []
-        for archivo in archivos:
-            if archivo["mime_type"] not in self.TIPOS_PERMITIDOS:
-                raise TipoArchivoNoPermitidoException(archivo["mime_type"])
-            
-            imagen_path = await self._storage.guardar(archivo["nombre_archivo"], archivo["contenido"])
-            imagenes_paths.append(imagen_path)
-            mime_types_usados.append(archivo["mime_type"])
-
         estudio = Estudio(
             paciente_id=paciente_id,
             imagenes_paths=imagenes_paths,
-            mime_type=mime_types_usados[0] if mime_types_usados else "application/octet-stream",
+            mime_type=mime_type,
             medico_id=medico_id,
         )
         estudio.registrar_recepcion()

@@ -98,6 +98,11 @@ export interface EstudioListResponse {
   total: number;
 }
 
+export interface SubirImagenResponse {
+  path: string;
+  mime_type: string;
+}
+
 export interface HallazgoDTO {
   etiqueta: string;
   confianza: number;
@@ -156,15 +161,24 @@ export const pacientesApi = {
 // ─── Estudios ───────────────────────────────────────────────────────────────
 
 export const estudiosApi = {
-  crear: (token: string, pacienteId: string, files: File[]) => {
+  subirImagen: (token: string, file: File) => {
     const form = new FormData();
-    form.append("paciente_id", pacienteId);
-    files.forEach(file => {
-      form.append("archivos", file);
-    });
-    return request<EstudioResponse>("/api/estudios", {
+    form.append("archivo", file);
+    return request<SubirImagenResponse>("/api/estudios/imagenes", {
       method: "POST",
       body: form,
+    }, token);
+  },
+
+  crear: async (token: string, pacienteId: string, files: File[]) => {
+    const subidas = await Promise.all(files.map(file => estudiosApi.subirImagen(token, file)));
+    return request<EstudioResponse>("/api/estudios", {
+      method: "POST",
+      body: JSON.stringify({
+        paciente_id: pacienteId,
+        imagenes_paths: subidas.map(s => s.path),
+        mime_type: subidas[0]?.mime_type ?? "application/octet-stream",
+      }),
     }, token);
   },
 

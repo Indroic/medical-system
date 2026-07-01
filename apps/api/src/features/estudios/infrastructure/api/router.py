@@ -1,18 +1,47 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
 from src.features.usuarios.application.dtos import UserResponse
 from src.features.usuarios.infrastructure.api.dependencies import get_current_user
 
-from ...application.dtos import EstudioListResponse, EstudioResponse, RecepcionarEstudioCommand
+from ...application.dtos import (
+    EstudioListResponse,
+    EstudioResponse,
+    RecepcionarEstudioCommand,
+    RecepcionarEstudioRequest,
+    SubirImagenResponse,
+)
 from ...application.use_cases.recepcionar_estudio import RecepcionarEstudioUseCase
+from ...application.use_cases.subir_imagen_estudio import SubirImagenEstudioUseCase
 from ...domain.exceptions import EstudioNotFoundException, TipoArchivoNoPermitidoException
 from ...infrastructure.repositories import EstudioRepositoryImpl
-from .dependencies import get_recepcionar_uc, get_uow
+from .dependencies import get_recepcionar_uc, get_subir_imagen_uc, get_uow
 
 router = APIRouter(prefix="/estudios", tags=["estudios"])
+
+
+@router.post(
+    "/imagenes",
+    response_model=SubirImagenResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Subir una imagen suelta de un estudio (paso previo a recepcionar)",
+)
+async def subir_imagen_estudio(
+    archivo: UploadFile = File(...),
+    use_case: SubirImagenEstudioUseCase = Depends(get_subir_imagen_uc),
+    current_user: UserResponse = Depends(get_current_user),
+) -> SubirImagenResponse:
+    contenido = await archivo.read()
+    try:
+        return await use_case.execute(
+            nombre_archivo=archivo.filename or "imagen",
+            contenido=contenido,
+            mime_type=archivo.content_type or "application/octet-stream",
+        )
+    except TipoArchivoNoPermitidoException as exc:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail=str(exc))
 
 
 @router.post(
@@ -22,18 +51,17 @@ router = APIRouter(prefix="/estudios", tags=["estudios"])
     summary="Recepcionar nuevo estudio de tomografía",
 )
 async def recepcionar_estudio(
-    paciente_id: UUID = Form(...),
+    body: RecepcionarEstudioRequest,
     use_case: RecepcionarEstudioUseCase = Depends(get_recepcionar_uc),
     current_user: UserResponse = Depends(get_current_user),
 ) -> EstudioResponse:
     command = RecepcionarEstudioCommand(
-        paciente_id=paciente_id,
+        paciente_id=body.paciente_id,
+        imagenes_paths=body.imagenes_paths,
+        mime_type=body.mime_type,
         medico_id=str(current_user.id),
     )
-    try:
-        return await use_case.execute(command)
-    except TipoArchivoNoPermitidoException as exc:
-        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail=str(exc))
+    return await use_case.execute(command)
 
 
 @router.get(

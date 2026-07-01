@@ -10,17 +10,16 @@ class RecepcionarEstudioUseCase(UseCase[RecepcionarEstudioCommand, EstudioRespon
         self,
         service: EstudioService,
         uow: SqlAlchemyUnitOfWork,
-        archivos: list[dict],
     ) -> None:
         self.service = service
         self.uow = uow
-        self._archivos = archivos
 
     async def execute(self, command: RecepcionarEstudioCommand) -> EstudioResponse:
         async with self.uow:
             estudio = await self.service.recepcionar_estudio(
                 paciente_id=command.paciente_id,
-                archivos=self._archivos,
+                imagenes_paths=command.imagenes_paths,
+                mime_type=command.mime_type,
                 medico_id=command.medico_id,
             )
             await self.uow.commit()

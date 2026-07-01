@@ -37,20 +37,42 @@ export const estudios = new Hono()
     const data = await res.json();
     return c.json(data);
   })
-  .post("/", async (c) => {
+  .post("/imagenes", async (c) => {
     const token = await getAuthToken(c);
     const formData = await c.req.formData();
-    
-    const res = await fetch(`${env.PYTHON_API_URL}/api/v1/estudios/`, {
+
+    const res = await fetch(`${env.PYTHON_API_URL}/api/v1/estudios/imagenes`, {
       method: "POST",
       headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: formData,
     });
-    
+
     if (!res.ok) {
-      return c.json({ error: "Failed to fetch from API" }, res.status as any);
+      const errorText = await res.text();
+      return c.json({ error: "Failed to fetch from API", detail: errorText }, res.status as any);
     }
-    
+
+    const data = await res.json();
+    return c.json(data);
+  })
+  .post("/", async (c) => {
+    const token = await getAuthToken(c);
+    const body = await c.req.json();
+
+    const res = await fetch(`${env.PYTHON_API_URL}/api/v1/estudios/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      return c.json({ error: "Failed to fetch from API", detail: errorText }, res.status as any);
+    }
+
     const data = await res.json();
     return c.json(data);
   });
