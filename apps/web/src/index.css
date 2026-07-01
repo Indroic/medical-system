@@ -3,25 +3,35 @@
 @import "@heroui/styles";
 
 /* ─── Tailwind v4 Design Tokens ──────────────────────────────────────────── */
-/* Palette retargeted to DESIGN.md "Dala" system (violet-on-void). Names kept
-   from the previous Supabase-green theme so existing usages don't break —
-   only the values changed, mapped by role to the new palette. */
+/* Palette retargeted to DESIGN.md "Doppler" system (violet-plum canvas, green
+   as the sole action color, lavender as the sole brand-voice color — the two
+   never overlap in role per DESIGN.md's "Color Rationing Philosophy"). */
 @theme {
-  /* Colors — named and valued per DESIGN.md "Dala" system */
-  --color-void: #000000;          /* Void — page canvas, all surfaces (no nested tiers) */
-  --color-bone: #ffffff;          /* Bone — primary text, hairlines, inverted fills */
-  --color-ash: #bdbdbd;           /* Ash — secondary text */
-  --color-smoke: #9a9a9a;         /* Smoke — tertiary/caption text */
-  --color-plum-voltage: #8052ff;  /* Plum Voltage — primary CTA / accent */
-  --color-amber-spark: #ffb829;   /* Amber Spark — links / inline accent */
-  --color-lichen: #15846e;        /* Lichen — success status */
-  /* Graphite is a UI-only derived grey (not a DESIGN.md swatch) for de-emphasized
-     numerals/icon strokes — kept close to the old #4d4d4d but sourced from Bone/Void
-     so it can never drift from the two true primitives. */
-  --color-graphite: color-mix(in oklab, var(--color-bone) 30%, var(--color-void));
-  /* Slate — kept for backwards compatibility with scrollbar utilities.
-     Derived from Bone at 16% alpha over Void (input border weight). */
-  --color-slate: color-mix(in oklab, var(--color-bone) 16%, var(--color-void));
+  /* Colors — named and valued per DESIGN.md "Doppler" system */
+  --color-midnight-plum: #1c1624;  /* Canvas — page background, full-bleed sections */
+  --color-shadow-plum: #2d2734;    /* Card Surface — cards, panels, product frames (Level 1) */
+  --color-elevated-panel: #3a3340; /* Elevated Panel — modals, popovers, tooltips (Level 2) */
+  --color-bone-white: #f1f0ec;     /* Bone White — primary text, icon strokes, button labels on dark */
+  --color-fog-line: #e5e7eb;       /* Fog Line — hairline borders/dividers (used at 10-15% alpha) */
+  --color-ash-veil: #d0c9c4;       /* Ash Veil — muted secondary text, disabled labels, ghost button text */
+  --color-mid-ash: #a5a2a5;        /* Mid Ash — muted helper/placeholder text, low-priority metadata */
+  --color-iron-edge: #55505b;      /* Iron Edge — resting input borders, subtle dividers */
+  --color-lavender-spark: #b997ff; /* Lavender Spark — brand-voice accent (wordmarks, headline emphasis, links) */
+  --color-signal-green: #00f575;   /* Signal Green — the sole action/CTA color, rationed to 1-2 per view */
+  --color-neon-violet: #6b13f5;    /* Neon Violet — decorative gradient anchor (hero aurora only) */
+  --color-ember-orange: #ff5632;   /* Ember Orange — decorative gradient terminus (hero aurora only) */
+  --color-plasma-pink: #ff9efa;    /* Plasma Pink — decorative gradient origin (hero aurora only) */
+
+  /* Back-compat aliases — kept only so existing component classNames
+     (text-ash, bg-bone, text-void, text-graphite) and the raw var(--color-*)
+     refs in mri-viewer.tsx's inline SVG keep resolving after this rename.
+     Each points at its correct Doppler-system equivalent, not a stale value;
+     a follow-up sweep to rename call sites directly to the new primitives
+     (ash-veil, bone-white, midnight-plum, mid-ash) is a reasonable next step. */
+  --color-ash: var(--color-ash-veil);
+  --color-bone: var(--color-bone-white);
+  --color-void: var(--color-midnight-plum);
+  --color-graphite: var(--color-mid-ash);
 
   /* Typography */
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -30,33 +40,37 @@
   /* Type scale */
   --text-caption: 12px;
   --text-caption--line-height: 1.5;
-  --text-caption--letter-spacing: 0.05em;
+  --text-caption--letter-spacing: 0.03em;
   --text-body-sm: 14px;
   --text-body-sm--line-height: 1.5;
-  --text-body-sm--letter-spacing: 0.05em;
+  --text-body: 16px;
+  --text-body--line-height: 1.5;
   --text-subheading: 18px;
-  --text-subheading--line-height: 1.5;
-  --text-subheading--letter-spacing: 0.025em;
+  --text-subheading--line-height: 1.4;
+  --text-subheading--letter-spacing: -0.01em;
   --text-heading-sm: 24px;
-  --text-heading-sm--line-height: 1.3;
-  --text-heading-sm--letter-spacing: 0.021em;
-  --text-heading: 36px;
-  --text-heading--line-height: 1.2;
-  --text-heading--letter-spacing: 0.021em;
+  --text-heading-sm--line-height: 1.2;
+  --text-heading-sm--letter-spacing: -0.01em;
+  --text-heading: 32px;
+  --text-heading--line-height: 1.15;
+  --text-heading--letter-spacing: -0.01em;
   --text-heading-lg: 48px;
-  --text-heading-lg--line-height: 1.1;
-  --text-heading-lg--letter-spacing: -0.04em;
-  --text-display: 78px;
-  --text-display--line-height: 0.9;
-  --text-display--letter-spacing: -0.04em;
-  --text-hero: 113px;
-  --text-hero--line-height: 0.81;
-  --text-hero--letter-spacing: -0.04em;
+  --text-heading-lg--line-height: 1.05;
+  --text-heading-lg--letter-spacing: -0.02em;
+  --text-display: 64px;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+  --text-display-xl: 96px;
+  --text-display-xl--line-height: 1;
+  --text-display-xl--letter-spacing: -0.02em;
 
-  /* Radius — every interactive surface uses 24px per DESIGN.md */
-  --radius-input: 1.5rem;
-  --radius-card: 1.5rem;
-  --radius-nav: 1.5rem;
+  /* Radius — 20px cards / 12px buttons / 8px small elements per DESIGN.md.
+     Base --radius is set to 10px so HeroUI's computed 2x tier (rounded-2xl,
+     used on every card surface in this app) lands exactly on 20px; buttons
+     in this app already use rounded-full (pill) so they're unaffected. */
+  --radius-card: 1.25rem;   /* 20px */
+  --radius-button: 0.75rem; /* 12px */
+  --radius-small: 0.5rem;   /* 8px */
   --radius-full: 9999px;
 }
 
@@ -64,72 +78,82 @@
 
 /* ─── HeroUI v3 Semantic Token Overrides — forced dark ───────────────────── */
 :root {
-  /* Accent → Plum Voltage */
-  --accent: var(--color-plum-voltage);
-  --accent-foreground: var(--color-bone);
-  /* Darker-on-hover (not HeroUI's default lighten) to match this system's existing,
-     intentional "pressed" feel — derived from the accent itself, not a hand-picked hex. */
-  --accent-hover: color-mix(in oklab, var(--color-plum-voltage) 80%, black 20%);
+  /* Accent → Signal Green. This is the ONLY chromatic action color in the
+     system (DESIGN.md: "green appears only where action is requested") —
+     text on it is pure black per the Primary Action Button spec, the one
+     documented exception to "never use pure white/black for text". */
+  --accent: var(--color-signal-green);
+  --accent-foreground: #000000;
+  --accent-hover: color-mix(in oklab, var(--color-signal-green) 85%, black 15%);
 
   /* Canvas */
-  --background: var(--color-void);
+  --background: var(--color-midnight-plum);
 
-  /* Surfaces — flat, no elevation tier (spec: "no nested surface layers") */
-  --surface: var(--color-void);
-  --surface-foreground: var(--color-bone);
-  --surface-secondary: color-mix(in oklab, var(--color-bone) 4%, var(--color-void));
-  --surface-tertiary: color-mix(in oklab, var(--color-bone) 8%, var(--color-void));
+  /* Surfaces — one visible step up from canvas per DESIGN.md's surface levels
+     (Level 1 = Card Surface), no box-shadow (spec: "surface color steps, not
+     elevation shadows"). */
+  --surface: var(--color-shadow-plum);
+  --surface-foreground: var(--color-bone-white);
+  --surface-secondary: color-mix(in oklab, var(--color-shadow-plum) 85%, var(--color-bone-white) 15%);
+  --surface-tertiary: var(--color-elevated-panel);
 
-  /* Overlay (modals, dropdowns) */
-  --overlay: var(--color-void);
-  --overlay-foreground: var(--color-bone);
+  /* Overlay (modals, dropdowns, tooltips) → Level 2 Elevated Panel */
+  --overlay: var(--color-elevated-panel);
+  --overlay-foreground: var(--color-bone-white);
 
   /* Default component fill */
-  --default: var(--color-void);
-  --default-foreground: var(--color-bone);
+  --default: var(--color-shadow-plum);
+  --default-foreground: var(--color-bone-white);
 
   /* Foreground */
-  --foreground: var(--color-bone);
-  --muted: var(--color-smoke);
+  --foreground: var(--color-bone-white);
+  --muted: var(--color-mid-ash);
 
-  /* Borders — DESIGN.md: "1px solid #ffffff at low alpha" (hairline), ~16% for fields */
-  --border: color-mix(in oklab, var(--color-bone) 10%, transparent);
+  /* Borders — DESIGN.md: "#e5e7eb at 10-15% opacity" for hairlines */
+  --border: color-mix(in oklab, var(--color-fog-line) 12%, transparent);
   --separator: var(--border);
 
-  /* Form fields */
-  --field-background: var(--color-void);
-  --field-foreground: var(--color-bone);
-  --field-placeholder: var(--color-smoke);
-  --field-border: color-mix(in oklab, var(--color-bone) 16%, transparent);
+  /* Form fields — Iron Edge is the documented resting input-border color */
+  --field-background: var(--color-shadow-plum);
+  --field-foreground: var(--color-bone-white);
+  --field-placeholder: var(--color-mid-ash);
+  --field-border: var(--color-iron-edge);
   --field-border-width: 1px;
 
-  /* Focus → Plum Voltage (no glow ring — just chromatic border) */
-  --focus: var(--color-plum-voltage);
+  /* Focus → Signal Green (no glow ring — just chromatic border) */
+  --focus: var(--color-signal-green);
 
-  /* Base radius → 24px, matches every interactive surface per DESIGN.md */
-  --radius: 1.5rem;
+  /* Base radius: 10px, so HeroUI's computed 2x tier (rounded-2xl, used on
+     every card surface in this app) lands on the spec's 20px card radius. */
+  --radius: 0.625rem;
 
-  /* Flat design — no shadows */
+  /* Flat design — no shadows, matches "surface color steps, not elevation" */
   --surface-shadow: none;
   --overlay-shadow: none;
   --field-shadow: none;
 
   /* Segment / tabs */
-  --segment: var(--color-void);
-  --segment-foreground: var(--color-bone);
+  --segment: var(--color-shadow-plum);
+  --segment-foreground: var(--color-bone-white);
 
-  /* Link → Amber Spark */
-  --link: var(--color-amber-spark);
+  /* Link → Lavender Spark, the brand-voice color (DESIGN.md: Link/Inline CTA
+     accepts Bone White or Lavender; Lavender keeps it visually distinct from
+     body text and matches "violet carries brand voice"). */
+  --link: var(--color-lavender-spark);
 
-  /* Status colors */
-  --success: var(--color-lichen);
-  --success-foreground: var(--color-bone);
-  --warning: var(--color-amber-spark);
-  --warning-foreground: var(--color-void);
-  /* DESIGN.md defines no error red — kept as a reasonable functional default.
-     Confirm with design if an exact brand red is wanted. */
+  /* Status colors. DESIGN.md defines no dedicated success/warning/error
+     swatches for app UI (Signal Green and Lavender are strictly action/brand
+     only) — success reuses Signal Green (a "confirmed/go" signal is exactly
+     what Signal Green denotes); warning reuses Ember Orange, the only warm
+     tone in the palette, as a functional stand-in; danger is kept as a
+     reasonable default. Confirm with design if dedicated status swatches are
+     wanted later. */
+  --success: var(--color-signal-green);
+  --success-foreground: #000000;
+  --warning: var(--color-ember-orange);
+  --warning-foreground: #000000;
   --danger: oklch(0.65 0.2 30);
-  --danger-foreground: var(--color-bone);
+  --danger-foreground: var(--color-bone-white);
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
@@ -149,9 +173,9 @@ body {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--color-slate);
+  background-color: var(--color-iron-edge);
   border-radius: 9999px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-graphite);
+  background-color: var(--color-mid-ash);
 }
