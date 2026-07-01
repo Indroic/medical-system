@@ -1,4 +1,3 @@
-import logging
 from typing import Protocol
 from uuid import UUID
 
@@ -6,8 +5,6 @@ from hexcore.domain.services import BaseDomainService
 
 from .entities import Estudio
 from .repositories import IEstudioRepository
-
-logger = logging.getLogger(__name__)
 
 
 class IArchivoStorageAdapter(Protocol):
@@ -35,10 +32,6 @@ class EstudioService(BaseDomainService):
         mime_type: str,
         medico_id: str,
     ) -> Estudio:
-        logger.warning(
-            "DEBUG recepcionar_estudio args paciente_id=%r (%s) medico_id=%r (%s)",
-            paciente_id, type(paciente_id), medico_id, type(medico_id),
-        )
         estudio = Estudio(
             paciente_id=paciente_id,
             imagenes_paths=imagenes_paths,
@@ -46,17 +39,7 @@ class EstudioService(BaseDomainService):
             medico_id=medico_id,
         )
         estudio.registrar_recepcion()
-        logger.warning(
-            "DEBUG estudio antes de save: paciente_id=%r (%s) medico_id=%r (%s) | model_dump=%r",
-            estudio.paciente_id, type(estudio.paciente_id),
-            estudio.medico_id, type(estudio.medico_id),
-            estudio.model_dump(),
-        )
         await self._repo.save(estudio)
-        logger.warning(
-            "DEBUG estudio despues de save: paciente_id=%r medico_id=%r",
-            estudio.paciente_id, estudio.medico_id,
-        )
         return estudio
 
     async def marcar_completado(self, estudio_id: UUID) -> Estudio:

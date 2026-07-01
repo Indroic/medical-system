@@ -1,10 +1,7 @@
-import logging
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
-
-logger = logging.getLogger(__name__)
 
 from src.features.usuarios.application.dtos import UserResponse
 from src.features.usuarios.infrastructure.api.dependencies import get_current_user
@@ -58,17 +55,12 @@ async def recepcionar_estudio(
     use_case: RecepcionarEstudioUseCase = Depends(get_recepcionar_uc),
     current_user: UserResponse = Depends(get_current_user),
 ) -> EstudioResponse:
-    logger.warning(
-        "DEBUG recepcionar_estudio body=%r current_user.id=%r (%s)",
-        body, current_user.id, type(current_user.id),
-    )
     command = RecepcionarEstudioCommand(
         paciente_id=body.paciente_id,
         imagenes_paths=body.imagenes_paths,
         mime_type=body.mime_type,
         medico_id=str(current_user.id),
     )
-    logger.warning("DEBUG command=%r", command)
     return await use_case.execute(command)
 
 
