@@ -234,7 +234,7 @@ function Row({ label, value, mono }: { label: string; value: React.ReactNode; mo
   return (
     <div className="flex items-start justify-between gap-4">
       <dt className="text-[12px] text-muted shrink-0">{label}</dt>
-      <dd className={`text-[13px] text-muted text-right ${mono ? "font-mono" : ""}`}>{value}</dd>
+      <dd className={`text-[13px] text-ash text-right ${mono ? "font-mono" : ""}`}>{value}</dd>
     </div>
   );
 }

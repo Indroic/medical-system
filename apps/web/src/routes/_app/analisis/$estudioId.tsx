@@ -105,7 +105,7 @@ function AnalisisDetail() {
             </div>
           ) : analisis.informe_avanzado_ia ? (
             <div className="rounded-2xl border border-accent/30 bg-background p-6 shadow-lg overflow-y-auto max-h-[calc(100vh-300px)] custom-scrollbar">
-              <h3 className="text-accent flex items-center gap-2 font-medium mb-4">
+              <h3 className="text-[16px] text-accent flex items-center gap-2 font-medium mb-4">
                 <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(128,82,255,0.6)]" />
                 Informe Clínico de IA
               </h3>

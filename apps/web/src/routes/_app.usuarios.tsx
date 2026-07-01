@@ -171,7 +171,7 @@ function UsuariosView() {
                       <Table.Cell>{userItem.name || userItem.nombre || "-"}</Table.Cell>
                       <Table.Cell>{userItem.email}</Table.Cell>
                       <Table.Cell>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-background border-field-border text-foreground">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-background border border-field-border text-foreground">
                           {userItem.role || "Usuario"}
                         </span>
                       </Table.Cell>
