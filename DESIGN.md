@@ -1,60 +1,48 @@
-# Supabase — Style Reference
-> Midnight code editor with phosphor green caret — a single chromatic pulse on a sea of charcoal.
+# Your workplace has the answer. Just ask Dala for it. — Style Reference
+> Particle cosmos on a void — violet pulse against infinite black
 
 **Theme:** dark
 
-Supabase is a midnight IDE with phosphor green punctuation: a near-black canvas, monochrome UI surfaces, and a single vivid green that marks emphasis, headings, and primary actions. The interface borrows its rhythm from code editors — hairline borders, pill controls, generous vertical breathing room, and tight geometric typography (Circular) that whispers in regular weight rather than shouting in bold. Color is rationed: the page is 99% grayscale, and every green pixel earns its place by being a CTA, a highlighted keyword, or a logo. Cards float one elevation level above the canvas using subtle border contrast rather than shadow. The overall feel is fast, terminal-native, and quietly confident — designed to disappear so the product and its developer audience can take the spotlight.
+Dala is a knowledge-management product rendered as a dark cosmic field: a pure black canvas, a single saturated violet as the only authority color, and white type that glows against the void. The interface recedes — sparse text blocks, hairline borders, pill controls — while a massive particle constellation dominates the visual real estate, its thousands of tiny geometric shapes (triangles, circles, diamonds) clustering into organic forms. Typography is stretched and ultra-tight at display sizes (negative tracking pushes letters almost together) but opens up at body sizes (slight positive tracking aids legibility on black). Components feel lightweight and fast: no shadows, no gradients, no card elevation — depth comes purely from color contrast and the negative space of the void.
 
 ## Tokens — Colors
 
 | Name | Value | Token | Role |
 |------|-------|-------|------|
-| Phosphor Green | `#3ecf8e` | `--color-phosphor-green` | Green supporting accent for decorative details and low-frequency emphasis. Do not promote it to the primary CTA color |
-| Mint Pulse | `#00c573` | `--color-mint-pulse` | Link text and inline accent — a slightly cooler green variant for textual references that shouldn't compete with primary CTAs |
-| Forest Depth | `#1f4b37` | `--color-forest-depth` | Hover and pressed borders on green CTAs — keeps the button identifiable when the fill darkens on interaction |
-| Midnight Emerald | `#006239` | `--color-midnight-emerald` | Deepest green surface — for low-key brand-tinted backgrounds, subtle section washes, and disabled-brand states |
-| Snow | `#fafafa` | `--color-snow` | Primary text, icon strokes, button labels — the dominant foreground across the entire interface |
-| Silver Mist | `#b4b4b4` | `--color-silver-mist` | Secondary headings, nav items, body emphasis — readable but never competing with Snow |
-| Smoke | `#898989` | `--color-smoke` | Tertiary text, captions, helper text, muted icon fills — the voice of metadata and annotations |
-| Graphite | `#4d4d4d` | `--color-graphite` | Icon outlines, low-emphasis borders, divider lines, and stroke color for illustrative line work |
-| Slate | `#393939` | `--color-slate` | Input borders, subtle dividers, hairline separators between nav and content |
-| Charcoal | `#2e2e2e` | `--color-charcoal` | Card and component borders — the most-used border color, giving surfaces their defined edge without a visible shadow |
-| Ash | `#242424` | `--color-ash` | Elevated surface tier for nested cards, hover states, and popover backgrounds |
-| Obsidian | `#121212` | `--color-obsidian` | Page canvas — the deep near-black foundation behind every section and card |
+| Void | `#000000` | `--color-void` | Page background, primary canvas — the dark field where the constellation lives |
+| Bone | `#ffffff` | `--color-bone` | Primary text, icon strokes, hairlines, card borders, nav text — the only light that reads on the void |
+| Ash | `#bdbdbd` | `--color-ash` | Secondary muted text, subtle border accents — quieter than bone, still legible on black |
+| Smoke | `#9a9a9a` | `--color-smoke` | Tertiary text, nav link resting state, low-emphasis dividers — fades into the background |
+| Plum Voltage | `#8052ff` | `--color-plum-voltage` | Primary action background, nav accents, icon highlights, decorative borders — the brand pulse, the only filled chromatic surface in the UI |
+| Amber Spark | `#ffb829` | `--color-amber-spark` | Yellow accent for outlined action borders, linked labels, and lightweight interactive emphasis. Do not promote it to the primary CTA color |
+| Lichen | `#15846e` | `--color-lichen` | Decorative icon accent, constellation node color — appears in illustration marks, not core interface chrome |
 
 ## Tokens — Typography
 
-### Circular — All UI typography — nav, body, buttons, headings, display. Circular is a geometric humanist sans with rounded terminals; its regular 400 weight carries headlines (a deliberate anti-bold choice) and the 500 weight is reserved for emphasis and button labels. · `--font-circular`
-- **Substitute:** Inter or Manrope — both share Circular's geometric warmth and humanist proportions
-- **Weights:** 400, 500
-- **Sizes:** 12px, 14px, 16px, 18px, 24px, 36px, 72px
-- **Line height:** 1.00–1.56 (tight: 1.0 at 72px display, 1.5–1.56 at body sizes)
-- **Letter spacing:** -0.007em across all sizes (≈ -0.5px at 72px display, near 0 at body sizes) — the uniform negative tracking is a signature; it tightens the geometric forms into a single cohesive voice
-- **Role:** All UI typography — nav, body, buttons, headings, display. Circular is a geometric humanist sans with rounded terminals; its regular 400 weight carries headlines (a deliberate anti-bold choice) and the 500 weight is reserved for emphasis and button labels.
-
-### Source Code Pro — Inline code and terminal snippets — only for code-style UI fragments, never body copy · `--font-source-code-pro`
-- **Substitute:** JetBrains Mono or IBM Plex Mono
-- **Weights:** 400
-- **Sizes:** 12px
-- **Line height:** 1.33
-- **Letter spacing:** 0.100em — wide tracking on mono to match the airy terminal aesthetic
-- **Role:** Inline code and terminal snippets — only for code-style UI fragments, never body copy
+### Acronym — Sole typeface. Weight 200 carries display headlines — its extreme thinness against 113px creates a 'etched in light' feel. Weight 600–700 for nav and buttons. Weight 400 for body. Negative tracking at large sizes (-0.04em) pulls glyphs tight; positive tracking (0.021–0.05em) opens body and nav for readability on black. The single-family approach keeps the system spare — no serifs, no display variants, only weight and tracking do the work. · `--font-acronym`
+- **Substitute:** Inter, Söhne, or Space Grotesk
+- **Weights:** 200, 400, 600, 700
+- **Sizes:** 12, 14, 15, 18, 24, 27, 36, 42, 48, 78, 113
+- **Line height:** 0.81–1.50
+- **Letter spacing:** -0.04em at 78–113px (display); +0.021em at 12–15px (nav/caption); +0.025em at 15–18px (body); +0.05em at 12–14px (eyebrow/uppercase kicker)
+- **Role:** Sole typeface. Weight 200 carries display headlines — its extreme thinness against 113px creates a 'etched in light' feel. Weight 600–700 for nav and buttons. Weight 400 for body. Negative tracking at large sizes (-0.04em) pulls glyphs tight; positive tracking (0.021–0.05em) opens body and nav for readability on black. The single-family approach keeps the system spare — no serifs, no display variants, only weight and tracking do the work.
 
 ### Type Scale
 
 | Role | Size | Line Height | Letter Spacing | Token |
 |------|------|-------------|----------------|-------|
-| caption | 12px | 1.5 | -0.084px | `--text-caption` |
-| body-sm | 14px | 1.43 | -0.098px | `--text-body-sm` |
-| body | 16px | 1.5 | -0.112px | `--text-body` |
-| subheading | 18px | 1.38 | -0.126px | `--text-subheading` |
-| heading-sm | 24px | 1.33 | -0.168px | `--text-heading-sm` |
-| heading | 36px | 1.2 | -0.252px | `--text-heading` |
-| display | 72px | 1 | -0.504px | `--text-display` |
+| caption | 12px | 1.5 | 0.05px | `--text-caption` |
+| body-sm | 14px | 1.5 | 0.05px | `--text-body-sm` |
+| subheading | 18px | 1.5 | 0.025px | `--text-subheading` |
+| heading-sm | 24px | 1.3 | 0.021px | `--text-heading-sm` |
+| heading | 36px | 1.2 | 0.021px | `--text-heading` |
+| heading-lg | 48px | 1.1 | -0.04px | `--text-heading-lg` |
+| display | 78px | 0.9 | -0.04px | `--text-display` |
+| hero | 113px | 0.81 | -0.04px | `--text-hero` |
 
 ## Tokens — Spacing & Shapes
 
-**Base unit:** 8px
+**Base unit:** 6px
 
 **Density:** comfortable
 
@@ -62,162 +50,147 @@ Supabase is a midnight IDE with phosphor green punctuation: a near-black canvas,
 
 | Name | Value | Token |
 |------|-------|-------|
-| 8 | 8px | `--spacing-8` |
-| 16 | 16px | `--spacing-16` |
+| 6 | 6px | `--spacing-6` |
+| 12 | 12px | `--spacing-12` |
+| 18 | 18px | `--spacing-18` |
 | 24 | 24px | `--spacing-24` |
-| 32 | 32px | `--spacing-32` |
-| 40 | 40px | `--spacing-40` |
-| 48 | 48px | `--spacing-48` |
-| 64 | 64px | `--spacing-64` |
-| 80 | 80px | `--spacing-80` |
+| 30 | 30px | `--spacing-30` |
+| 36 | 36px | `--spacing-36` |
+| 60 | 60px | `--spacing-60` |
 | 96 | 96px | `--spacing-96` |
-| 112 | 112px | `--spacing-112` |
-| 128 | 128px | `--spacing-128` |
-| 224 | 224px | `--spacing-224` |
+| 120 | 120px | `--spacing-120` |
 
 ### Border Radius
 
 | Element | Value |
 |---------|-------|
-| tags | 9999px |
-| cards | 16px |
-| inputs | 8px |
-| buttons | 9999px |
-
-### Shadows
-
-| Name | Value | Token |
-|------|-------|-------|
-| sm | `rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0...` | `--shadow-sm` |
+| nav | 24px |
+| cards | 24px |
+| buttons | 24px |
 
 ### Layout
 
 - **Page max-width:** 1200px
-- **Section gap:** 64-96px
+- **Section gap:** 60px
 - **Card padding:** 24px
-- **Element gap:** 8-16px
+- **Element gap:** 15px
 
 ## Components
 
-### Pill Primary Button
-**Role:** Main call-to-action — green fill, white text, fully rounded
+### Logo Mark
+**Role:** Brand identity in header
 
-Background #3ecf8, text #fafafa, border 1px solid #3ecf8 (on hover border shifts to #1f4b37). Padding 8px 16px. Radius 9999px. Circular 500 weight, 14px, line-height 1.43. The green is the only filled chromatic surface in the system — every green button should feel like a deliberate decision.
+Wordmark 'Dala' in Bone (#ffffff) at 18px, Acronym weight 600, accompanied by a geometric envelope/crystal icon. The icon is line-drawn, stroke ~1.5px, in Plum Voltage (#8052ff) or Bone depending on context.
 
-### Pill Ghost Button
-**Role:** Secondary action — transparent fill, subtle border, monochrome
+### Nav Text Link
+**Role:** Header navigation items (MANIFESTO, TEAM, BLOG)
 
-Background transparent, border 1px solid #393939, text #fafafa. Padding 8px 16px. Radius 9999px. Circular 400 weight, 14px. On hover border shifts to #4d4d4d and background fills with rgba(255,255,255,0.04).
+Acronym weight 400, 14px, tracking 0.021em, color Smoke (#9a9a9a) at rest → Bone (#ffffff) on hover. No underline, no background — just a color shift on the void.
 
-### Pill GitHub Stars
-**Role:** Social proof pill in nav — shows repo star count
+### Primary Action Button
+**Role:** Filled CTA — REQUEST ACCESS
 
-Background #242424, border 1px solid #2e2e2, text #fafafa, small GitHub icon in #fafafa. Padding 6px 10px. Radius 9999px. Circular 400, 12px. Compact, unobtrusive — it's a status indicator, not a CTA.
+Pill shape, 24px border-radius. Background Plum Voltage (#8052ff), text Bone (#ffffff), Acronym weight 600, 12px, tracking 0.05em, uppercase. Padding 14px 16px. No border, no shadow. The button glows optically because violet on black is the only saturated fill in the system.
 
-### Feature Card
-**Role:** Primary product capability card in 2x2 or 4-column grid
+### Ghost Nav Button
+**Role:** Header REQUEST ACCESS pill
 
-Background #121212 (same as canvas, defined only by border). Border 1px solid #2e2e2e. Radius 16px. Padding 24px. Each card has a small icon in #3ecf8, a heading in #fafafa (Circular 500, 18px), body text in #b4b4b4 (Circular 400, 14px), and a dark illustration area in the lower half with line-art or wireframe graphics in #4d4d4d on #0d0d0d backgrounds.
+Same dimensions and type as Primary Action Button, positioned right-aligned in the nav bar. Acts as the nav's terminal action — the only colored element in the header.
 
-### Product Showcase Card
-**Role:** Larger feature card with embedded visual — used for headline product capabilities like Database, Auth, Realtime
+### Display Headline
+**Role:** Hero and section headlines
 
-Same surface as Feature Card: background #121212, border 1px solid #2e2e2, radius 16px, padding 24px. The visual area fills the card with a 3D geometric or wireframe illustration in #4d4d4d line work on #0d0d0d. Phosphor green dots or highlights appear as accent within the illustration — not as UI chrome.
+Acronym weight 200, 78–113px, line-height 0.81–0.90, letter-spacing -0.04em, color Bone (#ffffff). The thin weight at extreme size is the signature: type that looks etched, not stamped. Lines break aggressively — each line is a short statement.
 
-### Testimonial Card
-**Role:** Social proof card with avatar, handle, and quote
+### Eyebrow Kicker
+**Role:** Pre-headline label
 
-Background #121212, border 1px solid #2e2e2, radius 16px, padding 20px. Circular avatar 40px, handle in #fafafa (Circular 500, 14px), quote body in #b4b4b4 (Circular 400, 14px, line-height 1.5). Cards vary in height — masonry-style layout.
+Acronym weight 600, 12–14px, uppercase, tracking 0.05em, color Bone (#ffffff) or Plum Voltage (#8052ff). Sits above the headline as a tonal flag (e.g., 'STOP MANAGING KNOWLEDGE. START USING IT.').
 
-### Announcement Pill
-**Role:** Compact announcement banner above the hero
+### Body Paragraph
+**Role:** Descriptive body copy
 
-Background #242424, border 1px solid #2e2e2, radius 9999px, padding 6px 16px. Circular 400, 12px, text #b4b4b4. Small chevron icon in #b4b4b4 on the right.
+Acronym weight 400, 15–18px, line-height 1.5, tracking 0.025em, color Bone (#ffffff) or Ash (#bdbdbd) for secondary paragraphs. Maximum measure ~60ch.
 
-### Logo Cloud Item
-**Role:** Company logos in the trust strip
+### Hairline Border
+**Role:** Section dividers, card outlines, decorative rules
 
-Logos rendered in #898989 (monochrome) at uniform height ~24px. No backgrounds or borders — just floating marks on the canvas.
+1px solid #ffffff at low alpha or Ash (#bdbdbd) for visible structure. No fill, no radius on dividers. On cards: 24px radius with 1px #ffffff border at ~10% alpha.
 
-### Top Navigation Bar
-**Role:** Sticky site-wide navigation
+### Particle Constellation Visual
+**Role:** Hero and section atmospheric illustration
 
-Full-width, background transparent or #121212 on scroll. Height ~64px. Left: green Supabase logo (mark + wordmark in #fafafa). Center: nav links in #b4b4b4 (Circular 400, 14px). Right: GitHub stars pill, Sign in ghost button, Start your project green pill. 1px bottom border #2e2e2 for separation.
+Thousands of micro-shapes (triangles, circles, diamonds, squares, 2–6px) scattered across the black canvas, clustering into organic forms (brain, flower, sphere). Colors drawn from the palette: Plum Voltage, Amber Spark, Lichen, Bone. Density varies — thick clusters in the visual center, sparse drift at the edges. Functions as the brand's visual identity, not decoration.
 
-### Input Field
-**Role:** Text input — used in demo request forms
+### Outlined Icon Mark
+**Role:** Decorative iconography in sections
 
-Background #121212, border 1px solid #393939, radius 8px, padding 8px 12px. Text in #fafafa, placeholder in #898989 (Circular 400, 14px). Focus: border shifts to #3ecf8 with no glow ring — the green border IS the focus indicator.
+Line-art geometric icons (envelope/crystal shape visible), stroke ~1.5px, color Lichen (#15846e) or Plum Voltage (#8052ff). Centered, large (~80–120px), surrounded by sparse particle drift.
 
 ## Do's and Don'ts
 
 ### Do
-- Use #3ecf8 (Phosphor Green) exclusively for primary CTAs, emphasized headline keywords, the logo, and active nav indicators — ration the green to one element per visual region
-- Set all button radius to 9999px (pill) and all card radius to 16px — the pill/card duality defines the system
-- Use Circular weight 400 for headlines and weight 500 for emphasis and button labels — never bold weight; the 500 is the loudest voice available
-- Separate surfaces with 1px solid #2e2e2 borders on #121212 backgrounds — never rely on shadow to define elevation
-- Keep letter-spacing at -0.007em uniformly across all sizes — the negative tracking is what makes Circular feel custom and tight
-- Use #3ecf8 as the focus border color on inputs (1px, no glow ring) — the chromatic border replaces the conventional focus shadow
-- Maintain page canvas at #121212 with no alternative — the single dark surface is the system's anchor
+- Use Plum Voltage (#8052ff) as the only filled button background in the system — it is the single source of color authority
+- Set display headlines at weight 200, 78–113px, with -0.04em tracking — the thinness is the signature, not a style choice to override
+- Apply 24px border-radius to every interactive surface (buttons, nav, cards) — full pills for small elements, rounded squares for larger cards
+- Use #ffffff with 0.05em tracking and uppercase for eyebrow/kicker text — it reads as a system flag above the headline
+- Let the particle constellation own at least 50% of hero real estate — the text is a guest in the visual, not the other way around
+- Keep section gaps at 60px and let the void breathe — never fill space with decorative elements just to avoid emptiness
+- Use negative tracking (-0.04em) only at 48px and above; use positive tracking (+0.021–0.05em) at body and below
 
 ### Don't
-- Don't introduce any chromatic color beyond the four greens — the monochrome discipline is the brand
-- Don't use weight 600 or 700 in Circular — the type system tops out at 500; if you need more emphasis, increase size or use Phosphor Green
-- Don't add box-shadows to cards, popovers, or modals — the design is deliberately flat; use #2e2e2 borders instead
-- Don't use radius values other than 9999px (buttons/tags), 16px (cards), or 8px (inputs) — the limited radius vocabulary is intentional
-- Don't place Phosphor Green on large background areas — it should appear as small functional punctuation, not as a section background
-- Don't use light text on light backgrounds or any non-#121212 canvas — Snow (#fafafa) is the only text color
-- Don't add gradients — the system is strictly flat, terminal-native, and gradient-free
+- Never use shadows, glows, or elevation effects — depth on this system comes from the void, not from stacked surfaces
+- Never add a second filled chromatic button — the system has exactly one action color (Plum Voltage) and that's by design
+- Never use a font weight above 700 or below 200 — the Acronym scale is the system, not a starting point
+- Never set body type below 15px or with negative tracking — the dark canvas needs openness to stay legible
+- Never use a border-radius smaller than 24px on any interactive element — pill-shaped is the system's geometry
+- Never place bright text on a colored background — Plum Voltage on Bone is forbidden; invert only
+- Never add gradients, textures, or noise to surfaces — the black canvas is pure; particles provide all visual interest
 
 ## Surfaces
 
 | Level | Name | Value | Purpose |
 |-------|------|-------|---------|
-| 0 | Obsidian Canvas | `#121212` | Page background — the base layer every surface sits on |
-| 1 | Ash Card | `#242424` | Nested or elevated card surfaces one tier above the canvas |
-| 2 | Charcoal Border | `#2e2e2` | Card and component outline — defines edges without shadow |
+| 0 | Void | `#000000` | Base canvas — every section and component sits directly on black, no nested surface layers |
 
 ## Elevation
 
-Supabase deliberately avoids shadows. The interface relies on hairline #2e2e2 borders to separate surfaces from the #121212 canvas. This terminal-native approach keeps the UI flat and code-editor-like — shadows would feel out of place against the otherwise geometric, line-driven aesthetic. A single shadow detection (rgba(0,0,0,0.1) on one button) is an exception, not a pattern.
+No shadows, no elevation effects, no glow. Depth is implied by type weight, color contrast, and the particle field itself. A 'card' is just a hairline border on the void. This keeps the cosmos feeling flat and infinite rather than paneled and productized.
 
 ## Imagery
 
-Line-art and wireframe illustrations dominate — 3D geometric shapes (cubes, grids, network nodes) rendered in #4d4d4d stroke on #0d0d0d backgrounds with occasional Phosphor Green dot accents. Product screenshots appear in dark frames within cards. No photography, no lifestyle imagery. Icons are thin-stroke outlined (1.5px), monochrome in #fafafa or #b4b4b4, with Phosphor Green reserved for active/brand-icon contexts. The visual language is diagrammatic and technical — the aesthetic of a developer tool schematic, not a marketing site.
+The visual language is entirely particle-based: thousands of tiny geometric primitives (triangles, circles, diamonds, squares) at 2–6px, scattered across the black void and clustering into organic macro-forms (a brain in the hero, a spore/dandelion in section two). Color is drawn from the full brand palette (Plum Voltage, Amber Spark, Lichen, Bone) but the particles never form a literal logo or icon — they suggest emergence, intelligence, collective assembly. No photography, no illustrations in the traditional sense, no 3D renders. The constellation is the brand mark. A single outlined geometric icon (envelope/crystal, ~100px) appears in section two as a focal anchor, rendered in Lichen teal with a thin stroke. Imagery density is high but never solid — always permeable, always letting the void show through.
 
 ## Layout
 
-Full-width dark canvas at 1200px max-width centered. Hero is centered text with a 72px display headline (two lines, second line in Phosphor Green), 16px subtitle, and two side-by-side pill buttons. Below hero, a horizontal logo cloud strip. Feature sections alternate between centered text blocks and 2x2 card grids (4 columns at full width). Cards are uniform 16px radius with equal padding. Vertical rhythm uses 64-96px section gaps with seamless flow — no visible dividers between sections, just generous breathing room. Testimonials appear in a 4-column masonry grid. Footer is a single dark band. The navigation is a fixed 64px top bar with transparent background that may darken on scroll.
+Full-bleed dark canvas with no nested containers or card panels. Hero is a 50/50 split: left half holds a tight text block (display headline + eyebrow + body + CTA, max-width ~480px), right half is the particle constellation extending edge-to-edge. Navigation is a fixed top bar with logo left, text links right-of-center, and a pill CTA at the far right. Vertical section rhythm is 60px gaps with no dividers — each section is a new constellation cluster with a new focal point. Body text columns are narrow (~60ch). The second section shifts to centered composition: large outlined icon mid-canvas, constellation field as background, a single paragraph anchored at the bottom. No grid system is visually expressed — content floats in the void.
 
 ## Agent Prompt Guide
 
-## Quick Color Reference
-- text: #fafafa
-- background: #121212
-- card surface: #121212 (with #2e2e2e border)
-- border: #2e2e2e (cards), #393939 (inputs), #4d4d4d (icons)
-- accent: #3ecf8e (Phosphor Green)
-- primary action: no distinct CTA color
+Quick Color Reference:
+- background: #000000
+- text (primary): #ffffff
+- text (muted): #9a9a9a / #bdbdbd
+- border (hairline): #ffffff or #bdbdbd
+- accent: #8052ff (Plum Voltage)
+- primary action: #8052ff (filled action)
 
-## Example Component Prompts
+Example Component Prompts:
 
-1. **Hero Section**: Centered on #121212 canvas. Display headline at 72px Circular weight 400, #fafafa, letter-spacing -0.5px. Second line in #3ecf8e. Subtitle at 16px Circular 400, #b4b4b4, line-height 1.5. Two pill buttons side by side: green primary (#3ecf8e fill, #fafafa text, 9999px radius, 8px 16px padding) and ghost secondary (transparent, 1px #393939 border, #fafafa text, 9999px radius).
+1. Hero headline block: Black background (#000000). Display text 'Unlock collective wisdom.' in Acronym weight 200, 113px, line-height 0.81, letter-spacing -0.04em, color #ffffff. Above it, an eyebrow 'STOP MANAGING KNOWLEDGE. START USING IT.' in Acronym weight 600, 12px, uppercase, tracking 0.05em, color #ffffff. Body paragraph below at 15px weight 400, line-height 1.5, tracking 0.025em, color #ffffff. Primary CTA button: background #8052ff, text #ffffff, Acronym weight 600, 12px uppercase, tracking 0.05em, border-radius 24px, padding 14px 16px.
 
-2. **Feature Card Grid**: 2x2 grid on #121212. Each card: 16px radius, 1px solid #2e2e2e border, 24px padding. Icon in #3ecf8e at 24px stroke. Heading in #fafafa Circular 500 18px. Body in #b4b4b4 Circular 400 14px line-height 1.5. Lower half of card has dark illustration area (#0d0d0d background) with #4d4d4d line-art.
+2. Ghost nav link: Acronym weight 400, 14px, tracking 0.021em, color #9a9a9a resting → #ffffff hover. No background, no border, no underline. Right-aligned group of 3 links.
 
-3. **Top Navigation**: 64px height, full-width, #121212 background. Left: Supabase logo (green mark + #fafafa wordmark). Center: nav links in #b4b4b4 Circular 400 14px. Right: GitHub stars pill (#242424 bg, #2e2e2e border, 9999px radius), Sign in ghost button, green Start your project pill.
+3. Outlined icon mark: A line-art geometric shape (envelope or crystal), stroke 1.5px, color #15846e, centered on the black canvas, ~100px size. Surrounded by sparse particle drift in the brand palette colors.
 
-4. **Testimonial Card**: 16px radius, 1px solid #2e2e2e border, 20px padding. 40px circular avatar, handle in #fafafa Circular 500 14px, quote in #b4b4b4 Circular 400 14px line-height 1.5. Masonry layout in 4-column grid.
-
-5. **Input Field**: Background #121212, border 1px solid #393939, radius 8px, padding 8px 12px. Text in #fafafa Circular 400 14px, placeholder in #898989. On focus: border changes to #3ecf8e — no glow ring or shadow.
+4. Eyebrow kicker: Acronym weight 600, 12px, uppercase, letter-spacing 0.05em, color #8052ff. 12px margin-bottom from the headline it precedes.
 
 ## Similar Brands
 
-- **Vercel** — Same monochrome dark canvas, single accent color strategy, and pill-button primary actions — Vercel uses white/blue, Supabase uses phosphor green
-- **Railway** — Dark developer-tool aesthetic with tight geometric typography and minimal surface treatment — similar card grid patterns and code-editor visual language
-- **Linear** — Dark-mode product UI with rationed color usage, hairline borders instead of shadows, and pill-shaped interactive elements
-- **PlanetScale** — Dark database-platform marketing site with centered hero, monochrome palette, and a single vivid accent for emphasis
-- **Neon** — Similar dark devtools aesthetic with phosphor-toned accent color and terminal-inspired UI — the green-on-black visual heritage is shared
+- **Linear** — Same ultra-dark canvas, single chromatic accent (violet/purple), geometric sans display headlines, pill-shaped CTAs, sparse UI with constellation-like spatial density
+- **Anthropic** — Dark void aesthetic with minimal UI chrome, large restrained serif-adjacent display type, single warm accent color, hairline borders on near-black surfaces
+- **Midjourney** — Cosmic particle-field visual language, black canvas, thin display type floating in space, minimal product chrome, generative atmosphere as brand identity
+- **Replicate** — Dark mode with single violet brand color, ultra-thin display headlines, pill buttons, sparse interface that lets visual/artwork dominate
 
 ## Quick Start
 
@@ -226,90 +199,77 @@ Full-width dark canvas at 1200px max-width centered. Hero is centered text with 
 ```css
 :root {
   /* Colors */
-  --color-phosphor-green: #3ecf8e;
-  --color-mint-pulse: #00c573;
-  --color-forest-depth: #1f4b37;
-  --color-midnight-emerald: #006239;
-  --color-snow: #fafafa;
-  --color-silver-mist: #b4b4b4;
-  --color-smoke: #898989;
-  --color-graphite: #4d4d4d;
-  --color-slate: #393939;
-  --color-charcoal: #2e2e2e;
-  --color-ash: #242424;
-  --color-obsidian: #121212;
+  --color-void: #000000;
+  --color-bone: #ffffff;
+  --color-ash: #bdbdbd;
+  --color-smoke: #9a9a9a;
+  --color-plum-voltage: #8052ff;
+  --color-amber-spark: #ffb829;
+  --color-lichen: #15846e;
 
   /* Typography — Font Families */
-  --font-circular: 'Circular', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-source-code-pro: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-acronym: 'Acronym', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Typography — Scale */
   --text-caption: 12px;
   --leading-caption: 1.5;
-  --tracking-caption: -0.084px;
+  --tracking-caption: 0.05px;
   --text-body-sm: 14px;
-  --leading-body-sm: 1.43;
-  --tracking-body-sm: -0.098px;
-  --text-body: 16px;
-  --leading-body: 1.5;
-  --tracking-body: -0.112px;
+  --leading-body-sm: 1.5;
+  --tracking-body-sm: 0.05px;
   --text-subheading: 18px;
-  --leading-subheading: 1.38;
-  --tracking-subheading: -0.126px;
+  --leading-subheading: 1.5;
+  --tracking-subheading: 0.025px;
   --text-heading-sm: 24px;
-  --leading-heading-sm: 1.33;
-  --tracking-heading-sm: -0.168px;
+  --leading-heading-sm: 1.3;
+  --tracking-heading-sm: 0.021px;
   --text-heading: 36px;
   --leading-heading: 1.2;
-  --tracking-heading: -0.252px;
-  --text-display: 72px;
-  --leading-display: 1;
-  --tracking-display: -0.504px;
+  --tracking-heading: 0.021px;
+  --text-heading-lg: 48px;
+  --leading-heading-lg: 1.1;
+  --tracking-heading-lg: -0.04px;
+  --text-display: 78px;
+  --leading-display: 0.9;
+  --tracking-display: -0.04px;
+  --text-hero: 113px;
+  --leading-hero: 0.81;
+  --tracking-hero: -0.04px;
 
   /* Typography — Weights */
+  --font-weight-extralight: 200;
   --font-weight-regular: 400;
-  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
   /* Spacing */
-  --spacing-unit: 8px;
-  --spacing-8: 8px;
-  --spacing-16: 16px;
+  --spacing-unit: 6px;
+  --spacing-6: 6px;
+  --spacing-12: 12px;
+  --spacing-18: 18px;
   --spacing-24: 24px;
-  --spacing-32: 32px;
-  --spacing-40: 40px;
-  --spacing-48: 48px;
-  --spacing-64: 64px;
-  --spacing-80: 80px;
+  --spacing-30: 30px;
+  --spacing-36: 36px;
+  --spacing-60: 60px;
   --spacing-96: 96px;
-  --spacing-112: 112px;
-  --spacing-128: 128px;
-  --spacing-224: 224px;
+  --spacing-120: 120px;
 
   /* Layout */
   --page-max-width: 1200px;
-  --section-gap: 64-96px;
+  --section-gap: 60px;
   --card-padding: 24px;
-  --element-gap: 8-16px;
+  --element-gap: 15px;
 
   /* Border Radius */
-  --radius-lg: 8px;
-  --radius-lg-2: 11px;
-  --radius-2xl: 16px;
-  --radius-full: 9999px;
+  --radius-3xl: 24px;
 
   /* Named Radii */
-  --radius-tags: 9999px;
-  --radius-cards: 16px;
-  --radius-inputs: 8px;
-  --radius-buttons: 9999px;
-
-  /* Shadows */
-  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
+  --radius-nav: 24px;
+  --radius-cards: 24px;
+  --radius-buttons: 24px;
 
   /* Surfaces */
-  --surface-obsidian-canvas: #121212;
-  --surface-ash-card: #242424;
-  --surface-charcoal-border: #2e2e2;
+  --surface-void: #000000;
 }
 ```
 
@@ -318,67 +278,55 @@ Full-width dark canvas at 1200px max-width centered. Hero is centered text with 
 ```css
 @theme {
   /* Colors */
-  --color-phosphor-green: #3ecf8e;
-  --color-mint-pulse: #00c573;
-  --color-forest-depth: #1f4b37;
-  --color-midnight-emerald: #006239;
-  --color-snow: #fafafa;
-  --color-silver-mist: #b4b4b4;
-  --color-smoke: #898989;
-  --color-graphite: #4d4d4d;
-  --color-slate: #393939;
-  --color-charcoal: #2e2e2e;
-  --color-ash: #242424;
-  --color-obsidian: #121212;
+  --color-void: #000000;
+  --color-bone: #ffffff;
+  --color-ash: #bdbdbd;
+  --color-smoke: #9a9a9a;
+  --color-plum-voltage: #8052ff;
+  --color-amber-spark: #ffb829;
+  --color-lichen: #15846e;
 
   /* Typography */
-  --font-circular: 'Circular', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-source-code-pro: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-acronym: 'Acronym', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Typography — Scale */
   --text-caption: 12px;
   --leading-caption: 1.5;
-  --tracking-caption: -0.084px;
+  --tracking-caption: 0.05px;
   --text-body-sm: 14px;
-  --leading-body-sm: 1.43;
-  --tracking-body-sm: -0.098px;
-  --text-body: 16px;
-  --leading-body: 1.5;
-  --tracking-body: -0.112px;
+  --leading-body-sm: 1.5;
+  --tracking-body-sm: 0.05px;
   --text-subheading: 18px;
-  --leading-subheading: 1.38;
-  --tracking-subheading: -0.126px;
+  --leading-subheading: 1.5;
+  --tracking-subheading: 0.025px;
   --text-heading-sm: 24px;
-  --leading-heading-sm: 1.33;
-  --tracking-heading-sm: -0.168px;
+  --leading-heading-sm: 1.3;
+  --tracking-heading-sm: 0.021px;
   --text-heading: 36px;
   --leading-heading: 1.2;
-  --tracking-heading: -0.252px;
-  --text-display: 72px;
-  --leading-display: 1;
-  --tracking-display: -0.504px;
+  --tracking-heading: 0.021px;
+  --text-heading-lg: 48px;
+  --leading-heading-lg: 1.1;
+  --tracking-heading-lg: -0.04px;
+  --text-display: 78px;
+  --leading-display: 0.9;
+  --tracking-display: -0.04px;
+  --text-hero: 113px;
+  --leading-hero: 0.81;
+  --tracking-hero: -0.04px;
 
   /* Spacing */
-  --spacing-8: 8px;
-  --spacing-16: 16px;
+  --spacing-6: 6px;
+  --spacing-12: 12px;
+  --spacing-18: 18px;
   --spacing-24: 24px;
-  --spacing-32: 32px;
-  --spacing-40: 40px;
-  --spacing-48: 48px;
-  --spacing-64: 64px;
-  --spacing-80: 80px;
+  --spacing-30: 30px;
+  --spacing-36: 36px;
+  --spacing-60: 60px;
   --spacing-96: 96px;
-  --spacing-112: 112px;
-  --spacing-128: 128px;
-  --spacing-224: 224px;
+  --spacing-120: 120px;
 
   /* Border Radius */
-  --radius-lg: 8px;
-  --radius-lg-2: 11px;
-  --radius-2xl: 16px;
-  --radius-full: 9999px;
-
-  /* Shadows */
-  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
+  --radius-3xl: 24px;
 }
 ```
