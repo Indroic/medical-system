@@ -43,18 +43,18 @@ function LoginPage() {
   });
 
   return (
-    <div className="min-h-svh bg-obsidian flex items-center justify-center p-6">
+    <div className="min-h-svh bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-90">
         <div className="mb-8">
-          <p className="text-[11px] font-medium text-smoke uppercase tracking-widest mb-3">
+          <p className="text-[11px] font-medium text-muted uppercase tracking-widest mb-3">
             Medical Imaging System
           </p>
-          <h1 className="text-[22px] font-normal text-snow leading-tight tracking-[-0.3px]">
+          <h1 className="text-[22px] font-normal text-foreground leading-tight tracking-[-0.3px]">
             Acceder al sistema
           </h1>
         </div>
 
-        <div className="rounded-2xl border border-charcoal bg-ash p-6">
+        <div className="rounded-2xl border border-border bg-surface p-6">
           <form
             onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
             className="flex flex-col gap-5"
@@ -69,7 +69,7 @@ function LoginPage() {
                   isRequired
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-silver mb-1.5">Correo electrónico</Label>
+                  <Label className="text-[13px] text-ash mb-1.5">Correo electrónico</Label>
                   <Input placeholder="doctor@clinica.com" />
                   <FieldError />
                 </TextField>
@@ -86,7 +86,7 @@ function LoginPage() {
                   isRequired
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-silver mb-1.5">Contraseña</Label>
+                  <Label className="text-[13px] text-ash mb-1.5">Contraseña</Label>
                   <Input placeholder="••••••••" />
                   <FieldError />
                 </TextField>
@@ -98,7 +98,7 @@ function LoginPage() {
                 <Button
                   type="submit"
                   isDisabled={isSubmitting}
-                  className="mt-1 w-full rounded-full bg-green text-obsidian font-medium text-[14px] py-2.5 disabled:opacity-50 transition-opacity"
+                  className="mt-1 w-full rounded-full bg-accent text-accent-foreground font-medium text-[14px] py-2.5 disabled:opacity-50 transition-opacity"
                 >
                   {isSubmitting ? "Accediendo…" : "Acceder"}
                 </Button>

@@ -74,21 +74,21 @@ function SetupPage() {
   });
 
   return (
-    <div className="min-h-svh bg-obsidian flex items-center justify-center p-6">
+    <div className="min-h-svh bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-90">
         <div className="mb-8">
-          <p className="text-[11px] font-medium text-smoke uppercase tracking-widest mb-3">
+          <p className="text-[11px] font-medium text-muted uppercase tracking-widest mb-3">
             Medical Imaging System · Configuración inicial
           </p>
-          <h1 className="text-[22px] font-normal text-snow leading-tight tracking-[-0.3px]">
+          <h1 className="text-[22px] font-normal text-foreground leading-tight tracking-[-0.3px]">
             Crear administrador
           </h1>
-          <p className="mt-2 text-[13px] text-silver leading-relaxed">
+          <p className="mt-2 text-[13px] text-ash leading-relaxed">
             No existe ningún usuario. Crea la cuenta de administrador para continuar.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-charcoal bg-ash p-6">
+        <div className="rounded-2xl border border-border bg-surface p-6">
           <form
             onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
             className="flex flex-col gap-5"
@@ -102,7 +102,7 @@ function SetupPage() {
                   isRequired
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-silver mb-1.5">Nombre completo</Label>
+                  <Label className="text-[13px] text-ash mb-1.5">Nombre completo</Label>
                   <Input placeholder="Dr. Juan García" />
                   <FieldError />
                 </TextField>
@@ -119,7 +119,7 @@ function SetupPage() {
                   isRequired
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-silver mb-1.5">Correo electrónico</Label>
+                  <Label className="text-[13px] text-ash mb-1.5">Correo electrónico</Label>
                   <Input placeholder="admin@clinica.com" />
                   <FieldError />
                 </TextField>
@@ -140,7 +140,7 @@ function SetupPage() {
                   isInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                   className="w-full"
                 >
-                  <Label className="text-[13px] text-silver mb-1.5">Contraseña</Label>
+                  <Label className="text-[13px] text-ash mb-1.5">Contraseña</Label>
                   <Input placeholder="Mínimo 8 caracteres" />
                   <FieldError>
                     {field.state.meta.isTouched && field.state.meta.errors[0]}
@@ -149,9 +149,9 @@ function SetupPage() {
               )}
             </form.Field>
 
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-charcoal bg-obsidian">
-              <span className="text-[12px] text-smoke">Rol asignado:</span>
-              <span className="text-[12px] font-medium text-green">Administrador</span>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background">
+              <span className="text-[12px] text-muted">Rol asignado:</span>
+              <span className="text-[12px] font-medium text-accent">Administrador</span>
             </div>
 
             <form.Subscribe selector={(s) => s.isSubmitting}>
@@ -159,7 +159,7 @@ function SetupPage() {
                 <Button
                   type="submit"
                   isDisabled={isSubmitting}
-                  className="mt-1 w-full rounded-full bg-green text-obsidian font-medium text-[14px] py-2.5 disabled:opacity-50 transition-opacity"
+                  className="mt-1 w-full rounded-full bg-accent text-accent-foreground font-medium text-[14px] py-2.5 disabled:opacity-50 transition-opacity"
                 >
                   {isSubmitting ? "Creando cuenta…" : "Crear administrador"}
                 </Button>
