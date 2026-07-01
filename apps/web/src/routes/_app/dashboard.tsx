@@ -57,7 +57,7 @@ function Dashboard() {
         title="Dashboard"
         subtitle={user ? `Bienvenido, ${user.nombre}` : undefined}
         action={
-          <span className="inline-flex items-center rounded-full bg-ash px-3 py-1 text-[12px] text-smoke border border-charcoal">
+          <span className="inline-flex items-center rounded-full bg-surface px-3 py-1 text-[12px] text-muted border border-border">
             {user?.rol === "admin" ? "Administrador" : "Médico"}
           </span>
         }
@@ -71,55 +71,55 @@ function Dashboard() {
 
       <div className="mt-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[14px] text-silver">Estudios recientes</h2>
+          <h2 className="text-[14px] text-ash">Estudios recientes</h2>
           <button
             type="button"
             onClick={() => navigate({ to: "/estudios" })}
-            className="text-[13px] text-smoke hover:text-silver transition-colors"
+            className="text-[13px] text-muted hover:text-ash transition-colors"
           >
             Ver todos →
           </button>
         </div>
 
         {loading ? (
-          <div className="rounded-2xl border border-charcoal p-8 text-center text-[13px] text-smoke">
+          <div className="rounded-2xl border border-border p-8 text-center text-[13px] text-muted">
             Cargando…
           </div>
         ) : recent.length === 0 ? (
-          <div className="rounded-2xl border border-charcoal p-8 text-center text-[13px] text-smoke">
+          <div className="rounded-2xl border border-border p-8 text-center text-[13px] text-muted">
             No hay estudios aún.{" "}
             <button
               type="button"
               onClick={nuevoEstudioState.open}
-              className="text-green font-medium hover:underline"
+              className="text-link font-medium hover:underline"
             >
               Crear el primero
             </button>
           </div>
         ) : (
-          <div className="rounded-2xl border border-charcoal overflow-hidden overflow-x-auto">
+          <div className="rounded-2xl border border-border overflow-hidden overflow-x-auto">
             <table className="w-full text-[13px] min-w-[500px]">
               <thead>
-                <tr className="border-b border-charcoal bg-ash">
-                  <th className="px-4 py-3 text-left text-smoke font-normal">Estudio ID</th>
-                  <th className="px-4 py-3 text-left text-smoke font-normal">Estado</th>
-                  <th className="px-4 py-3 text-left text-smoke font-normal">Tipo</th>
-                  <th className="px-4 py-3 text-right text-smoke font-normal">Acción</th>
+                <tr className="border-b border-border bg-surface">
+                  <th className="px-4 py-3 text-left text-muted font-normal">Estudio ID</th>
+                  <th className="px-4 py-3 text-left text-muted font-normal">Estado</th>
+                  <th className="px-4 py-3 text-left text-muted font-normal">Tipo</th>
+                  <th className="px-4 py-3 text-right text-muted font-normal">Acción</th>
                 </tr>
               </thead>
               <tbody>
                 {recent.map((estudio, i) => (
-                  <tr key={estudio.id} className={i < recent.length - 1 ? "border-b border-charcoal" : ""}>
-                    <td className="px-4 py-3 font-mono text-silver truncate max-w-[200px]">
+                  <tr key={estudio.id} className={i < recent.length - 1 ? "border-b border-border" : ""}>
+                    <td className="px-4 py-3 font-mono text-ash truncate max-w-[200px]">
                       {estudio.id.slice(0, 8)}…
                     </td>
                     <td className="px-4 py-3"><EstadoBadge estado={estudio.estado} /></td>
-                    <td className="px-4 py-3 text-smoke">{estudio.mime_type}</td>
+                    <td className="px-4 py-3 text-muted">{estudio.mime_type}</td>
                     <td className="px-4 py-3 text-right">
                       <button
                         type="button"
                         onClick={() => navigate({ to: "/estudios/$estudioId", params: { estudioId: estudio.id } })}
-                        className="text-green font-medium hover:underline"
+                        className="text-link font-medium hover:underline"
                       >
                         Ver →
                       </button>
@@ -136,14 +136,14 @@ function Dashboard() {
         <button
           type="button"
           onClick={nuevoEstudioState.open}
-          className="rounded-full bg-green px-5 py-2 text-[14px] font-medium text-obsidian hover:bg-green-deep transition-colors text-center w-full sm:w-auto"
+          className="rounded-full bg-accent px-5 py-2 text-[14px] font-medium text-accent-foreground hover:bg-accent-hover transition-colors text-center w-full sm:w-auto"
         >
           Nuevo estudio
         </button>
         <button
           type="button"
           onClick={nuevoPacienteState.open}
-          className="rounded-full border border-charcoal px-5 py-2 text-[14px] text-snow hover:bg-ash hover:border-slate transition-colors text-center w-full sm:w-auto"
+          className="rounded-full border border-border px-5 py-2 text-[14px] text-foreground hover:bg-surface-hover hover:border-field-border transition-colors text-center w-full sm:w-auto"
         >
           Nuevo paciente
         </button>
