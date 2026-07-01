@@ -40,5 +40,5 @@ WORKDIR /app/apps/server
 
 EXPOSE 3000
 
-# Aplica schema aditivo (crea role + tabla jwks si no existen) antes de arrancar.
-CMD ["sh", "-c", "cd /app/packages/db && node_modules/.bin/drizzle-kit push --force && cd /app/apps/server && npm run start"]
+# Las migraciones (Drizzle) las aplica el servicio medical-server-migrator antes de arrancar.
+CMD ["npm", "run", "start"]

@@ -1,4 +1,23 @@
 services:
+  medical-postgres:
+    image: postgres:18-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medical-network
+    # Sin puertos publicados y sin dokploy-network: completamente aislado, solo accesible
+    # desde otros contenedores de medical-network.
+
   medical-api-migrator:
     build:
       context: .
@@ -7,11 +26,26 @@ services:
     command: ["sh", "./scripts/migrate.sh"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      medical-postgres:
+        condition: service_healthy
     networks:
       - medical-network
-      - dokploy-network
+
+  medical-server-migrator:
+    build:
+      context: .
+      dockerfile: packages/db/Dockerfile
+    restart: "no"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+    depends_on:
+      medical-postgres:
+        condition: service_healthy
+    networks:
+      - medical-network
 
   medical-api:
     build:
@@ -20,8 +54,8 @@ services:
     restart: always
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=${DATABASE_URL}
-      - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
       - SERVER_URL=http://medical-server:3000
       - BETTER_AUTH_URL=${APP_URL}
       - CELERY_BROKER_URL=redis://medical-redis:6379/0
@@ -43,7 +77,6 @@ services:
         condition: service_completed_successfully
     networks:
       - medical-network
-      - dokploy-network
 
   medical-api-worker:
     build:
@@ -53,8 +86,8 @@ services:
     command: ["uv", "run", "celery", "-A", "src.worker", "worker", "--loglevel=info", "-c", "1"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=${DATABASE_URL}
-      - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
       - SERVER_URL=http://medical-server:3000
       - CELERY_BROKER_URL=redis://medical-redis:6379/0
       - REDIS_URL=redis://medical-redis:6379/0
@@ -71,7 +104,6 @@ services:
         condition: service_completed_successfully
     networks:
       - medical-network
-      - dokploy-network
 
   medical-redis:
     image: redis:7-alpine
@@ -91,7 +123,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
       - BETTER_AUTH_URL=${APP_URL}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
       - CORS_ORIGIN=${APP_URL}
@@ -102,9 +134,10 @@ services:
         condition: service_healthy
       medical-api:
         condition: service_healthy
+      medical-server-migrator:
+        condition: service_completed_successfully
     networks:
       - medical-network
-      - dokploy-network
 
   medical-seaweedfs:
     image: chrislusf/seaweedfs:latest
@@ -159,3 +192,4 @@ networks:
 
 volumes:
   seaweedfs_data:
+  postgres_data:
