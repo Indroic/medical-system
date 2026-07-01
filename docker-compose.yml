@@ -1,6 +1,6 @@
 services:
   medical-postgres:
-    image: postgres:18-alpine
+    image: postgres:17-alpine
     restart: always
     environment:
       - POSTGRES_USER=admin
