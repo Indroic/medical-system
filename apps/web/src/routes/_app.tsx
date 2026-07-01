@@ -123,7 +123,7 @@ function AppLayout() {
                     className={[
                       "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors text-left w-full",
                       active
-                        ? "bg-ash text-snow font-medium"
+                        ? "bg-surface-hover text-foreground font-medium"
                         : "text-muted hover:bg-surface-hover hover:text-ash",
                     ].join(" ")}
                   >
@@ -178,7 +178,7 @@ function AppLayout() {
                 className={[
                   "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors text-left w-full",
                   active
-                    ? "bg-ash text-snow font-medium"
+                    ? "bg-surface-hover text-foreground font-medium"
                     : "text-muted hover:bg-surface-hover hover:text-ash",
                 ].join(" ")}
               >
