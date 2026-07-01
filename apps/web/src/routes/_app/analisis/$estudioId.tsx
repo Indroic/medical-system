@@ -78,15 +78,15 @@ function AnalisisDetail() {
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-border bg-surface p-5">
-          <p className="text-muted">Nivel de riesgo</p>
+          <p className="text-[12px] text-muted mb-2">Nivel de riesgo</p>
           <RiesgoBadge nivel={analisis.nivel_riesgo} />
         </div>
         <div className="rounded-2xl border border-border bg-surface p-5">
-          <p className="text-muted">Hallazgos totales</p>
+          <p className="text-[12px] text-muted mb-2">Hallazgos totales</p>
           <p className="text-[32px] font-normal text-foreground leading-none">{analisis.total_hallazgos}</p>
         </div>
         <div className="rounded-2xl border border-border bg-surface p-5">
-          <p className="text-muted">Hallazgos críticos</p>
+          <p className="text-[12px] text-muted mb-2">Hallazgos críticos</p>
           <p className={`text-[32px] font-normal leading-none ${criticos.length > 0 ? "text-accent" : "text-graphite"}`}>
             {criticos.length}
           </p>
