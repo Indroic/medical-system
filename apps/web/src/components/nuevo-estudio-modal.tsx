@@ -1,6 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { Button, ComboBox, FieldError, Input, Label, ListBox, Modal, TextField, toast } from "@heroui/react";
+import type { Key } from "@heroui/react";
+import {
+  Autocomplete,
+  Button,
+  Description,
+  EmptyState,
+  FieldError,
+  Input,
+  Label,
+  ListBox,
+  Modal,
+  SearchField,
+  TextField,
+  toast,
+  useFilter,
+} from "@heroui/react";
 import { useNavigate } from "@tanstack/react-router";
 
 import PatientCard from "@/components/patient-card";
@@ -16,6 +31,7 @@ interface NuevoEstudioModalProps {
 export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoEstudioModalProps) {
   const { token } = useAuthStore();
   const navigate = useNavigate();
+  const { contains } = useFilter({ sensitivity: "base" });
 
   const [step, setStep] = useState<"patient" | "upload">("patient");
   const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
@@ -45,7 +61,13 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
 
   useEffect(() => {
     if (state.isOpen && prefilledPacienteId && token) {
-      pacientesApi.obtener(token, prefilledPacienteId).then(setPaciente).catch(() => { });
+      pacientesApi
+        .obtener(token, prefilledPacienteId)
+        .then((result) => {
+          setPaciente(result);
+          setSelectedPacienteId(result.id);
+        })
+        .catch(() => { });
     }
   }, [state.isOpen, prefilledPacienteId, token]);
 
@@ -138,8 +160,8 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                     <div key={label} className="flex items-center gap-2">
                       <span
                         className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-medium ${done ? "bg-accent text-accent-foreground"
-                            : active ? "border border-accent text-accent"
-                              : "border border-border text-muted"
+                          : active ? "border border-accent text-accent"
+                            : "border border-border text-muted"
                           }`}
                       >
                         {idx + 1}
@@ -162,30 +184,54 @@ export default function NuevoEstudioModal({ state, prefilledPacienteId }: NuevoE
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-col gap-1.5">
                         <Label className="text-[13px] text-ash">Buscar paciente</Label>
-                        <ComboBox
-                          selectedKey={selectedPacienteId ?? undefined}
-                          onSelectionChange={handleSelectPatient}
+                        <Autocomplete
+                          allowsEmptyCollection
                           className="w-full"
+                          fullWidth
+                          placeholder="Buscar por nombre, apellido o documento"
+                          selectionMode="single"
+                          value={selectedPacienteId}
+                          variant="secondary"
+                          onChange={(value) => handleSelectPatient(value as Key | null)}
                         >
-                          <Input
-                            placeholder="Buscar por nombre, apellido o documento"
-                            className="bg-surface border-field-border"
-                          />
-                          <ListBox>
-                            {pacientes.map((item) => (
-                              <ListBox.Item
-                                key={item.id}
-                                id={item.id}
-                                textValue={`${item.nombre} ${item.apellido} ${item.documento_identidad}`}
+                          <Autocomplete.Trigger>
+                            <Autocomplete.Value />
+                            <Autocomplete.ClearButton />
+                            <Autocomplete.Indicator />
+                          </Autocomplete.Trigger>
+                          <Autocomplete.Popover>
+                            <Autocomplete.Filter filter={contains}>
+                              <SearchField autoFocus name="search" variant="secondary">
+                                <SearchField.Group>
+                                  <SearchField.SearchIcon />
+                                  <SearchField.Input placeholder="Buscar pacientes..." />
+                                  <SearchField.ClearButton />
+                                </SearchField.Group>
+                              </SearchField>
+                              <ListBox
+                                renderEmptyState={() => (
+                                  <EmptyState>
+                                    {loadingPacientes ? "Cargando pacientes..." : "No hay resultados"}
+                                  </EmptyState>
+                                )}
                               >
-                                <div className="flex flex-col">
-                                  <span className="text-[14px] text-foreground">{item.nombre} {item.apellido}</span>
-                                  <span className="text-[12px] text-muted">{item.documento_identidad}</span>
-                                </div>
-                              </ListBox.Item>
-                            ))}
-                          </ListBox>
-                        </ComboBox>
+                                {pacientes.map((item) => (
+                                  <ListBox.Item
+                                    key={item.id}
+                                    id={item.id}
+                                    textValue={`${item.nombre} ${item.apellido} ${item.documento_identidad}`}
+                                  >
+                                    <div className="flex flex-col">
+                                      <Label>{item.nombre} {item.apellido}</Label>
+                                      <Description>{item.documento_identidad}</Description>
+                                    </div>
+                                    <ListBox.ItemIndicator />
+                                  </ListBox.Item>
+                                ))}
+                              </ListBox>
+                            </Autocomplete.Filter>
+                          </Autocomplete.Popover>
+                        </Autocomplete>
                         <p className="text-[12px] text-muted">
                           {loadingPacientes
                             ? "Cargando pacientes…"
