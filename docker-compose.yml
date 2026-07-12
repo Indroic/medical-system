@@ -16,7 +16,7 @@ services:
     networks:
       - medical-network
     ports:
-      - "5432:8462"
+      - "8462:5432"
     # Sin puertos publicados y sin dokploy-network: completamente aislado, solo accesible
     # desde otros contenedores de medical-network.
 
