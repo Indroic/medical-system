@@ -15,6 +15,9 @@ services:
       retries: 5
     networks:
       - medical-network
+      - dokploy-network
+    ports:
+      - "5432:8462"
     # Sin puertos publicados y sin dokploy-network: completamente aislado, solo accesible
     # desde otros contenedores de medical-network.
 
@@ -187,9 +190,6 @@ services:
   medical-pgadmin:
     image: dpage/pgadmin4:latest
     restart: always
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
