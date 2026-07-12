@@ -187,18 +187,6 @@ services:
       - medical-network
       - dokploy-network
 
-  medical-pgadmin:
-    image: dpage/pgadmin4:latest
-    restart: always
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    depends_on:
-      medical-postgres:
-        condition: service_healthy
-    networks:
-      - medical-network
-      - dokploy-network
-
 networks:
   medical-network:
     driver: bridge
