@@ -4,6 +4,7 @@ import { BarChart2, FileText, Scan, Users, UserCog, Menu, X } from "lucide-react
 
 import { useAuthStore } from "@/lib/auth-store";
 import { ModeToggle } from "@/components/mode-toggle";
+import UserMenu from "@/components/user-menu";
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: ({ context: _ctx }) => {
@@ -190,22 +191,10 @@ function AppLayout() {
         </nav>
 
         {/* User + logout */}
-        <div className="border-t border-border p-2 flex items-center justify-between gap-2">
+        <div className="border-t border-border p-2 flex flex-col items-center justify-between gap-2">
           <span className="text-[11px] font-medium text-muted uppercase tracking-wide px-1">Tema</span>
           <ModeToggle />
-          {user && (
-            <div className="mb-1 px-3 py-2">
-              <p className="text-[13px] font-medium text-foreground truncate">{user.nombre}</p>
-              <p className="text-[12px] text-muted truncate">{user.email}</p>
-            </div>
-          )}
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="w-full rounded-lg px-3 py-2 text-[13px] text-muted hover:bg-surface-hover hover:text-foreground text-left transition-colors"
-          >
-            Cerrar sesión
-          </button>
+          <UserMenu />
         </div>
       </aside>
 
