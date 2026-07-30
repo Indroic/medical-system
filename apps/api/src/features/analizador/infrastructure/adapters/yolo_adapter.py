@@ -63,6 +63,12 @@ class YoloInferenciaAdapter(IModeloInferenciaAdapter):
         if imagen is None:
             raise ValueError("No se pudo decodificar la imagen. No es un DICOM válido ni un PNG/JPEG reconocido.")
 
+        # Dimensiones de la imagen tal como la ve YOLO: las coordenadas que
+        # devuelve `box.xyxy` están en este espacio, no en el de la miniatura
+        # que sirve imgproxy. Se propagan al hallazgo para que el visor pueda
+        # reescalar el bbox correctamente.
+        img_height, img_width = imagen.shape[:2]
+
         resultados = self._model(imagen)[0]
         hallazgos: list[Hallazgo] = []
 
@@ -83,6 +89,8 @@ class YoloInferenciaAdapter(IModeloInferenciaAdapter):
                         y_max=y_max,
                     ),
                     image_index=image_index,
+                    img_width=int(img_width),
+                    img_height=int(img_height),
                 )
             )
 

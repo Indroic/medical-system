@@ -106,12 +106,21 @@ export interface SubirImagenResponse {
 export interface HallazgoDTO {
   etiqueta: string;
   confianza: number;
+  /** Coordenadas en el espacio de píxeles de la imagen ORIGINAL. */
   x_min: number;
   y_min: number;
   x_max: number;
   y_max: number;
   es_critico: boolean;
   image_index: number;
+  /**
+   * Tamaño de la imagen original sobre la que se calculó el bbox. Necesario
+   * porque el visor muestra una versión redimensionada por imgproxy: sin esto
+   * el bbox se dibuja a la escala equivocada.
+   * 0 = desconocido (análisis anteriores a este campo).
+   */
+  img_width: number;
+  img_height: number;
 }
 
 export interface AnalisisResponse {
@@ -124,12 +133,26 @@ export interface AnalisisResponse {
   informe_avanzado_ia?: string;
 }
 
+export type ReporteEstado = "GENERANDO" | "LISTO" | "FALLIDO" | "APROBADO";
+
 export interface ReporteResponse {
   reporte_id: string;
-  estado: "GENERANDO" | "LISTO" | "FALLIDO";
+  estudio_id: string;
+  /** APROBADO es terminal: el reporte queda inmutable. */
+  estado: ReporteEstado;
   nivel_riesgo: string;
   total_hallazgos: number;
   pdf_disponible: boolean;
+  observaciones: string | null;
+  /** Lo calcula el backend (`Reporte.esta_editable`); no replicar la regla aquí. */
+  editable: boolean;
+  aprobado_por: string | null;
+  aprobado_en: string | null;
+}
+
+export interface ReporteListResponse {
+  items: ReporteResponse[];
+  total: number;
 }
 
 // ─── Auth ───────────────────────────────────────────────────────────────────
@@ -182,8 +205,20 @@ export const estudiosApi = {
     }, token);
   },
 
-  listar: (token: string) =>
-    request<EstudioListResponse>("/api/estudios", {}, token),
+  /**
+   * Sin `pacienteId`: estudios del médico autenticado.
+   * Con `pacienteId`: historial completo de ese paciente (de cualquier médico),
+   * filtrado en el servidor — antes se traía la lista entera y se filtraba en
+   * el cliente, lo que ocultaba los estudios subidos por otros profesionales.
+   */
+  listar: (token: string, pacienteId?: string) =>
+    request<EstudioListResponse>(
+      pacienteId
+        ? `/api/estudios?paciente_id=${encodeURIComponent(pacienteId)}`
+        : "/api/estudios",
+      {},
+      token,
+    ),
 
   obtener: (token: string, id: string) =>
     request<EstudioResponse>(`/api/estudios/${id}`, {}, token),
@@ -207,6 +242,34 @@ export const analisisApi = {
 export const reportesApi = {
   obtener: (token: string, estudio_id: string) =>
     request<ReporteResponse>(`/api/reportes/${estudio_id}`, {}, token),
+
+  /** `soloPendientes` devuelve únicamente los reportes que aún admiten edición. */
+  listar: (token: string, soloPendientes = false) =>
+    request<ReporteListResponse>(
+      soloPendientes ? "/api/reportes?pendientes=true" : "/api/reportes",
+      {},
+      token,
+    ),
+
+  /**
+   * Edita un reporte pendiente. Los campos omitidos no se modifican.
+   * Lanza ApiError con status 409 si el reporte ya está aprobado.
+   */
+  actualizar: (
+    token: string,
+    estudio_id: string,
+    data: { observaciones?: string; nivel_riesgo?: string },
+  ) =>
+    request<ReporteResponse>(`/api/reportes/${estudio_id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }, token),
+
+  /** Transición terminal: bloquea la edición y registra quién aprobó. */
+  aprobar: (token: string, estudio_id: string) =>
+    request<ReporteResponse>(`/api/reportes/${estudio_id}/aprobar`, {
+      method: "POST",
+    }, token),
 
   urlDescarga: (estudio_id: string) => {
     const cleanBase = BASE.replace(/\/+$/, "");

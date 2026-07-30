@@ -9,7 +9,7 @@ from src.shared.infrastructure.storage.s3_client import S3StorageAdapter
 from ...application.use_cases.recepcionar_estudio import RecepcionarEstudioUseCase
 from ...application.use_cases.subir_imagen_estudio import SubirImagenEstudioUseCase
 from ...domain.services import EstudioService
-from ..repositories import EstudioRepositoryImpl
+from ..repositories import EstudioRepositoryImpl, PacienteLookupAdapter
 
 
 async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork]:
@@ -21,7 +21,10 @@ async def get_recepcionar_uc(
     uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ) -> RecepcionarEstudioUseCase:
     repo = EstudioRepositoryImpl(uow)
-    service = EstudioService(estudio_repo=repo)
+    service = EstudioService(
+        estudio_repo=repo,
+        paciente_lookup=PacienteLookupAdapter(uow),
+    )
     return RecepcionarEstudioUseCase(service=service, uow=uow)
 
 

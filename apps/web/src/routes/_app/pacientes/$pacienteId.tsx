@@ -29,12 +29,17 @@ function PacienteDetail() {
 
   useEffect(() => {
     if (!token) return;
-    Promise.all([pacientesApi.obtener(token, pacienteId), estudiosApi.listar(token)])
+    // El filtrado por paciente lo hace la API (?paciente_id=...): así se ve el
+    // historial completo, incluidos los estudios subidos por otros médicos.
+    Promise.all([
+      pacientesApi.obtener(token, pacienteId),
+      estudiosApi.listar(token, pacienteId),
+    ])
       .then(([p, e]) => {
         setPaciente(p);
-        setEstudios(e.items.filter((est) => est.paciente_id === pacienteId));
+        setEstudios(e.items);
       })
-      .catch((err) => toast.danger("Error cargando paciente"))
+      .catch(() => toast.danger("Error cargando paciente"))
       .finally(() => setLoading(false));
   }, [token, pacienteId]);
 

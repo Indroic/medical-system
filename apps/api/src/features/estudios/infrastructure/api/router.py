@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from hexcore.infrastructure.uow import SqlAlchemyUnitOfWork
 
 from src.features.usuarios.application.dtos import UserResponse
@@ -15,7 +15,11 @@ from ...application.dtos import (
 )
 from ...application.use_cases.recepcionar_estudio import RecepcionarEstudioUseCase
 from ...application.use_cases.subir_imagen_estudio import SubirImagenEstudioUseCase
-from ...domain.exceptions import EstudioNotFoundException, TipoArchivoNoPermitidoException
+from ...domain.exceptions import (
+    EstudioNotFoundException,
+    PacienteInexistenteException,
+    TipoArchivoNoPermitidoException,
+)
 from ...infrastructure.repositories import EstudioRepositoryImpl
 from .dependencies import get_recepcionar_uc, get_subir_imagen_uc, get_uow
 
@@ -61,21 +65,35 @@ async def recepcionar_estudio(
         mime_type=body.mime_type,
         medico_id=str(current_user.id),
     )
-    return await use_case.execute(command)
+    try:
+        return await use_case.execute(command)
+    except PacienteInexistenteException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
 
 
 @router.get(
     "/",
     response_model=EstudioListResponse,
-    summary="Listar estudios del médico autenticado",
+    summary="Listar estudios del médico autenticado, o el historial de un paciente",
 )
 async def listar_estudios(
+    paciente_id: UUID | None = Query(
+        None,
+        description=(
+            "Si se indica, devuelve el historial completo de estudios de ese "
+            "paciente (de cualquier médico). Si se omite, devuelve los estudios "
+            "del médico autenticado."
+        ),
+    ),
     current_user: UserResponse = Depends(get_current_user),
     uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ) -> EstudioListResponse:
     async with uow:
         repo = EstudioRepositoryImpl(uow)
-        estudios = await repo.list_by_medico(str(current_user.id))
+        if paciente_id is not None:
+            estudios = await repo.list_by_paciente(paciente_id)
+        else:
+            estudios = await repo.list_by_medico(str(current_user.id))
 
     items = [
         EstudioResponse(

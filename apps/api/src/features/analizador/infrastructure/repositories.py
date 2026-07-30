@@ -30,13 +30,23 @@ async def _resolver_hallazgos(model: AnalisisModel) -> list[Hallazgo]:
                 y_max=h["y_max"],
             ),
             image_index=h.get("image_index", 0),
+            # Ausentes en análisis guardados antes de añadir estos campos: 0
+            # significa "desconocido" y el visor cae al comportamiento anterior.
+            img_width=h.get("img_width", 0),
+            img_height=h.get("img_height", 0),
         )
         for h in raw
     ]
 
 
+def _a_uuid(valor: UUID | str) -> UUID:
+    """Normaliza a UUID. `analisis.estudio_id` pasó de String a sa.UUID en la
+    migración c4e8a1d5f7b2 para poder declarar la FK contra `estudios.id`."""
+    return UUID(valor) if isinstance(valor, str) else valor
+
+
 async def _resolver_estudio_id(model: AnalisisModel) -> UUID:
-    return UUID(str(model.estudio_id))
+    return _a_uuid(model.estudio_id)
 
 
 class AnalisisRepositoryImpl(
@@ -68,7 +78,8 @@ class AnalisisRepositoryImpl(
     @property
     def fields_serializers(self) -> FieldSerializersType | None:
         return {
-            "estudio_id": ("estudio_id", lambda e: str(e.estudio_id)),
+            # Se conserva el UUID: la columna es sa.UUID y str() rompería el bind.
+            "estudio_id": ("estudio_id", lambda e: _a_uuid(e.estudio_id)),
             "hallazgos": ("hallazgos_json", lambda e: json.dumps(
                 [
                     {
@@ -79,6 +90,8 @@ class AnalisisRepositoryImpl(
                         "x_max": h.bbox.x_max,
                         "y_max": h.bbox.y_max,
                         "image_index": h.image_index,
+                        "img_width": h.img_width,
+                        "img_height": h.img_height,
                     }
                     for h in (e.hallazgos or [])
                 ]
@@ -88,7 +101,7 @@ class AnalisisRepositoryImpl(
     async def get_by_estudio(self, estudio_id) -> AnalisisResonancia | None:
         session = self.uow.session  # type: ignore[attr-defined]
         result = await session.execute(
-            select(AnalisisModel).where(AnalisisModel.estudio_id == str(estudio_id))
+            select(AnalisisModel).where(AnalisisModel.estudio_id == _a_uuid(estudio_id))
         )
         model = result.scalar_one_or_none()
         if model is None:

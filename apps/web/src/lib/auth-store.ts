@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+import { authClient } from "@/lib/auth-client";
+
 export interface AppUser {
   id: string;
   email: string;
@@ -56,10 +58,18 @@ export function useAuthState(): AuthState {
   };
 
   const logout = () => {
+    // El estado local se limpia primero y de forma sincrónica: la UI no debe
+    // quedarse en un limbo "autenticado" si la llamada de red falla.
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(USER_KEY);
     setToken(null);
     setUser(null);
+
+    // Invalidar también la sesión en el servidor. Sin esto la cookie de
+    // Better-Auth seguía viva y bastaba recargar para volver a entrar.
+    void authClient.signOut().catch(() => {
+      // Sesión ya expirada o server inaccesible: la sesión local ya está limpia.
+    });
   };
 
   return { token, user, isLoading, login, logout };

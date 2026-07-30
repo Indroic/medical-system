@@ -4,10 +4,10 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useNavigate } from "@tanstack/react-router";
 
 import EstadoBadge from "@/components/estado-badge";
+import MriViewer from "@/components/mri-viewer";
 import PatientCard from "@/components/patient-card";
 import { ReportePDFDocument } from "@/components/reporte-pdf";
 import { useAuthStore } from "@/lib/auth-store";
-import { useImgproxyUrl } from "@/lib/imgproxy";
 import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
 import type { EstudioResponse, PacienteResponse, ReporteResponse, AnalisisResponse } from "@/lib/python-api";
 
@@ -25,8 +25,6 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
   const [analisis, setAnalisis] = useState<AnalisisResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
-
-  const proxySrc = useImgproxyUrl(estudio?.imagenes_paths?.[0], 1000, 1000);
 
   useEffect(() => {
     if (!state.isOpen || !token || !estudioId) return;
@@ -131,19 +129,13 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                 <div className="text-[13px] text-muted">Estudio no encontrado.</div>
               ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-[1fr_350px] gap-8">
-                  {/* Left: image */}
+                  {/* Left: imágenes — todos los cortes, con hallazgos si los hay */}
                   <div>
-                    <div className="rounded-cards border border-border overflow-hidden bg-surface flex items-center justify-center min-h-[400px]">
-                      {proxySrc ? (
-                        <img
-                          src={proxySrc}
-                          alt="Resonancia Magnética"
-                          className="max-h-[60vh] w-auto object-contain"
-                        />
-                      ) : (
-                        <p className="text-[13px] text-muted">Sin imagen disponible</p>
-                      )}
-                    </div>
+                    <MriViewer
+                      imagePaths={estudio.imagenes_paths ?? []}
+                      hallazgos={analisis?.hallazgos ?? []}
+                      maxHeightClassName="max-h-[60vh]"
+                    />
 
                     <div className="mt-6 flex flex-col sm:flex-row gap-3">
                       {isPendiente && (

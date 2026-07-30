@@ -4,12 +4,22 @@ const STYLES: Record<string, string> = {
   PENDIENTE:    "bg-default text-muted",
   EN_ANALISIS:  "bg-info-soft text-info-soft-foreground",
   COMPLETADO:   "bg-success-soft text-success-soft-foreground",
+  // Estados del reporte médico
+  GENERANDO:    "bg-info-soft text-info-soft-foreground",
+  LISTO:        "bg-warning-soft text-warning-soft-foreground",
+  APROBADO:     "bg-success-soft text-success-soft-foreground",
+  FALLIDO:      "bg-danger-soft text-danger-soft-foreground",
 };
 
 const LABELS: Record<string, string> = {
   PENDIENTE:   "Pendiente",
   EN_ANALISIS: "En análisis",
   COMPLETADO:  "Completado",
+  GENERANDO:   "Generando…",
+  // Un reporte LISTO todavía está pendiente de validación médica.
+  LISTO:       "Pendiente de aprobación",
+  APROBADO:    "Aprobado",
+  FALLIDO:     "Fallido",
 };
 
 export default function EstadoBadge({ estado }: { estado: Estado }) {

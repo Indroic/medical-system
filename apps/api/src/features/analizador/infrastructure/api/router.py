@@ -68,6 +68,8 @@ async def obtener_analisis(
                 y_max=h.bbox.y_max,
                 es_critico=h.es_critico(),
                 image_index=h.image_index,
+                img_width=h.img_width,
+                img_height=h.img_height,
             )
             for h in analisis.hallazgos
         ],

@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 import MriViewer from "@/components/mri-viewer";
 import PageHeader from "@/components/page-header";
 import RiesgoBadge from "@/components/riesgo-badge";
+import ReporteEditor from "@/components/reporte-editor";
 import { ReportePDFDocument } from "@/components/reporte-pdf";
 import { useAuthStore } from "@/lib/auth-store";
 import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
@@ -150,6 +151,13 @@ function AnalisisDetail() {
               </button>
             )}
           </div>
+
+          {/* §3.1 — validar/complementar el reporte durante la revisión */}
+          {reporte && (
+            <div className="mt-6">
+              <ReporteEditor reporte={reporte} onUpdated={setReporte} />
+            </div>
+          )}
         </div>
       </div>
     </div>

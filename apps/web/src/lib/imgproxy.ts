@@ -6,6 +6,10 @@ const KEY = import.meta.env.VITE_IMGPROXY_KEY || "73757065722d7365637265742d6b65
 const SALT = import.meta.env.VITE_IMGPROXY_SALT || "73757065722d7365637265742d73616c74";
 // Mismo origen por defecto: el nginx de 'web' proxyea /imgproxy -> imgproxy.
 const IMGPROXY_URL = import.meta.env.VITE_IMGPROXY_URL || "/imgproxy";
+// Debe coincidir con S3_BUCKET del backend (config.py: s3_bucket). Si allí se
+// cambia el bucket y aquí no, imgproxy resuelve una ruta inexistente y las
+// imágenes dejan de cargar sin más pista que un 404.
+const S3_BUCKET = import.meta.env.VITE_S3_BUCKET || "medical-system";
 
 async function signUrl(path: string): Promise<string> {
   if (!KEY || !SALT) {
@@ -57,7 +61,7 @@ export function useImgproxyUrl(imagePath: string | null | undefined, width = 100
     }
 
     const path = generateUrl(
-      { value: `s3://medical-system/${imagePath}`, type: "plain" },
+      { value: `s3://${S3_BUCKET}/${imagePath}`, type: "plain" },
       { resize: { resizing_type: "fit", width, height } }
     );
 

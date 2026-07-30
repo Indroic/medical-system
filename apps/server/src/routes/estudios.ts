@@ -70,7 +70,14 @@ export const estudios = new Hono()
 
     if (!res.ok) {
       const errorText = await res.text();
-      return c.json({ error: "Failed to fetch from API", detail: errorText }, res.status as any);
+      console.error(`[Python API Error] POST /estudios: ${res.status} - ${errorText}`);
+      // Reenviar el `detail` de FastAPI tal cual para que el cliente pueda
+      // mostrarlo (p.ej. "El paciente <id> no existe." en un 404).
+      let detail = errorText;
+      try {
+        detail = JSON.parse(errorText).detail ?? errorText;
+      } catch {}
+      return c.json({ error: "Failed to create resource", detail }, res.status as any);
     }
 
     const data = await res.json();

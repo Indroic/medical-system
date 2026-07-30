@@ -17,6 +17,11 @@ class HallazgoDTO(DTO):
     y_max: float
     es_critico: bool
     image_index: int
+    # Tamaño de la imagen original sobre la que se calcularon x_min/y_min/...
+    # El visor lo necesita porque muestra una versión redimensionada.
+    # 0 = desconocido (análisis anteriores a este campo).
+    img_width: int = 0
+    img_height: int = 0
 
 
 class AnalisisResponse(DTO):

@@ -48,6 +48,14 @@ def include_object(object, name, type_, reflected, compare_to):
     """
     if type_ == "table" and reflected and name not in target_metadata.tables:
         return False
+
+    # `estudios.medico_id` referencia la tabla `user` de Better-Auth, que a
+    # propósito NO está en Base.metadata (es de Drizzle). La FK existe sólo a
+    # nivel de BD, así que autogenerate la vería como "sobrante" y propondría
+    # borrarla en cada revisión. Se ignora explícitamente.
+    if type_ == "foreign_key_constraint" and name == "fk_estudios_medico_id":
+        return False
+
     return True
 
 

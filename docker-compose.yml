@@ -33,6 +33,11 @@ services:
     depends_on:
       medical-postgres:
         condition: service_healthy
+      # La revisión c4e8a1d5f7b2 crea la FK estudios.medico_id -> user.id, y la
+      # tabla `user` la crea el migrador de Drizzle. Sin este orden la FK se
+      # omitiría (la migración avisa y continúa, no falla) y quedaría sin crear.
+      medical-server-migrator:
+        condition: service_completed_successfully
     networks:
       - medical-network
 

@@ -4,10 +4,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import EstadoBadge from "@/components/estado-badge";
+import MriViewer from "@/components/mri-viewer";
 import PatientCard from "@/components/patient-card";
+import ReporteEditor from "@/components/reporte-editor";
 import { ReportePDFDocument } from "@/components/reporte-pdf";
 import { useAuthStore } from "@/lib/auth-store";
-import { useImgproxyUrl } from "@/lib/imgproxy";
 import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
 import type { EstudioResponse, PacienteResponse, ReporteResponse, AnalisisResponse } from "@/lib/python-api";
 
@@ -25,8 +26,6 @@ function EstudioDetail() {
   const [analisis, setAnalisis] = useState<AnalisisResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
-
-  const proxySrc = useImgproxyUrl(estudio?.imagenes_paths?.[0], 1000, 1000);
 
   useEffect(() => {
     if (!token) return;
@@ -132,19 +131,13 @@ function EstudioDetail() {
           </Modal.Header>
           <Modal.Body className="p-4 sm:p-8 overflow-y-auto custom-scrollbar">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6">
-            {/* Left: image */}
+            {/* Left: imágenes — todos los cortes, con los hallazgos si ya hay análisis */}
             <div>
-              <div className="rounded-cards border border-border overflow-hidden bg-surface flex items-center justify-center min-h-[320px]">
-                {proxySrc ? (
-                  <img
-                    src={proxySrc}
-                    alt="Resonancia Magnética"
-                    className="max-h-[480px] w-auto object-contain"
-                  />
-                ) : (
-                  <p className="text-[13px] text-muted">Sin imagen disponible</p>
-                )}
-              </div>
+              <MriViewer
+                imagePaths={estudio.imagenes_paths ?? []}
+                hallazgos={analisis?.hallazgos ?? []}
+                maxHeightClassName="max-h-[480px]"
+              />
 
               <div className="mt-4 flex flex-col sm:flex-row gap-3">
                 {isPendiente && (
@@ -209,17 +202,13 @@ function EstudioDetail() {
                   <Row label="Tipo de imagen" value={estudio.mime_type} />
                   <Row label="Estado" value={<EstadoBadge estado={estudio.estado} />} />
                   {reporte && (
-                    <Row
-                      label="Reporte"
-                      value={
-                        reporte.estado === "LISTO" ? "Disponible"
-                        : reporte.estado === "GENERANDO" ? "Generando…"
-                        : "Error"
-                      }
-                    />
+                    <Row label="Reporte" value={<EstadoBadge estado={reporte.estado} />} />
                   )}
                 </dl>
               </div>
+
+              {/* §3.1 — editable mientras el reporte no esté aprobado */}
+              {reporte && <ReporteEditor reporte={reporte} onUpdated={setReporte} />}
             </div>
           </div>
           </Modal.Body>
