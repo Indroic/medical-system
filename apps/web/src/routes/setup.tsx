@@ -1,8 +1,7 @@
 import { createFileRoute, isRedirect, redirect, useNavigate } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { Button, FieldError, Input, Label, TextField, toast } from "@heroui/react";
-import { Scan } from "lucide-react";
-
+import { LogoMark } from "@/components/logo";
 import { authClient } from "@/lib/auth-client";
 import { useAuthStore } from "@/lib/auth-store";
 import { env } from "@medical-system/env/web";
@@ -77,9 +76,7 @@ function SetupPage() {
     <div className="min-h-svh bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-90">
         <div className="mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-cards bg-accent mb-4">
-            <Scan size={18} className="text-accent-foreground" />
-          </div>
+          <LogoMark size={40} className="mb-4" />
           <p className="text-[11px] font-semibold text-accent uppercase tracking-widest mb-3">
             Medical Imaging System · Configuración inicial
           </p>

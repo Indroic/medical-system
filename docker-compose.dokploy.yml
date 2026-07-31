@@ -1,0 +1,260 @@
+#################################################################################
+#                          docker-compose.dokploy.yml                           #
+#                                                                                #
+#  Stack único y autocontenido para desplegar medical-system en Dokploy como    #
+#  UNA sola aplicación "Docker Compose". Plug and play:                        #
+#                                                                                #
+#    1. Crea la app en Dokploy (tipo "Compose"), apunta a este archivo.        #
+#    2. Pega las variables de .env.example en la pestaña "Environment".        #
+#    3. Deploy. Dokploy crea la red externa `dokploy-network` si no existe.    #
+#    4. En "Domains", asigna el dominio público SOLO al servicio `medical-web` #
+#       (puerto 80). Es el único que expone nginx como proxy inverso hacia     #
+#       medical-server, medical-api e imgproxy en el mismo origen.             #
+#                                                                                #
+#  Aislamiento: todo vive en la red privada `medical-network` (no visible para #
+#  otros proyectos del mismo servidor Dokploy). Únicamente `medical-web` se    #
+#  conecta ADEMÁS a `dokploy-network` para que Traefik pueda alcanzarlo. No se #
+#  publica ningún puerto de host, así que no puede chocar con los puertos de   #
+#  mantainer-system, access-control-system ni ningún otro stack del servidor.  #
+#################################################################################
+
+name: medical-system
+
+services:
+  medical-postgres:
+    image: postgres:17-alpine
+    container_name: medical-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data_second:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medical-network
+    # Sin puertos publicados: completamente aislado, solo accesible desde
+    # los demás contenedores de medical-network.
+
+  medical-server-migrator:
+    build:
+      context: .
+      dockerfile: packages/db/Dockerfile
+    container_name: medical-server-migrator
+    restart: "no"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+    depends_on:
+      medical-postgres:
+        condition: service_healthy
+    networks:
+      - medical-network
+
+  medical-api-migrator:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: medical-api-migrator
+    restart: "no"
+    command: ["sh", "./scripts/migrate.sh"]
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      medical-postgres:
+        condition: service_healthy
+      # La revisión c4e8a1d5f7b2 crea la FK estudios.medico_id -> user.id, y la
+      # tabla `user` la crea el migrador de Drizzle. Sin este orden la FK se
+      # omitiría (la migración avisa y continúa, no falla) y quedaría sin crear.
+      medical-server-migrator:
+        condition: service_completed_successfully
+    networks:
+      - medical-network
+
+  medical-redis:
+    image: redis:7-alpine
+    container_name: medical-redis
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medical-network
+
+  medical-seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    container_name: medical-seaweedfs
+    restart: always
+    command: "server -s3"
+    environment:
+      - WEED_S3_ALLOW_EMPTY_FOLDER=true
+      - WEED_S3_ALLOW_DELETE_BUCKET_NOT_EMPTY=true
+    volumes:
+      - seaweedfs_data:/data
+    networks:
+      - medical-network
+    # Sin puertos publicados: solo medical-api, medical-api-worker e
+    # medical-imgproxy lo consumen internamente (http://medical-seaweedfs:8333).
+    # Si necesitas acceso S3 externo, conéctalo también a dokploy-network y
+    # asígnale un dominio propio en Dokploy en vez de publicar el puerto 8333.
+
+  medical-api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: medical-api
+    restart: always
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - SERVER_URL=http://medical-server:3000
+      - BETTER_AUTH_URL=${APP_URL}
+      - CELERY_BROKER_URL=redis://medical-redis:6379/0
+      - REDIS_URL=redis://medical-redis:6379/0
+      - S3_ENDPOINT=http://medical-seaweedfs:8333
+      - AWS_ACCESS_KEY_ID=seaweed
+      - AWS_SECRET_ACCESS_KEY=seaweed
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      medical-redis:
+        condition: service_healthy
+      medical-api-migrator:
+        condition: service_completed_successfully
+    networks:
+      - medical-network
+
+  medical-api-worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: medical-api-worker
+    restart: always
+    command: ["uv", "run", "celery", "-A", "src.worker", "worker", "--loglevel=info", "-c", "1"]
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - SERVER_URL=http://medical-server:3000
+      - CELERY_BROKER_URL=redis://medical-redis:6379/0
+      - REDIS_URL=redis://medical-redis:6379/0
+      - S3_ENDPOINT=http://medical-seaweedfs:8333
+      - AWS_ACCESS_KEY_ID=seaweed
+      - AWS_SECRET_ACCESS_KEY=seaweed
+      - YOLO_CONFIG_DIR=/tmp/Ultralytics
+      - C_FORCE_ROOT=true
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      medical-redis:
+        condition: service_healthy
+      medical-api-migrator:
+        condition: service_completed_successfully
+    networks:
+      - medical-network
+
+  medical-server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    container_name: medical-server
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - BETTER_AUTH_URL=${APP_URL}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - CORS_ORIGIN=${APP_URL}
+      - PYTHON_API_URL=http://medical-api:8000
+      - REDIS_URL=redis://medical-redis:6379/0
+    depends_on:
+      medical-redis:
+        condition: service_healthy
+      medical-api:
+        condition: service_healthy
+      medical-server-migrator:
+        condition: service_completed_successfully
+    networks:
+      - medical-network
+
+  medical-imgproxy:
+    image: darthsim/imgproxy:latest
+    container_name: medical-imgproxy
+    restart: always
+    environment:
+      - IMGPROXY_USE_S3=true
+      - IMGPROXY_S3_ENDPOINT=http://medical-seaweedfs:8333
+      - IMGPROXY_S3_USE_HTTP=true
+      - AWS_ACCESS_KEY_ID=seaweed
+      - AWS_SECRET_ACCESS_KEY=seaweed
+      - AWS_REGION=us-east-1
+      - IMGPROXY_KEY=${IMGPROXY_KEY}
+      - IMGPROXY_SALT=${IMGPROXY_SALT}
+      - IMGPROXY_ENFORCE_SIGNATURE=true
+    depends_on:
+      - medical-seaweedfs
+    networks:
+      - medical-network
+
+  # ── pgAdmin (OPCIONAL) ───────────────────────────────────────────────────
+  # Descomenta si necesitas inspeccionar visualmente medical-postgres.
+  # Asígnale su propio dominio en Dokploy (puerto 80 del contenedor).
+  # medical-pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: medical-pgadmin
+  #   restart: always
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+  #     - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+  #   depends_on:
+  #     - medical-postgres
+  #   networks:
+  #     medical-network:
+  #     dokploy-network:
+  #       aliases:
+  #         - medical-pgadmin-public
+
+  # ── Frontend Web (nginx SPA + proxy inverso single-origin) ── ÚNICO público ─
+  medical-web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: medical-web
+    restart: always
+    depends_on:
+      - medical-api
+      - medical-server
+      - medical-imgproxy
+    networks:
+      medical-network:
+        aliases:
+          - medical-web
+      dokploy-network:
+        aliases:
+          - medical-web-public
+
+networks:
+  # Red privada: solo los contenedores de este stack se resuelven entre sí.
+  medical-network:
+    driver: bridge
+  # Red compartida que crea Dokploy para el ingress de Traefik. Solo
+  # medical-web (y opcionalmente medical-pgadmin) la usan.
+  dokploy-network:
+    external: true
+
+volumes:
+  seaweedfs_data:
+  postgres_data_second:

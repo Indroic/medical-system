@@ -1,8 +1,9 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { Button, FieldError, Input, Label, TextField, toast } from "@heroui/react";
-import { Scan, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
+import Logo from "@/components/logo";
 import { ModeToggle } from "@/components/mode-toggle";
 import { authClient } from "@/lib/auth-client";
 import { destinoPostLogin, esRedirectInterno } from "@/lib/auth-routing";
@@ -70,14 +71,7 @@ function LoginPage() {
   return (
     <div className="min-h-svh bg-background flex flex-col">
       <header className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded bg-accent">
-            <Scan size={13} className="text-accent-foreground" />
-          </div>
-          <span className="text-[13px] font-medium tracking-tight text-foreground">
-            MedImaging
-          </span>
-        </div>
+        <Logo size={26} />
         <ModeToggle />
       </header>
 

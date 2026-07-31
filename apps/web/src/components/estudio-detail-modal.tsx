@@ -7,6 +7,7 @@ import EstadoBadge from "@/components/estado-badge";
 import MriViewer from "@/components/mri-viewer";
 import PatientCard from "@/components/patient-card";
 import { ReportePDFDocument } from "@/components/reporte-pdf";
+import { useImagenesAnotadas } from "@/lib/anotar-imagen";
 import { useAuthStore } from "@/lib/auth-store";
 import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
 import type { EstudioResponse, PacienteResponse, ReporteResponse, AnalisisResponse } from "@/lib/python-api";
@@ -25,6 +26,12 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
   const [analisis, setAnalisis] = useState<AnalisisResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+
+  // Cortes con los bboxes y etiquetas quemados en el píxel, para el PDF.
+  const { imagenes: imagenesAnotadas, cargando: anotando } = useImagenesAnotadas(
+    estudio?.imagenes_paths,
+    analisis?.hallazgos,
+  );
 
   useEffect(() => {
     if (!state.isOpen || !token || !estudioId) return;
@@ -145,7 +152,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           disabled={analyzing}
                           className="rounded-full bg-accent px-6 py-2.5 text-[14px] font-medium text-accent-foreground hover:bg-accent-hover disabled:opacity-50 transition-colors w-full sm:w-auto text-center"
                         >
-                          {analyzing ? "Analizando…" : "Ejecutar análisis IA"}
+                          {analyzing ? "Analizando…" : "Ejecutar análisis"}
                         </button>
                       )}
                       {hasAnalisis && (
@@ -160,13 +167,15 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                           Ver resultados de análisis →
                         </button>
                       )}
-                      {paciente && estudio && analisis ? (
+                      {paciente && estudio && analisis && !anotando ? (
                         <PDFDownloadLink
                           document={
                             <ReportePDFDocument
                               paciente={paciente}
                               estudio={estudio}
                               analisis={analisis}
+                              reporte={reporte}
+                              imagenesAnotadas={imagenesAnotadas}
                             />
                           }
                           fileName={`reporte_${estudioId}.pdf`}
@@ -183,7 +192,7 @@ export default function EstudioDetailModal({ state, estudioId }: EstudioDetailMo
                             disabled
                             className="rounded-full border border-border/50 px-6 py-2.5 text-[14px] text-muted cursor-not-allowed transition-colors w-full sm:w-auto text-center"
                           >
-                            Cargando datos del PDF…
+                            {anotando ? "Preparando imágenes…" : "Cargando datos del PDF…"}
                           </button>
                         )
                       )}

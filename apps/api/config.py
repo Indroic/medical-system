@@ -77,20 +77,26 @@ class ProjectConfig(ServerConfig):
     # YOLO / IA
     yolo_model_path: str = "models/yolo_resonancia.pt"
     
-    # LLM (Google Gemini)
+    # Motor de redacción del informe (LLM). El proveedor es un detalle de
+    # infraestructura: el texto generado no debe mencionarlo (ver regla 6).
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
     gemini_model_name: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
     gemini_prompt_template: str = os.getenv(
         "GEMINI_PROMPT_TEMPLATE",
-        "Eres un oncólogo radiólogo de clase mundial. Recibirás una lista de datos crudos extraídos por un "
-        "modelo de visión artificial (YOLO) a partir de múltiples cortes (slices) de una Resonancia Magnética (MRI).\n"
+        "Eres un oncólogo radiólogo de clase mundial. Recibirás una lista de datos crudos extraídos por el "
+        "sistema de detección asistida a partir de múltiples cortes (slices) de una Resonancia Magnética (MRI).\n"
         "Tu tarea es redactar un 'Informe Radiológico' profesional, claro y detallado en español (Markdown).\n\n"
         "REGLAS:\n"
         "1. 'tumor' o 'hemorragia' o 'isquemia' son críticos.\n"
         "2. La columna BBox (X_min, Y_min, X_max, Y_max) indica la ubicación.\n"
         "3. La columna 'image_index' indica en qué corte (slice) se encontró.\n"
         "4. Menciona si hay extensión vertical (el mismo tipo de tumor aparece en cortes secuenciales).\n"
-        "5. NO inventes datos. Limítate a interpretar los hallazgos provistos.\n\n"
+        "5. NO inventes datos. Limítate a interpretar los hallazgos provistos.\n"
+        "6. Redacta como lo haría el radiólogo que firma el informe. NO menciones "
+        "inteligencia artificial, IA, modelos, redes neuronales, YOLO, algoritmos, "
+        "proveedores ni marcas de software, ni te refieras a ti mismo. Habla de "
+        "'los hallazgos' o 'el estudio', nunca de cómo se obtuvieron.\n"
+        "7. Cierra el informe recordando que requiere la validación de un médico.\n\n"
         "DATOS CRUDOS RECIBIDOS:\n"
         "{datos_crudos}\n\n"
         "Redacta el informe clínico estructurado en formato Markdown:"

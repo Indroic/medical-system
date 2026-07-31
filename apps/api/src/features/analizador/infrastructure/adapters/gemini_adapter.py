@@ -10,6 +10,16 @@ from src.features.analizador.domain.value_objects import Hallazgo
 
 logger = logging.getLogger(__name__)
 
+# Texto que se guarda como informe cuando la redacción automática falla. Es el
+# único mensaje de error que llega al PDF, así que no nombra al proveedor ni al
+# motor: sólo indica al médico que debe redactar el informe.
+_MENSAJE_ERROR_INFORME = (
+    "No fue posible redactar automáticamente el informe de este estudio. "
+    "Los hallazgos detectados se listan en la tabla del reporte; el informe "
+    "debe ser redactado y validado por el médico."
+)
+
+
 class GeminiAdapter(ILLMAdapter):
     def __init__(self, api_key: str, model_name: str, prompt_template: str):
         self.client = genai.Client(api_key=api_key) if api_key else genai.Client()
@@ -50,10 +60,12 @@ class GeminiAdapter(ILLMAdapter):
         
         try:
             data = json.loads(response.text)
-            return data.get("response", "El modelo no generó una respuesta válida.")
+            return data.get("response", _MENSAJE_ERROR_INFORME)
         except Exception as e:
-            logger.error(f"Error parsing JSON from Gemini: {e}. Raw text: {response.text}")
-            return "Hubo un error parseando la respuesta estructurada de Gemini."
+            # El proveedor sólo se nombra en los logs: el texto que devolvemos
+            # acaba en el informe que ve el médico.
+            logger.error(f"Error parseando la respuesta del proveedor LLM: {e}. Raw text: {response.text}")
+            return _MENSAJE_ERROR_INFORME
 
     async def generar_reporte_clinico(self, hallazgos: list[Hallazgo]) -> str:
         datos_crudos = []
@@ -66,11 +78,11 @@ class GeminiAdapter(ILLMAdapter):
         datos_str = "\n".join(datos_crudos) if datos_crudos else "Sin hallazgos detectados."
         prompt = self.prompt_template.replace("{datos_crudos}", datos_str)
 
-        logger.info(f"Enviando solicitud a Gemini ({self.model_name}) con {len(hallazgos)} hallazgos.")
+        logger.info(f"Enviando solicitud al LLM ({self.model_name}) con {len(hallazgos)} hallazgos.")
 
         try:
             # Envolvemos la llamada síncrona en un hilo para no bloquear el Worker asíncrono
             return await asyncio.to_thread(self._generar_sincrono, prompt)
         except Exception as e:
-            logger.error(f"Error comunicando con Gemini: {repr(e)}")
-            return f"Hubo un error al generar el reporte avanzado usando Gemini: {repr(e)}"
+            logger.error(f"Error comunicando con el proveedor LLM: {repr(e)}")
+            return _MENSAJE_ERROR_INFORME

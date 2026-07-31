@@ -83,6 +83,10 @@ export default function ReporteEditor({ reporte, onUpdated }: Props) {
 
       {reporte.editable ? (
         <div className="flex flex-col gap-4">
+          <p className="rounded-nav bg-warning-soft px-3 py-2 text-[11px] text-warning-soft-foreground">
+            Este reporte sólo es válido si es validado por un médico. Mientras no se
+            apruebe, su contenido es preliminar y no constituye un diagnóstico.
+          </p>
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="reporte-nivel-riesgo"
@@ -103,7 +107,7 @@ export default function ReporteEditor({ reporte, onUpdated }: Props) {
               ))}
             </select>
             <p className="text-[11px] text-muted">
-              Corrige la evaluación automática de la IA si procede.
+              Corrige la evaluación automática del sistema si procede.
             </p>
           </div>
 

@@ -3,6 +3,7 @@ import { Outlet, createFileRoute, redirect, useLocation, useNavigate } from "@ta
 import {
   BarChart2,
   FileText,
+  LogOut,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
@@ -14,6 +15,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { useAuthStore } from "@/lib/auth-store";
+import Logo from "@/components/logo";
 import { ModeToggle } from "@/components/mode-toggle";
 import UserMenu from "@/components/user-menu";
 
@@ -152,22 +154,26 @@ function AppLayout() {
     <div className="flex flex-col lg:flex-row h-svh bg-background font-sans overflow-hidden">
       {/* Barra superior móvil */}
       <header className="flex lg:hidden h-14 items-center justify-between border-b border-border bg-background px-4 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded bg-accent">
-            <Scan size={13} className="text-accent-foreground" />
-          </div>
-          <span className="text-[13px] font-medium tracking-tight text-foreground">
-            MedImaging
-          </span>
+        <Logo size={24} />
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="p-1.5 text-muted hover:text-foreground hover:bg-surface-hover rounded-lg transition-colors"
+            aria-label="Cerrar sesión"
+            title="Cerrar sesión"
+          >
+            <LogOut size={18} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-1.5 text-muted hover:text-foreground hover:bg-surface-hover rounded-lg transition-colors"
+            aria-label="Abrir menú"
+          >
+            <Menu size={20} />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="p-1.5 text-muted hover:text-foreground hover:bg-surface-hover rounded-lg transition-colors"
-          aria-label="Abrir menú"
-        >
-          <Menu size={20} />
-        </button>
       </header>
 
       {/* Menú móvil lateral (Overlay / Drawer) */}
@@ -183,14 +189,7 @@ function AppLayout() {
           <aside className="relative flex w-64 max-w-[80vw] h-full flex-col border-r border-border bg-background p-4 z-10 transition-transform duration-300">
             {/* Header Drawer */}
             <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
-              <div className="flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded bg-accent">
-                  <Scan size={13} className="text-accent-foreground" />
-                </div>
-                <span className="text-[13px] font-medium tracking-tight text-foreground">
-                  MedImaging
-                </span>
-              </div>
+              <Logo size={24} />
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -214,9 +213,10 @@ function AppLayout() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full rounded-lg px-3 py-2 text-[13px] text-muted hover:bg-surface-hover hover:text-foreground text-left transition-colors"
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-muted hover:bg-surface-hover hover:text-foreground text-left transition-colors"
               >
-                Cerrar sesión
+                <LogOut size={14} className="shrink-0" aria-hidden="true" />
+                <span>Cerrar sesión</span>
               </button>
             </div>
           </aside>
@@ -237,14 +237,7 @@ function AppLayout() {
             isCollapsed ? "justify-center px-2" : "gap-2.5 px-4",
           ].join(" ")}
         >
-          <div className="flex h-6 w-6 items-center justify-center rounded bg-accent shrink-0">
-            <Scan size={13} className="text-accent-foreground" />
-          </div>
-          {!isCollapsed && (
-            <span className="text-[13px] font-medium tracking-tight text-foreground truncate">
-              MedImaging
-            </span>
-          )}
+          <Logo size={24} hideWordmark={isCollapsed} />
         </div>
 
         <div className="flex flex-col flex-1 p-2 gap-2 overflow-y-auto">
@@ -267,13 +260,8 @@ function AppLayout() {
 
         {/* User + tema */}
         <div className="border-t border-border p-2 flex flex-col items-center justify-between gap-2">
-          {!isCollapsed && (
-            <span className="text-[11px] font-medium text-muted uppercase tracking-wide px-1">
-              Tema
-            </span>
-          )}
           <ModeToggle />
-          <UserMenu />
+          <UserMenu collapsed={isCollapsed} />
         </div>
       </aside>
 

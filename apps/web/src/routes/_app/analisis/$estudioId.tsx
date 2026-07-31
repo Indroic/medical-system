@@ -9,7 +9,9 @@ import PageHeader from "@/components/page-header";
 import RiesgoBadge from "@/components/riesgo-badge";
 import ReporteEditor from "@/components/reporte-editor";
 import { ReportePDFDocument } from "@/components/reporte-pdf";
+import { useImagenesAnotadas } from "@/lib/anotar-imagen";
 import { useAuthStore } from "@/lib/auth-store";
+import { filtrarConfiables } from "@/lib/hallazgos";
 import { ApiError, analisisApi, estudiosApi, pacientesApi, reportesApi } from "@/lib/python-api";
 import type { AnalisisResponse, EstudioResponse, PacienteResponse, ReporteResponse } from "@/lib/python-api";
 
@@ -26,6 +28,12 @@ function AnalisisDetail() {
   const [paciente, setPaciente] = useState<PacienteResponse | null>(null);
   const [reporte, setReporte] = useState<ReporteResponse | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Cortes con los bboxes y etiquetas quemados en el píxel, para el PDF.
+  const { imagenes: imagenesAnotadas, cargando: anotando } = useImagenesAnotadas(
+    estudio?.imagenes_paths,
+    analisis?.hallazgos,
+  );
 
   useEffect(() => {
     if (!token) return;
@@ -57,7 +65,9 @@ function AnalisisDetail() {
   if (loading) return <div className="p-8 text-muted">Cargando análisis…</div>;
   if (!analisis) return <div className="p-8 text-muted">Análisis no encontrado.</div>;
 
-  const criticos = analisis.hallazgos.filter((h) => h.es_critico);
+  // Sólo cuentan las etiquetas por encima del umbral de confianza.
+  const hallazgos = filtrarConfiables(analisis.hallazgos);
+  const criticos = hallazgos.filter((h) => h.es_critico);
 
   return (
     <div className="p-4 sm:p-8">
@@ -84,7 +94,7 @@ function AnalisisDetail() {
         </div>
         <div className="rounded-cards bg-surface shadow-surface p-5">
           <p className="text-[12px] text-muted mb-2">Hallazgos totales</p>
-          <p className="text-[32px] font-semibold text-foreground leading-none">{analisis.total_hallazgos}</p>
+          <p className="text-[32px] font-semibold text-foreground leading-none">{hallazgos.length}</p>
         </div>
         <div className="rounded-cards bg-surface shadow-surface p-5">
           <p className="text-[12px] text-muted mb-2">Hallazgos críticos</p>
@@ -100,18 +110,15 @@ function AnalisisDetail() {
         )}
 
         <div>
-          {analisis.hallazgos.length === 0 ? (
+          {hallazgos.length === 0 ? (
             <div className="rounded-cards bg-success-soft p-8 text-center text-[14px] text-success-soft-foreground">
               No se encontraron hallazgos patológicos en esta resonancia magnética.
             </div>
           ) : analisis.informe_avanzado_ia ? (
             <div className="rounded-cards border border-accent/30 bg-surface p-6 overflow-y-auto max-h-[calc(100vh-300px)] custom-scrollbar">
               <h3 className="text-[16px] text-accent flex items-center gap-2 font-medium mb-4">
-                <span
-                  className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse"
-                  style={{ boxShadow: "0 0 8px var(--accent)" }}
-                />
-                Informe Clínico de IA
+                <span className="w-2.5 h-2.5 rounded-full bg-accent" />
+                Informe radiológico
               </h3>
               <div className="prose prose-sm max-w-none text-muted font-sans prose-headings:text-foreground prose-a:text-link">
                 <ReactMarkdown>{analisis.informe_avanzado_ia}</ReactMarkdown>
@@ -125,13 +132,15 @@ function AnalisisDetail() {
           )}
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            {paciente && estudio && analisis ? (
+            {paciente && estudio && analisis && !anotando ? (
               <PDFDownloadLink
                 document={
                   <ReportePDFDocument
                     paciente={paciente}
                     estudio={estudio}
                     analisis={analisis}
+                    reporte={reporte}
+                    imagenesAnotadas={imagenesAnotadas}
                   />
                 }
                 fileName={`reporte_${estudioId}.pdf`}
@@ -147,7 +156,7 @@ function AnalisisDetail() {
                 disabled
                 className="rounded-full border border-border/50 px-5 py-2.5 text-[14px] text-muted cursor-not-allowed transition-colors text-center w-full sm:w-auto"
               >
-                Cargando datos del PDF…
+                {anotando ? "Preparando imágenes del reporte…" : "Cargando datos del PDF…"}
               </button>
             )}
           </div>

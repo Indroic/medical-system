@@ -6,30 +6,30 @@
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
 
-/* MedImaging — see DESIGN.md. Color with purpose: Clinical Plum is the only
-   brand hue; Vital Green / Amber Alert / Critical Red / Indigo Signal are
+/* MedImaging — see DESIGN.md. Color with purpose: Clinical Blue is the only
+   brand hue; Vital Green / Amber Alert / Critical Red / Cyan Signal are
    reserved for risk & status and never used decoratively. */
 
 :root,
 [data-theme="light"] {
   color-scheme: light;
 
-  --background: oklch(0.985 0.004 340);
-  --foreground: oklch(0.22 0.02 340);
+  --background: oklch(0.985 0.004 255);
+  --foreground: oklch(0.22 0.02 255);
 
   --surface: oklch(1 0 0);
   --surface-foreground: var(--foreground);
-  --surface-secondary: oklch(0.965 0.004 340);
-  --surface-tertiary: oklch(0.94 0.005 340);
+  --surface-secondary: oklch(0.965 0.004 255);
+  --surface-tertiary: oklch(0.94 0.005 255);
 
   --overlay: oklch(1 0 0);
   --overlay-foreground: var(--foreground);
 
-  --muted: oklch(0.52 0.015 340);
-  --default: oklch(0.94 0.004 340);
+  --muted: oklch(0.52 0.015 255);
+  --default: oklch(0.94 0.004 255);
   --default-foreground: var(--foreground);
 
-  --accent: oklch(0.50 0.19 338);
+  --accent: oklch(0.48 0.16 255);
   --accent-foreground: oklch(0.99 0 0);
 
   --field-background: var(--surface);
@@ -45,18 +45,20 @@
   --danger: oklch(0.60 0.21 25);
   --danger-foreground: oklch(0.99 0 0);
 
-  /* Custom semantic color — see DESIGN.md "Indigo Signal" */
-  --info: oklch(0.58 0.16 264);
+  /* Custom semantic color — see DESIGN.md "Cyan Signal". Debe mantenerse
+     separado en tono del azul de marca: es el color de los bboxes no críticos
+     sobre la resonancia y de los chips informativos. */
+  --info: oklch(0.58 0.12 210);
   --info-foreground: oklch(0.99 0 0);
 
   --segment: var(--surface);
   --segment-foreground: var(--foreground);
 
-  --border: oklch(0.90 0.01 340);
+  --border: oklch(0.90 0.01 255);
   --separator: var(--border);
   --focus: var(--accent);
   --link: var(--accent);
-  --backdrop: rgba(24, 20, 28, 0.45);
+  --backdrop: rgba(17, 24, 39, 0.45);
 
   --radius: 0.625rem;
   --surface-shadow: 0 1px 2px rgba(24, 24, 27, 0.04), 0 1px 3px rgba(24, 24, 27, 0.06);
@@ -75,22 +77,22 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --background: oklch(0.16 0.006 340);
-  --foreground: oklch(0.96 0.006 340);
+  --background: oklch(0.16 0.006 255);
+  --foreground: oklch(0.96 0.006 255);
 
-  --surface: oklch(0.21 0.008 340);
+  --surface: oklch(0.21 0.008 255);
   --surface-foreground: var(--foreground);
-  --surface-secondary: oklch(0.25 0.009 340);
-  --surface-tertiary: oklch(0.28 0.01 340);
+  --surface-secondary: oklch(0.25 0.009 255);
+  --surface-tertiary: oklch(0.28 0.01 255);
 
-  --overlay: oklch(0.23 0.009 340);
+  --overlay: oklch(0.23 0.009 255);
   --overlay-foreground: var(--foreground);
 
-  --muted: oklch(0.68 0.02 340);
-  --default: oklch(0.27 0.01 340);
+  --muted: oklch(0.68 0.02 255);
+  --default: oklch(0.27 0.01 255);
   --default-foreground: var(--foreground);
 
-  --accent: oklch(0.58 0.19 338);
+  --accent: oklch(0.58 0.15 255);
   --accent-foreground: oklch(0.99 0 0);
 
   --field-background: var(--surface-secondary);
@@ -106,13 +108,13 @@
   --danger: oklch(0.62 0.20 25);
   --danger-foreground: oklch(0.99 0 0);
 
-  --info: oklch(0.68 0.15 264);
-  --info-foreground: oklch(0.14 0.02 264);
+  --info: oklch(0.72 0.11 210);
+  --info-foreground: oklch(0.16 0.02 210);
 
   --segment: var(--surface-secondary);
   --segment-foreground: var(--foreground);
 
-  --border: oklch(0.32 0.012 340);
+  --border: oklch(0.32 0.012 255);
   --separator: var(--border);
   --focus: var(--accent);
   --link: var(--accent);

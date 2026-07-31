@@ -14,7 +14,7 @@ class ActualizarReporteCommand(BaseModel):
     )
     nivel_riesgo: str | None = Field(
         None,
-        description="Corrección manual del riesgo evaluado por la IA.",
+        description="Corrección manual del riesgo evaluado automáticamente.",
         pattern="^(BAJO|MODERADO|CRITICO|NO_EVALUADO)$",
     )
 

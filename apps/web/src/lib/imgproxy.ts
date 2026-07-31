@@ -51,6 +51,28 @@ async function signUrl(path: string): Promise<string> {
   return `/${sigBase64}${path}`;
 }
 
+/**
+ * URL firmada de imgproxy para un objeto de S3. Es la versión imperativa del
+ * hook: la necesita el anotador de imágenes del PDF, que corre fuera de React.
+ */
+export async function buildImgproxyUrl(
+  imagePath: string,
+  width = 1000,
+  height = 1000,
+): Promise<string> {
+  const path = generateUrl(
+    { value: `s3://${S3_BUCKET}/${imagePath}`, type: "plain" },
+    { resize: { resizing_type: "fit", width, height } }
+  );
+
+  try {
+    return `${IMGPROXY_URL}${await signUrl(path)}`;
+  } catch (err) {
+    console.error("Error signing imgproxy url:", err);
+    return `${IMGPROXY_URL}/insecure${path}`;
+  }
+}
+
 export function useImgproxyUrl(imagePath: string | null | undefined, width = 1000, height = 1000) {
   const [url, setUrl] = useState<string>("");
 
@@ -60,18 +82,14 @@ export function useImgproxyUrl(imagePath: string | null | undefined, width = 100
       return;
     }
 
-    const path = generateUrl(
-      { value: `s3://${S3_BUCKET}/${imagePath}`, type: "plain" },
-      { resize: { resizing_type: "fit", width, height } }
-    );
-
-    signUrl(path).then((signedPath) => {
-      setUrl(`${IMGPROXY_URL}${signedPath}`);
-    }).catch((err) => {
-      console.error("Error signing imgproxy url:", err);
-      // Fallback
-      setUrl(`${IMGPROXY_URL}/insecure${path}`);
+    let cancelado = false;
+    buildImgproxyUrl(imagePath, width, height).then((resuelta) => {
+      if (!cancelado) setUrl(resuelta);
     });
+
+    return () => {
+      cancelado = true;
+    };
   }, [imagePath, width, height]);
 
   return url;

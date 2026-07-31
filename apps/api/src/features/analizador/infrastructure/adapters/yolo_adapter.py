@@ -16,6 +16,14 @@ except ImportError:
     _YOLO_DISPONIBLE = False
 
 
+# Sólo se registran detecciones con al menos esta confianza. Por debajo del 80%
+# la etiqueta no se añade al análisis: no aparece en el visor, ni en la tabla de
+# hallazgos, ni cuenta para el nivel de riesgo. Se aplica dos veces a propósito:
+# como `conf` de YOLO (evita construir los objetos) y como filtro explícito
+# (blinda el invariante si el modelo o Ultralytics cambian el criterio).
+UMBRAL_CONFIANZA_MINIMA = 0.80
+
+
 class YoloInferenciaAdapter(IModeloInferenciaAdapter):
     """Implementa el puerto IModeloInferenciaAdapter usando YOLOv8 (Ultralytics).
 
@@ -69,7 +77,7 @@ class YoloInferenciaAdapter(IModeloInferenciaAdapter):
         # reescalar el bbox correctamente.
         img_height, img_width = imagen.shape[:2]
 
-        resultados = self._model(imagen)[0]
+        resultados = self._model(imagen, conf=UMBRAL_CONFIANZA_MINIMA)[0]
         hallazgos: list[Hallazgo] = []
 
         for box in resultados.boxes:
@@ -77,6 +85,10 @@ class YoloInferenciaAdapter(IModeloInferenciaAdapter):
             confianza: float = float(box.conf[0])
             clase_id: int = int(box.cls[0])
             etiqueta: str = resultados.names[clase_id]
+
+            # Descarta lo que quede por debajo del umbral clínico.
+            if confianza < UMBRAL_CONFIANZA_MINIMA:
+                continue
 
             hallazgos.append(
                 Hallazgo(

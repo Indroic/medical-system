@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import type { HallazgoDTO } from "@/lib/python-api";
+import { esConfiable } from "@/lib/hallazgos";
 import { useImgproxyUrl } from "@/lib/imgproxy";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -43,7 +44,10 @@ export default function MriViewer({
 
   const currentImagePath = imagePaths[currentIndex];
   const proxySrc = useImgproxyUrl(currentImagePath || "", 1000, 1000);
-  const currentHallazgos = hallazgos.filter((h) => h.image_index === currentIndex);
+  // Sólo se etiqueta lo que supera el umbral de confianza (ver lib/hallazgos).
+  const currentHallazgos = hallazgos.filter(
+    (h) => h.image_index === currentIndex && esConfiable(h),
+  );
 
   // Si cambia la lista de imágenes, volver al primer corte y no dejar el índice
   // apuntando fuera de rango.

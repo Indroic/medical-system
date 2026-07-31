@@ -15,6 +15,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppUsuariosRouteImport } from './routes/_app.usuarios'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppReportesIndexRouteImport } from './routes/_app/reportes/index'
 import { Route as AppPacientesIndexRouteImport } from './routes/_app/pacientes/index'
 import { Route as AppEstudiosIndexRouteImport } from './routes/_app/estudios/index'
 import { Route as AppPacientesPacienteIdRouteImport } from './routes/_app/pacientes/$pacienteId'
@@ -48,6 +49,11 @@ const AppUsuariosRoute = AppUsuariosRouteImport.update({
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportesIndexRoute = AppReportesIndexRouteImport.update({
+  id: '/reportes/',
+  path: '/reportes/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPacientesIndexRoute = AppPacientesIndexRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
   '/estudios/': typeof AppEstudiosIndexRoute
   '/pacientes/': typeof AppPacientesIndexRoute
+  '/reportes/': typeof AppReportesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
   '/estudios': typeof AppEstudiosIndexRoute
   '/pacientes': typeof AppPacientesIndexRoute
+  '/reportes': typeof AppReportesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/_app/pacientes/$pacienteId': typeof AppPacientesPacienteIdRoute
   '/_app/estudios/': typeof AppEstudiosIndexRoute
   '/_app/pacientes/': typeof AppPacientesIndexRoute
+  '/_app/reportes/': typeof AppReportesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/pacientes/$pacienteId'
     | '/estudios/'
     | '/pacientes/'
+    | '/reportes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/pacientes/$pacienteId'
     | '/estudios'
     | '/pacientes'
+    | '/reportes'
   id:
     | '__root__'
     | '/'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/_app/pacientes/$pacienteId'
     | '/_app/estudios/'
     | '/_app/pacientes/'
+    | '/_app/reportes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -205,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/reportes/': {
+      id: '/_app/reportes/'
+      path: '/reportes'
+      fullPath: '/reportes/'
+      preLoaderRoute: typeof AppReportesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/pacientes/': {
       id: '/_app/pacientes/'
       path: '/pacientes'
@@ -251,6 +270,7 @@ interface AppRouteChildren {
   AppPacientesPacienteIdRoute: typeof AppPacientesPacienteIdRoute
   AppEstudiosIndexRoute: typeof AppEstudiosIndexRoute
   AppPacientesIndexRoute: typeof AppPacientesIndexRoute
+  AppReportesIndexRoute: typeof AppReportesIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -261,6 +281,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPacientesPacienteIdRoute: AppPacientesPacienteIdRoute,
   AppEstudiosIndexRoute: AppEstudiosIndexRoute,
   AppPacientesIndexRoute: AppPacientesIndexRoute,
+  AppReportesIndexRoute: AppReportesIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

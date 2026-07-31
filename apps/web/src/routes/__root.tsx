@@ -26,7 +26,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       { title: "Medical Imaging System" },
       { name: "description", content: "CT scan analysis platform for medical professionals" },
     ],
-    links: [{ rel: "icon", href: "/favicon.ico" }],
+    links: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
   }),
 });
 
