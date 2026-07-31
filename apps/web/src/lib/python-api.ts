@@ -89,7 +89,7 @@ export interface EstudioResponse {
   paciente_id: string;
   imagenes_paths: string[];
   mime_type: string;
-  estado: "PENDIENTE" | "EN_ANALISIS" | "COMPLETADO";
+  estado: "PENDIENTE" | "EN_ANALISIS" | "COMPLETADO" | "FALLIDO";
   medico_id: string;
 }
 

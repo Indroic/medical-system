@@ -37,33 +37,102 @@ function AnalisisDetail() {
 
   useEffect(() => {
     if (!token) return;
-    setLoading(true);
-    const loadAll = async () => {
+
+    let cancelled = false;
+
+    const loadAll = async (mostrarLoading: boolean) => {
+      if (mostrarLoading) setLoading(true);
       try {
         const [a, e] = await Promise.all([
           analisisApi.obtener(token, estudioId),
           estudiosApi.obtener(token, estudioId)
         ]);
+        if (cancelled) return;
         setAnalisis(a);
         setEstudio(e);
-        
+
         const [p, r] = await Promise.allSettled([
           pacientesApi.obtener(token, e.paciente_id),
           reportesApi.obtener(token, estudioId)
         ]);
+        if (cancelled) return;
         if (p.status === "fulfilled") setPaciente(p.value);
         if (r.status === "fulfilled") setReporte(r.value);
       } catch (err) {
-        toast.danger("Error cargando análisis");
+        if (mostrarLoading) toast.danger("Error cargando análisis");
       } finally {
-        setLoading(false);
+        if (mostrarLoading) setLoading(false);
       }
     };
-    loadAll();
+    loadAll(true);
+
+    // Mientras el análisis siga en curso, esta página se refresca sola en
+    // cuanto el backend termina (mismo patrón SSE que estudios/$estudioId).
+    const baseUrl = (import.meta.env.VITE_SERVER_URL || "").replace(/\/$/, "");
+    const eventSource = new EventSource(`${baseUrl}/api/events/${estudioId}`, {
+      withCredentials: true,
+    });
+    eventSource.addEventListener("ANALISIS_COMPLETADO", () => {
+      toast.success("Análisis completado");
+      loadAll(false);
+    });
+    eventSource.onerror = () => {
+      console.error("Error en conexión SSE");
+    };
+
+    return () => {
+      cancelled = true;
+      eventSource.close();
+    };
   }, [token, estudioId]);
 
   if (loading) return <div className="p-8 text-muted">Cargando análisis…</div>;
   if (!analisis) return <div className="p-8 text-muted">Análisis no encontrado.</div>;
+
+  const volverAEstudio = () => navigate({ to: "/estudios/$estudioId", params: { estudioId } });
+
+  // Mientras el estudio siga EN_ANALISIS, los hallazgos/nivel_riesgo del
+  // análisis todavía son valores por defecto (no hay resultados reales aún):
+  // mostrar el estado real en vez de una tarjeta de "sin hallazgos" engañosa.
+  if (estudio?.estado === "EN_ANALISIS") {
+    return (
+      <div className="p-4 sm:p-8">
+        <PageHeader
+          title="Resultados del análisis"
+          action={
+            <button type="button" onClick={volverAEstudio} className="text-muted hover:text-foreground transition-colors">
+              ← Estudio
+            </button>
+          }
+        />
+        <div className="mt-8 rounded-cards bg-surface shadow-surface p-12 flex flex-col items-center justify-center gap-4 text-center">
+          <span className="w-8 h-8 border-[3px] border-muted border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+          <p className="text-[14px] text-foreground">El análisis todavía está en curso…</p>
+          <p className="text-[13px] text-muted max-w-sm">
+            Esta página se actualizará automáticamente en cuanto termine. Puede tardar unos minutos.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (estudio?.estado === "FALLIDO") {
+    return (
+      <div className="p-4 sm:p-8">
+        <PageHeader
+          title="Resultados del análisis"
+          action={
+            <button type="button" onClick={volverAEstudio} className="text-muted hover:text-foreground transition-colors">
+              ← Estudio
+            </button>
+          }
+        />
+        <div className="mt-8 rounded-cards bg-danger-soft p-8 text-center text-[14px] text-danger-soft-foreground">
+          El análisis falló y no se pudo completar. Vuelve al estudio para reintentarlo.
+        </div>
+      </div>
+    );
+  }
 
   // Sólo cuentan las etiquetas por encima del umbral de confianza.
   const hallazgos = filtrarConfiables(analisis.hallazgos);

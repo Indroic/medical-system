@@ -64,3 +64,9 @@ class EstudioService(BaseDomainService):
         estudio.marcar_completado()
         await self._repo.save(estudio)
         return estudio
+
+    async def marcar_fallido(self, estudio_id: UUID) -> Estudio:
+        estudio = await self._repo.get_by_id(estudio_id)
+        estudio.marcar_fallido()
+        await self._repo.save(estudio)
+        return estudio

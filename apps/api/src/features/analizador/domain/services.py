@@ -54,14 +54,21 @@ class AnalizadorDomainService(BaseDomainService):
             for i, path in enumerate(imagenes_paths):
                 hallazgos_slice = await self._ia_adapter.inferir(path, image_index=i)
                 todos_los_hallazgos.extend(hallazgos_slice)
-            
+
             # Generar reporte con el LLM
             reporte_ia = await self._llm_adapter.generar_reporte_clinico(todos_los_hallazgos)
             analisis.informe_avanzado_ia = reporte_ia
-            
+
             analisis.registrar_resultados(todos_los_hallazgos)  # emite AnalisisCompletadoEvent
             logger.debug("Inferencia completada: %d hallazgos", len(todos_los_hallazgos))
         except Exception:
+            # OJO: NO se puede persistir aquí. Este método corre dentro del
+            # `async with uow:` del llamador (tasks.py); si la excepción se
+            # propaga, esa transacción se revierte por completo (incluido
+            # cualquier `save()` hecho antes del `raise`). Marcar el análisis
+            # y el estudio como FALLIDO en una transacción nueva es
+            # responsabilidad del llamador — ver el `except` de
+            # `_procesar_estudio_ia_async` en tasks.py.
             analisis.marcar_fallido()
             raise
 

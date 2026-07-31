@@ -13,7 +13,7 @@ class Estudio(BaseEntity):
     imagenes_paths: list[str]          # Rutas locales o URIs S3 de los archivos almacenados
     mime_type: str
     medico_id: str            # String del médico que sube el estudio (BetterAuth CUID)
-    estado: str = "PENDIENTE" # PENDIENTE | EN_ANALISIS | COMPLETADO
+    estado: str = "PENDIENTE" # PENDIENTE | EN_ANALISIS | COMPLETADO | FALLIDO
 
     def registrar_recepcion(self) -> None:
         """Emite el evento de dominio tras la persistencia exitosa."""
@@ -30,3 +30,6 @@ class Estudio(BaseEntity):
 
     def marcar_completado(self) -> None:
         self.estado = "COMPLETADO"
+
+    def marcar_fallido(self) -> None:
+        self.estado = "FALLIDO"
