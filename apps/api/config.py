@@ -104,7 +104,7 @@ class ProjectConfig(ServerConfig):
 
 
     # CORS
-    allow_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
+    allow_origins: list[str] = ["https://medical.indroic.dev", "http://localhost:3000", "http://localhost:3001"]
     allow_credentials: bool = True
     allow_methods: list[str] = ["*"]
     allow_headers: list[str] = ["*"]

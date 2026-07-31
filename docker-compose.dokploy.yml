@@ -121,7 +121,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
       - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
       - SERVER_URL=http://medical-server:3000
-      - BETTER_AUTH_URL=${APP_URL}
+      - BETTER_AUTH_URL=${APP_URL:-https://medical.indroic.dev}
       - CELERY_BROKER_URL=redis://medical-redis:6379/0
       - REDIS_URL=redis://medical-redis:6379/0
       - S3_ENDPOINT=http://medical-seaweedfs:8333
@@ -177,11 +177,15 @@ services:
     container_name: medical-server
     restart: always
     environment:
+      # BETTER_AUTH_URL/CORS_ORIGIN deben ser URLs válidas: packages/env/src/server.ts
+      # las valida con z.url() al arrancar. Si APP_URL llega vacía (no configurada
+      # en Dokploy), medical-server crashea al boot y medical-web devuelve 502
+      # Bad Gateway (nginx no tiene a quién reenviar la petición).
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
-      - BETTER_AUTH_URL=${APP_URL}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - CORS_ORIGIN=${APP_URL}
+      - BETTER_AUTH_URL=${APP_URL:-https://medical.indroic.dev}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET es obligatoria y debe tener 32+ caracteres (openssl rand -base64 32)}
+      - CORS_ORIGIN=${APP_URL:-https://medical.indroic.dev}
       - PYTHON_API_URL=http://medical-api:8000
       - REDIS_URL=redis://medical-redis:6379/0
     depends_on:
