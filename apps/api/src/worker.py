@@ -2,6 +2,19 @@ import os
 
 from celery import Celery
 
+# Importar todos los modelos ORM antes de que cualquier tarea ejecute una
+# query. Los modelos se referencian entre sí por nombre de clase en sus
+# relationship() (p. ej. AnalisisModel -> "EstudioModel"), y SQLAlchemy solo
+# puede resolver esos nombres si la clase ya fue importada en este proceso.
+# El proceso de Celery es independiente del de FastAPI (main.py), que sí
+# importa los cinco a propósito: sin esto, el worker crashea con
+# "InvalidRequestError: ... failed to locate a name" al primer query.
+import src.features.analizador.infrastructure.models  # noqa: F401
+import src.features.estudios.infrastructure.models  # noqa: F401
+import src.features.pacientes.infrastructure.models  # noqa: F401
+import src.features.reportes.infrastructure.models  # noqa: F401
+import src.features.usuarios.infrastructure.models  # noqa: F401
+
 broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
 redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
