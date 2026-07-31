@@ -26,13 +26,17 @@ services:
     container_name: medical-postgres
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      # Con defaults: si en Dokploy no se configuraron estas variables, el
+      # stack igual arranca (en vez del error "superuser password is not
+      # specified"). Cambia POSTGRES_PASSWORD por una clave real en el tab
+      # "Environment" de la app antes de exponer esto en producción.
+      - POSTGRES_USER=${POSTGRES_USER:-medical}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-medical_secure_password_change_me}
+      - POSTGRES_DB=${POSTGRES_DB:-medical_db}
     volumes:
       - postgres_data_second:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medical} -d ${POSTGRES_DB:-medical_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -48,7 +52,7 @@ services:
     container_name: medical-server-migrator
     restart: "no"
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
     depends_on:
       medical-postgres:
         condition: service_healthy
@@ -64,7 +68,7 @@ services:
     command: ["sh", "./scripts/migrate.sh"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       medical-postgres:
@@ -114,8 +118,8 @@ services:
     restart: always
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
-      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
       - SERVER_URL=http://medical-server:3000
       - BETTER_AUTH_URL=${APP_URL}
       - CELERY_BROKER_URL=redis://medical-redis:6379/0
@@ -147,8 +151,8 @@ services:
     command: ["uv", "run", "celery", "-A", "src.worker", "worker", "--loglevel=info", "-c", "1"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
-      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
       - SERVER_URL=http://medical-server:3000
       - CELERY_BROKER_URL=redis://medical-redis:6379/0
       - REDIS_URL=redis://medical-redis:6379/0
@@ -174,7 +178,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medical}:${POSTGRES_PASSWORD:-medical_secure_password_change_me}@medical-postgres:5432/${POSTGRES_DB:-medical_db}
       - BETTER_AUTH_URL=${APP_URL}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
       - CORS_ORIGIN=${APP_URL}
