@@ -27,20 +27,52 @@ function EstudiosList() {
 
   useEffect(() => {
     if (!token) return;
-    Promise.all([
-      estudiosApi.listar(token),
-      pacientesApi.listar(token)
-    ])
-      .then(([resEstudios, resPacientes]) => {
+
+    let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+
+    // `mostrarLoading` sólo es true en la carga inicial: los refrescos por
+    // polling (mientras haya un estudio EN_ANALISIS) deben ser silenciosos,
+    // sin parpadear "Cargando…" sobre la tabla ya renderizada.
+    const cargarEstudios = async (mostrarLoading: boolean) => {
+      if (mostrarLoading) setLoading(true);
+      try {
+        const [resEstudios, resPacientes] = await Promise.all([
+          estudiosApi.listar(token),
+          pacientesApi.listar(token),
+        ]);
+        if (cancelled) return;
+
         setEstudios(resEstudios.items);
         const map: Record<string, string> = {};
         resPacientes.items.forEach((p) => {
           map[p.id] = `${p.nombre} ${p.apellido}`;
         });
         setPacientesMap(map);
-      })
-      .catch((err) => toast.danger("Error cargando estudios"))
-      .finally(() => setLoading(false));
+
+        // Mientras haya al menos un estudio EN_ANALISIS, seguimos consultando
+        // cada pocos segundos para reflejar el cambio a COMPLETADO sin que el
+        // usuario tenga que recargar la página manualmente.
+        const hayEnAnalisis = resEstudios.items.some((e) => e.estado === "EN_ANALISIS");
+        if (hayEnAnalisis && !intervalId) {
+          intervalId = setInterval(() => cargarEstudios(false), 5000);
+        } else if (!hayEnAnalisis && intervalId) {
+          clearInterval(intervalId);
+          intervalId = undefined;
+        }
+      } catch (err) {
+        if (mostrarLoading) toast.danger("Error cargando estudios");
+      } finally {
+        if (mostrarLoading) setLoading(false);
+      }
+    };
+
+    cargarEstudios(true);
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [token]);
 
   return (
