@@ -290,9 +290,6 @@ function UsuariosView() {
                       <ListBox.Item id="admin" textValue="Administrador" className="cursor-pointer">
                         Administrador
                       </ListBox.Item>
-                      <ListBox.Item id="radiologo" textValue="Radiólogo" className="cursor-pointer">
-                        Radiólogo
-                      </ListBox.Item>
                     </ListBox>
                   </Select.Popover>
                 </Select>
