@@ -6,10 +6,20 @@
 #                                                                               #
 #    docker compose up -d --build                                               #
 #                                                                               #
-#  Puertos publicados en el host:                                               #
+#  TODOS los servicios están expuestos en el host para poder depurarlos:       #
 #    - http://localhost:8080  → medical-web (SPA + proxy a server/api/imgproxy) #
-#    - localhost:8462         → PostgreSQL (usuario medical / clave medical)    #
-#    - http://localhost:8333  → SeaweedFS (S3)                                  #
+#    - http://localhost:3000  → medical-server (Hono: Better-Auth + proxy)      #
+#    - http://localhost:8000  → medical-api (FastAPI; /docs para el OpenAPI)    #
+#    - http://localhost:8082  → medical-imgproxy                                #
+#    - localhost:8462         → PostgreSQL (medical / medical / medical_db)     #
+#    - localhost:6379         → Redis (broker de Celery)                        #
+#    - http://localhost:8333  → SeaweedFS S3                                    #
+#    - http://localhost:9333  → SeaweedFS master UI                             #
+#    - http://localhost:8888  → SeaweedFS filer                                 #
+#    - http://localhost:8081  → SeaweedFS volume server                         #
+#                                                                               #
+#  Exponerlo todo es cómodo en local pero deja la BD, Redis y S3 abiertos sin   #
+#  credenciales fuertes: no levantes este stack en una red que no controles.    #
 #                                                                               #
 #  ÚNICO valor que debes cambiar: GEMINI_API_KEY (ver más abajo). Sin una clave #
 #  real de https://aistudio.google.com/app/apikey no se generan los informes.   #
@@ -41,7 +51,7 @@ services:
     # Publicado en un puerto alto para poder inspeccionar la BD con psql/DBeaver
     # sin chocar con un PostgreSQL instalado en el host.
     ports:
-      - "8462:5432"
+      - "5432:5432"
 
   medical-server-migrator:
     build:
@@ -90,6 +100,8 @@ services:
       retries: 5
     networks:
       - medical-network
+    ports:
+      - "6379:6379"
 
   medical-seaweedfs:
     image: chrislusf/seaweedfs:latest
@@ -104,7 +116,12 @@ services:
     networks:
       - medical-network
     ports:
-      - "8333:8333"
+      - "8333:8333"   # S3
+      - "9333:9333"   # master
+      - "8888:8888"   # filer
+      # El volume server escucha en 8080 dentro del contenedor; se remapea a
+      # 8081 en el host porque 8080 ya lo ocupa medical-web.
+      - "8081:8080"
 
   medical-api:
     build:
@@ -138,6 +155,8 @@ services:
         condition: service_completed_successfully
     networks:
       - medical-network
+    ports:
+      - "8000:8000"
 
   medical-api-worker:
     build:
@@ -194,6 +213,8 @@ services:
         condition: service_completed_successfully
     networks:
       - medical-network
+    ports:
+      - "3000:3000"
 
   medical-imgproxy:
     image: darthsim/imgproxy:latest
@@ -215,6 +236,9 @@ services:
       - medical-seaweedfs
     networks:
       - medical-network
+    ports:
+      # imgproxy escucha en 8080 dentro del contenedor.
+      - "8082:8080"
 
   # ── Frontend Web (nginx SPA + proxy inverso single-origin) ── ÚNICO público ─
   medical-web:
