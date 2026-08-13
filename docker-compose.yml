@@ -1,35 +1,73 @@
+#################################################################################
+#                              docker-compose.yml                               #
+#                                                                               #
+#  Stack LOCAL y autocontenido. Todas las variables están hardcodeadas: no      #
+#  necesita archivo .env ni la red externa `dokploy-network`.                   #
+#                                                                               #
+#    docker compose up -d --build                                               #
+#                                                                               #
+#  Puertos publicados en el host:                                               #
+#    - http://localhost:8080  → medical-web (SPA + proxy a server/api/imgproxy) #
+#    - localhost:8462         → PostgreSQL (usuario medical / clave medical)    #
+#    - http://localhost:8333  → SeaweedFS (S3)                                  #
+#                                                                               #
+#  ÚNICO valor que debes cambiar: GEMINI_API_KEY (ver más abajo). Sin una clave #
+#  real de https://aistudio.google.com/app/apikey no se generan los informes.   #
+#                                                                               #
+#  Estas credenciales son de desarrollo. NO uses este archivo en producción;    #
+#  para desplegar usa docker-compose.dokploy.yml.                               #
+#################################################################################
+
+name: medical-system
+
 services:
   medical-postgres:
     image: postgres:17-alpine
+    container_name: medical-postgres
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=medical
+      - POSTGRES_PASSWORD=medical
+      - POSTGRES_DB=medical_db
     volumes:
       - postgres_data_second:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U medical -d medical_db"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - medical-network
+    # Publicado en un puerto alto para poder inspeccionar la BD con psql/DBeaver
+    # sin chocar con un PostgreSQL instalado en el host.
     ports:
       - "8462:5432"
-    # Sin puertos publicados y sin dokploy-network: completamente aislado, solo accesible
-    # desde otros contenedores de medical-network.
+
+  medical-server-migrator:
+    build:
+      context: .
+      dockerfile: packages/db/Dockerfile
+    container_name: medical-server-migrator
+    restart: "no"
+    environment:
+      - DATABASE_URL=postgresql://medical:medical@medical-postgres:5432/medical_db
+    depends_on:
+      medical-postgres:
+        condition: service_healthy
+    networks:
+      - medical-network
 
   medical-api-migrator:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    container_name: medical-api-migrator
     restart: "no"
     command: ["sh", "./scripts/migrate.sh"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=postgresql://medical:medical@medical-postgres:5432/medical_db
+      - GEMINI_API_KEY=pega_aqui_tu_api_key_de_gemini
     depends_on:
       medical-postgres:
         condition: service_healthy
@@ -41,36 +79,52 @@ services:
     networks:
       - medical-network
 
-  medical-server-migrator:
-    build:
-      context: .
-      dockerfile: packages/db/Dockerfile
-    restart: "no"
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
-    depends_on:
-      medical-postgres:
-        condition: service_healthy
+  medical-redis:
+    image: redis:7-alpine
+    container_name: medical-redis
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - medical-network
+
+  medical-seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    container_name: medical-seaweedfs
+    restart: always
+    command: "server -s3"
+    environment:
+      - WEED_S3_ALLOW_EMPTY_FOLDER=true
+      - WEED_S3_ALLOW_DELETE_BUCKET_NOT_EMPTY=true
+    volumes:
+      - seaweedfs_data:/data
+    networks:
+      - medical-network
+    ports:
+      - "8333:8333"
 
   medical-api:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    container_name: medical-api
     restart: always
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
-      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://medical:medical@medical-postgres:5432/medical_db
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://medical:medical@medical-postgres:5432/medical_db
       - SERVER_URL=http://medical-server:3000
-      - BETTER_AUTH_URL=${APP_URL}
+      - BETTER_AUTH_URL=http://localhost:8080
       - CELERY_BROKER_URL=redis://medical-redis:6379/0
       - REDIS_URL=redis://medical-redis:6379/0
       - S3_ENDPOINT=http://medical-seaweedfs:8333
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      # ⚠️ Reemplaza por tu clave real de https://aistudio.google.com/app/apikey
+      - GEMINI_API_KEY=pega_aqui_tu_api_key_de_gemini
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
@@ -89,12 +143,13 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    container_name: medical-api-worker
     restart: always
     command: ["uv", "run", "celery", "-A", "src.worker", "worker", "--loglevel=info", "-c", "1"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
-      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://medical:medical@medical-postgres:5432/medical_db
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://medical:medical@medical-postgres:5432/medical_db
       - SERVER_URL=http://medical-server:3000
       - CELERY_BROKER_URL=redis://medical-redis:6379/0
       - REDIS_URL=redis://medical-redis:6379/0
@@ -103,7 +158,8 @@ services:
       - AWS_SECRET_ACCESS_KEY=seaweed
       - YOLO_CONFIG_DIR=/tmp/Ultralytics
       - C_FORCE_ROOT=true
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      # ⚠️ Reemplaza por tu clave real de https://aistudio.google.com/app/apikey
+      - GEMINI_API_KEY=pega_aqui_tu_api_key_de_gemini
     depends_on:
       medical-redis:
         condition: service_healthy
@@ -112,28 +168,21 @@ services:
     networks:
       - medical-network
 
-  medical-redis:
-    image: redis:7-alpine
-    restart: always
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - medical-network
-
   medical-server:
     build:
       context: .
       dockerfile: apps/server/Dockerfile
+    container_name: medical-server
     restart: always
     environment:
+      # BETTER_AUTH_URL/CORS_ORIGIN deben ser URLs válidas: packages/env/src/server.ts
+      # las valida con z.url() al arrancar. Apuntan al puerto publicado por
+      # medical-web, que es el origen desde el que navega el browser.
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@medical-postgres:5432/${POSTGRES_DB}
-      - BETTER_AUTH_URL=${APP_URL}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - CORS_ORIGIN=${APP_URL}
+      - DATABASE_URL=postgresql://medical:medical@medical-postgres:5432/medical_db
+      - BETTER_AUTH_URL=http://localhost:8080
+      - BETTER_AUTH_SECRET=dev_local_better_auth_secret_32_chars_min_no_usar_en_produccion
+      - CORS_ORIGIN=http://localhost:8080
       - PYTHON_API_URL=http://medical-api:8000
       - REDIS_URL=redis://medical-redis:6379/0
     depends_on:
@@ -146,22 +195,9 @@ services:
     networks:
       - medical-network
 
-  medical-seaweedfs:
-    image: chrislusf/seaweedfs:latest
-    restart: always
-    ports:
-      - "8333:8333"
-    command: "server -s3"
-    environment:
-      - WEED_S3_ALLOW_EMPTY_FOLDER=true
-      - WEED_S3_ALLOW_DELETE_BUCKET_NOT_EMPTY=true
-    volumes:
-      - seaweedfs_data:/data
-    networks:
-      - medical-network
-
   medical-imgproxy:
     image: darthsim/imgproxy:latest
+    container_name: medical-imgproxy
     restart: always
     environment:
       - IMGPROXY_USE_S3=true
@@ -170,34 +206,45 @@ services:
       - AWS_ACCESS_KEY_ID=seaweed
       - AWS_SECRET_ACCESS_KEY=seaweed
       - AWS_REGION=us-east-1
-      - IMGPROXY_KEY=${IMGPROXY_KEY}
-      - IMGPROXY_SALT=${IMGPROXY_SALT}
+      # Deben coincidir con VITE_IMGPROXY_KEY/SALT del build de medical-web,
+      # o imgproxy rechazará las URLs firmadas por el frontend con 403.
+      - IMGPROXY_KEY=73757065722d7365637265742d6b6579
+      - IMGPROXY_SALT=73757065722d7365637265742d73616c74
       - IMGPROXY_ENFORCE_SIGNATURE=true
     depends_on:
       - medical-seaweedfs
     networks:
       - medical-network
 
+  # ── Frontend Web (nginx SPA + proxy inverso single-origin) ── ÚNICO público ─
   medical-web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        # Vacías a propósito: el bundle usa rutas relativas al mismo origen y
+        # el nginx de este contenedor proxyea /api -> server e /imgproxy.
+        - VITE_SERVER_URL=
+        - VITE_PYTHON_API_URL=
+        - VITE_IMGPROXY_URL=/imgproxy
+        - VITE_IMGPROXY_KEY=73757065722d7365637265742d6b6579
+        - VITE_IMGPROXY_SALT=73757065722d7365637265742d73616c74
+    container_name: medical-web
     restart: always
+    ports:
+      - "8080:80"
     depends_on:
       - medical-api
       - medical-server
       - medical-imgproxy
     networks:
       - medical-network
-      - dokploy-network
 
 networks:
+  # Red privada: solo los contenedores de este stack se resuelven entre sí.
   medical-network:
     driver: bridge
-  dokploy-network:
-    external: true
 
 volumes:
   seaweedfs_data:
   postgres_data_second:
-  pgadmin_data:

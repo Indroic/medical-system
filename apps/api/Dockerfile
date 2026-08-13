@@ -1,10 +1,15 @@
 FROM python:3.14-slim
 
-# Instalar dependencias del sistema necesarias para OpenCV (YOLO) y utilidades
+# Instalar dependencias del sistema necesarias para OpenCV (YOLO) y utilidades.
+# libglib2.0-0 se renombró a libglib2.0-0t64 en Debian 13 (trixie), la base de
+# python:3.14-slim, por la transición a time_t de 64 bits. Se intenta el nombre
+# nuevo y se cae al antiguo para seguir construyendo también sobre bookworm;
+# sin esto apt-get falla con "Unable to locate package" (exit code 100).
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     libgl1 \
-    libglib2.0-0 \
+    && (apt-get install -y --no-install-recommends libglib2.0-0t64 \
+        || apt-get install -y --no-install-recommends libglib2.0-0) \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar uv
