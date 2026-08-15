@@ -51,18 +51,20 @@ and records who signed it and when.
 
 ## Screenshots
 
-> [!NOTE]
-> Screenshot files go in [`docs/screenshots/`](docs/screenshots/) — see the
-> [capture guide](docs/screenshots/README.md) for the exact filenames and what
-> each shot needs to show.
+All screenshots are of the running stack with live YOLOv8 inference and a live
+LLM report — no mockups. Demo data uses the CC BY 4.0
+[Roboflow 100 `brain-tumor-m2pbp`](https://universe.roboflow.com/roboflow-100/brain-tumor-m2pbp)
+dataset (the one the bundled model was trained on) and fictional patient
+records. Details in the [screenshot notes](docs/screenshots/README.md).
 
 ### The AI viewer — detections drawn over the original study
 
-The core of the product: bounding boxes rescaled from the original scan
-geometry onto the resized image the viewer actually serves, with slice-by-slice
-navigation and the computed risk level.
+The core of the product. The `Meningioma 80%` box is a real detection from the
+bundled model, rescaled from the source scan geometry onto the imgproxy-resized
+image the viewer serves. Risk level and finding counts are computed from the
+detections; the report on the right was drafted by the LLM.
 
-![AI analysis viewer with bounding boxes](docs/screenshots/06-analisis-viewer.png)
+![AI analysis viewer with a real bounding box](docs/screenshots/06-analisis-viewer.png)
 
 ### Dashboard and study triage
 
@@ -77,11 +79,24 @@ navigation and the computed risk level.
 </tr>
 <tr>
 <td width="50%"><img src="docs/screenshots/03-pacientes.png" alt="Patients" /></td>
-<td width="50%"><img src="docs/screenshots/07-informe.png" alt="Generated clinical report" /></td>
+<td width="50%"><img src="docs/screenshots/08-reportes.png" alt="Reports" /></td>
 </tr>
 <tr>
 <td align="center"><em>Patients</em></td>
-<td align="center"><em>LLM-drafted report, editable until approved</em></td>
+<td align="center"><em>Reports — pending until a physician approves</em></td>
+</tr>
+</table>
+
+### The generated report, and role-based access
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/07-informe.png" alt="Generated clinical report" /></td>
+<td width="50%"><img src="docs/screenshots/09-usuarios.png" alt="User management" /></td>
+</tr>
+<tr>
+<td align="center"><em>Report conclusion — note the vertical extension across slices 3–4 and the physician-validation notice the prompt enforces</em></td>
+<td align="center"><em>Admin-only user management</em></td>
 </tr>
 </table>
 

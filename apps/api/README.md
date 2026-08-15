@@ -56,10 +56,10 @@ OpenAPI documentation it generates, and the front-end screen it ultimately power
 </tr>
 </table>
 
-> Screenshot files live in [`docs/screenshots/`](../../docs/screenshots/) —
-> see the [capture guide](../../docs/screenshots/README.md). `11-swagger.png` is
-> the easiest one to produce: run the service and screenshot `http://localhost:8000/docs`
-> with the five routers expanded.
+> Both are captures of the running service — the findings shown are real
+> YOLOv8 detections and the report text was drafted live by the LLM. See the
+> [screenshot notes](../../docs/screenshots/README.md) for the demo dataset and
+> its attribution.
 
 ---
 
